@@ -30,6 +30,7 @@ INSERT INTO a_user VALUES (12, 'trab', 'trab@gmail.com', 'path/to/photo.jpg');
 CREATE TABLE players ( name TEXT,
                        id SERIAL,
                        user_id INTEGER REFERENCES a_user (id),
+                       placeholder BOOLEAN,
                        PRIMARY KEY (id) );
 
 CREATE TABLE matches ( winner INTEGER REFERENCES players (id),
@@ -43,15 +44,16 @@ CREATE VIEW standings AS
         player_wins.name,
         SUM(player_wins.wins) AS wins,
         SUM(player_loses.loses)+SUM(player_wins.wins) AS totalplayed,
-        player_wins.user_id
+        player_wins.user_id,
+        player_wins.placeholder
     FROM
     	-- add up wins for each player (players may appear twice)
         (
         SELECT
-            players.id, players.name, COUNT(matches.winner) AS wins, players.user_id
+            players.id, players.name, COUNT(matches.winner) AS wins, players.user_id, players.placeholder
         FROM
             players
-        LEFT JOIN 
+        LEFT JOIN
         	matches
         ON players.id = matches.winner
         GROUP BY players.id, players.name
@@ -71,7 +73,7 @@ CREATE VIEW standings AS
         )
         AS player_loses
     ON player_wins.id = player_loses.id
-    GROUP BY player_wins.id, player_wins.name, player_wins.user_id
+    GROUP BY player_wins.id, player_wins.name, player_wins.user_id, player_wins.placeholder
     ORDER BY SUM(player_wins.wins), player_wins.user_id DESC;
 
 
@@ -109,10 +111,10 @@ CREATE VIEW pairup AS
 
 	SELECT
 		standings_a.id id1,
-		standings_a.name name1,
+        standings_a.name name1,
 		standings_b.id id2,
-		standings_b.name name2,
-        standings_b.user_id user_id
+        standings_b.name name2,
+        standings_a.user_id user_id
 	FROM
 		odd_standings standings_a, even_standings standings_b
 	WHERE

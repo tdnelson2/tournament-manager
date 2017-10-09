@@ -13,8 +13,25 @@ app.secret_key = 'super_secret_key'
 
 @app.route(root_url+'/', methods=['GET', 'POST'])
 def index():
-    """Serve the client-side application."""
-    return render_template('index.html')
+    if request.method == 'POST':
+        if 'newPlayer' in request.form:
+            id = tournament.registerPlayer(
+                            request.form['newPlayer'])
+            return '{"id": %s}'%id
+        return 'OK'
+    else:
+        """Serve the client-side application."""
+        return render_template('index.html')
+
+@app.route(root_url+'/player-standings/JSON/')
+def standingsJSON():
+    standings = tournament.playerStandings()
+    return json.dumps(dict(standings=standings))
+
+@app.route(root_url+'/swiss-pairing/JSON/')
+def pairingJSON():
+    pairings = tournament.swissPairings()
+    return json.dumps(dict(pairings=pairings))
 
 @app.context_processor
 def utility_processor():

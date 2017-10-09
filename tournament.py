@@ -90,47 +90,51 @@ def countPlayers():
     db.close
     return rows[0]
 
-def registerPlayers(names):
-    """
-    Adds multible players at a time.
-    IF THE COUNT OF THE ARRAY OF NAMES IS 
-    ODD, NONE OF THE PLAYERS WILL BE ADDED
-
-    This is done to ensure the integrity of the 
-    database is maintained
-    """
-    if len(names) % 2 == 0:
-        print str(names)
-        # db = connect()
-        # c = db.cursor()
-        # c.execute("INSERT INTO players(name, user_id) SELECT x FROM unnest(ARRAY[%s]) x ", (str(currentUserID)), names)
-        # # c.execute("INSERT INTO players (name, user_id) values (%s, %s)", (name, str(currentUserID)))
-        # db.commit()
-        # db.close()
-        return True
-    return False
-
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
-    
-    INTERNAL USE ONLY
 
-    USE `registerPlayers` INSTEAD TO ENSURE
-    DATABASE INTEGRITY IS MAINTAINED.
-
-    The database assigns a unique serial id number for the player.  (This
-    should be handled by your SQL database schema, not in your Python code.)
+    The database assigns a unique serial id number for the player.
 
     Args:
       name: the player's full name (need not be unique).
     """
+    p_count = countPlayers()
+    sql = "INSERT INTO players (name, user_id, placeholder) values (%s, %s, %s)"
 
     db = connect()
     c = db.cursor()
-    c.execute("INSERT INTO players (name, user_id) values (%s, %s)", (name, str(currentUserID)))
+
+    # REMOVE PLACEHOLDER ROW
+    # Placeholder rows will be present to maintain
+    # database integrity. It does so by keeping
+    # total row count to an even number thus
+    # preventing players from separate users from
+    # bleeding into each other's pairings.
+    placeholderExists = False
+    e = "FROM players WHERE user_id = %s AND placeholder = true"
+    e = e % str(currentUserID)
+    c.execute("SELECT EXISTS (SELECT 1 "+e+");")
+    isPlaceholder = c.fetchone()[0]
+    # Remove the placeholder if it exists
+    if isPlaceholder == True:
+        c.execute("DELETE "+e+";")
+        placeholderExists = True
+
+    if p_count % 2 == 0 and not placeholderExists:
+        # Add a placeholder if player count will be odd
+        # once the new player has been added. That means
+        # if the count is currently even, it would become
+        # odd if we were to add a player without first
+        # inserting a placeholder row.
+        c.execute(sql+";", ('PLACEHOLDER', str(currentUserID), 'true'))
+
+    # Add the new name
+    c.execute(sql+" RETURNING id;", (name, str(currentUserID), 'false'))
+    id = c.fetchone()[0]
     db.commit()
     db.close()
+    return id
 
 
 def playerStandings():
@@ -140,18 +144,25 @@ def playerStandings():
     tied for first place if there is currently a tie.
 
     Returns:
-      A list of tuples, each of which contains (id, name, wins, matches):
+        A list of dictionaries, each of which
+        contains {id, name, wins, matches, user_id}:
         id: the player's unique id (assigned by the database)
         name: the player's full name (as registered)
         wins: the number of matches the player has won
         matches: the number of matches the player has played
+        user_id: unique id of the user who owns this tournament
     """
     db = connect()
     c = db.cursor()
     c.execute("SELECT * FROM standings WHERE user_id = %s", str(currentUserID))
     rows = c.fetchall()
     db.close()
-    return rows
+    # Convert `Decimal('[VALUE]')` to integer
+    # r = []
+    r = [dict(id=a, name=b, wins=int(c), matches=int(d),
+              user_id=e)
+         for a,b,c,d,e,f in rows if f == False]
+    return r
 
 
 def reportMatch(winner, loser):
@@ -187,15 +198,13 @@ def swissPairings():
     to him or her in the standings.
 
     Returns:
-      A list of tuples, each of which contains (id1, name1, id2, name2)
+      A list of dictionaries, each of which contains {id1, id2}
         id1: the first player's unique id
-        name1: the first player's name
         id2: the second player's unique id
-        name2: the second player's name
     """
     db = connect()
     c = db.cursor()
     c.execute("SELECT * FROM pairup WHERE user_id = %s;", str(currentUserID))
-    rows = c.fetchall()
+    rows = list(reversed( c.fetchall() ))
     db.close()
-    return list(reversed(rows))
+    return [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d,e in rows]

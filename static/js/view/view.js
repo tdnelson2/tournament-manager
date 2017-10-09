@@ -1,14 +1,12 @@
 var ViewModel = {
 	View: function() {
 
-		// WebSocket for event based communication with server
-		var socket = io.connect('http://' + document.domain + ':' + location.port);
-
 		var self = this;
 
 		self.players = ko.observableArray([]);
 		self.playerInput = ko.observable("");
 		self.shouldShowPairedPlayers = ko.observable(false);
+		self.pairedPlayers = ko.observableArray([]);
 
 		self.shouldShowPlayersAdded = function() {
 			if(self.players().length > 0 && !self.shouldShowPairedPlayers()) {
@@ -22,21 +20,54 @@ var ViewModel = {
 			if(player != "") {
 				var data = { name:player, wins:0, totalPlayed:0 };
 				self.players.push( new Model.Player(data) );
+				var playerObj = self.players()[self.players().length - 1];
+
+				var data = { 'newPlayer': player };
+				$.post('/', data, function(returnedData) {
+					var playerID = JSON.parse(returnedData);
+					playerObj.id = playerID.id;
+				});
 				self.playerInput("");
 			}
 		};
 
 		self.pairUp = function() {
 			if(self.players().length % 2 === 0) {
-				players = self.players().map(function(p) { return p.name(); });
-				socket.emit('new players', { data: players } );
+				$.ajax({
+					url: '/swiss-pairing/JSON/'
+				}).done(function(result) {
+					var r = JSON.parse(result);
+					// Clear the current parings KO array
+					self.pairedPlayers([]);
+					r.parings.forEach(function(x) {
+						for (var i = 0; i < self.players().length; i++) {
+							var player = self.players()[i];
+							if(player().id === x.id) {self.pairedPlayers.push(player);}
+						};
+					});
+					self.shouldShowPairedPlayers(true);
+					console.log(jresult);
+				});
 			} else {
 				// Flash: 'Warning you must have an even number of players'
 			}
+		};
+
+		self.reportWinner = function(winner) {
+			// do stuff
 		}
 
-		socket.on('new players', function(data) {
-			console.log(data);
-		});
+		self.init = function() {
+			$.ajax({
+				url: '/player-standings/JSON/'
+			}).done(function(result) {
+				var jresult = JSON.parse(result);
+				jresult.standings.forEach(function(player) {
+					self.players.push( new Model.Player(player) );
+				});
+			});
+		};
+
+		self.init();
 	}
 }

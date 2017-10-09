@@ -1,1 +1,1 @@
-ko.applyBindings(new ViewModel.View())
+ko.applyBindings(new MainViewModel());

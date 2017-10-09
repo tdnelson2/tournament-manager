@@ -8,56 +8,24 @@
 <body>
 	<div class="container">
 		<div class="col-xs-10 col-sm-6 col-md-6 col-lg-6 col-xs-offset-1 col-sm-offset-3 col-md-offset-3 col-lg-offset-3">
-
-		    <div class="row" data-bind="visible: !shouldShowPairedPlayers()">
-		        <form>
-		          <div class="form-group">
-		            <label for="title">Add Players</label>
-		            <input type="text" class="form-control" id="title" placeholder="" data-bind="value: playerInput">
-		          </div>
-		          <button type="submit" class="btn btn-primary" data-bind="click: addPlayer">Add</button>
-		        </form>
-		      </div> <!-- new player input -->
-
-		    <div class="row" data-bind="visible: shouldShowPlayersAdded() || shouldShowPairedPlayers()">
-				<h4 data-bind="text: shouldShowPairedPlayers() ? 'Matches' : 'Players' "></h4>
-				<i data-bind="visible: shouldShowPairedPlayers()">Click on a player to report winner</i>
-		    </div>
-
-		    <div data-bind="visible: shouldShowPlayersAdded()">
-				<div class="row" data-bind="visible: shouldShowPlayersAdded">
-					<div class="well well-lg" data-bind="foreach: players">
-				        <div class="list-group">
-							<a href="" class="list-group-item list-group-item-action category-items" data-bind="text: name"></a>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<button type="submit" class="btn btn-primary" data-bind="click: pairUp">Pair Up</button>
-				</div>
-			</div> <!-- add players view -->
-
-			<div class="row" data-bind="visible: shouldShowPairedPlayers()">
-				<div class="well well-lg">
-					<div class="well well-lg inner-well">
-						<div class="pair"">
-					        <div class="list-group player-paired">
-								<a href="#" class="list-group-item list-group-item-action category-items"></a>
-							</div>
-							<div class="paired-spacer"></div>
-					        <div class="list-group player-paired">
-								<a href="#" class="list-group-item list-group-item-action category-items"></a>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> <!-- players paired up view -->
+			<div id="add-players"></div>
+			<div id="pairings"></div>
+			<div id="standings"></div>
 		</div> <!-- columns -->
 	</div> <!-- container -->
+
 
 	<script src="{{ links_root() }}static/js/libs/jquery.min.js"></script>
 	<script src="{{ links_root() }}static/js/libs/knockout-3.2.0.js"></script>
 	<script src="{{ links_root() }}static/js/model/model.js"></script>
 	<script src="{{ links_root() }}static/js/view/view.js"></script>
+	<script src="{{ links_root() }}static/js/app.js"></script>
+	<script src="{{ links_root() }}static/js/libs/jquery.min.js"></script>
+	<script src="{{ links_root() }}static/js/libs/knockout-3.2.0.js"></script>
+	<script src="{{ links_root() }}static/js/model/model.js"></script>
+	<script src="{{ links_root() }}static/js/view/add-players.js"></script>
+	<script src="{{ links_root() }}static/js/view/pairings.js"></script>
+	<script src="{{ links_root() }}static/js/view/standings.js"></script>
+	<script src="{{ links_root() }}static/js/view/main-view-model.js"></script>
 	<script src="{{ links_root() }}static/js/app.js"></script>
 </body>
