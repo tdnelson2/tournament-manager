@@ -5,6 +5,7 @@ var Model = {
 		this.name = ko.observable(data.name);
 		this.wins = ko.observable(data.wins);
 		this.matches = ko.observable(data.matches);
+		this.isSelected = ko.observable(false);
 	},
 
 	serialize: function(player) {

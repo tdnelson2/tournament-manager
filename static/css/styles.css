@@ -58,3 +58,7 @@ body {
 .player-paired {
     width: 48%;
 }
+
+.disabled {
+    cursor: pointer !important;
+}

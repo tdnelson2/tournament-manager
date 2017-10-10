@@ -157,20 +157,22 @@ def playerStandings():
     c.execute("SELECT * FROM standings WHERE user_id = %s", str(currentUserID))
     rows = c.fetchall()
     db.close()
+    return processStandings(rows)
+
+def processStandings(standings):
     # Convert `Decimal('[VALUE]')` to integer
-    # r = []
-    r = [dict(id=a, name=b, wins=int(c), matches=int(d),
-              user_id=e)
-         for a,b,c,d,e,f in rows if f == False]
-    return r
+    return [dict(id=a, name=b, wins=int(c), matches=int(d), user_id=e)
+            for a,b,c,d,e,f in standings if f == False]
 
 
-def reportMatch(winner, loser):
+def reportMatch(winner, loser, should_replace=False, should_clear=False):
     """Records the outcome of a single match between two players.
 
     Args:
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
+      should_replace: replace the last match report
+      should_clear: remove the pairing
     """
     try:
         int(winner)
@@ -184,9 +186,19 @@ def reportMatch(winner, loser):
     l = str(loser)
     db = connect()
     c = db.cursor()
-    c.execute("INSERT INTO matches values (%s, %s)", (w,l))
+    if should_replace:
+        c.execute("DELETE FROM matches WHERE winner = %s AND loser = %s", (l,w))
+    if should_clear:
+        c.execute("DELETE FROM matches WHERE winner = %s AND loser = %s", (w,l))
+    else:
+        c.execute("INSERT INTO matches values (%s, %s)", (w,l))
     db.commit()
+    c.execute("SELECT * FROM standings WHERE id = %s;", (str(winner),))
+    w_standings = c.fetchone()
+    c.execute("SELECT * FROM standings WHERE id = %s;", (str(loser),))
+    l_standings = c.fetchone()
     db.close()
+    return processStandings([w_standings, l_standings])
 
 
 def swissPairings():

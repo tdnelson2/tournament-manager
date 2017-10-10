@@ -18,12 +18,25 @@ def index():
             id = tournament.registerPlayer(
                             request.form['newPlayer'])
             return '{"id": %s}'%id
+        elif 'reportResult' in request.form:
+            r = request.form['reportResult'].split(',')
+            print r
+            try:
+                winner = int(r[0])
+                loser = int(r[1])
+                should_replace = bool(int(r[2]))
+                should_clear = bool(int(r[3]))
+                s = tournament.reportMatch(winner, loser, should_replace, should_clear)
+                return json.dumps(dict(standings=s))
+            except:
+                print 'Server error. Result could not be recorded'
         return 'OK'
     else:
         """Serve the client-side application."""
         return render_template('index.html')
 
-@app.route(root_url+'/player-standings/JSON/')
+
+@app.route(root_url+'/standings/JSON/')
 def standingsJSON():
     standings = tournament.playerStandings()
     return json.dumps(dict(standings=standings))
