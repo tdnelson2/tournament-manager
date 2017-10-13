@@ -101,10 +101,10 @@ var PairingsView = {
                     var r = JSON.parse(returnedData);
 
                     // Synchronize local model with server data.
-                    winner.wins(r.standings[0].wins);
-                    winner.matches(r.standings[0].matches);
-                    loser.wins(r.standings[1].wins);
-                    loser.matches(r.standings[1].matches);
+                    winner.wins(r.winner.wins);
+                    winner.matches(r.winner.matches);
+                    loser.wins(r.loser.wins);
+                    loser.matches(r.loser.matches);
                     console.log(winner.name()+', the winner, has '+winner.wins()+' wins.');
                     console.log(winner.name()+', the winner, has played '+winner.matches()+' matches.');
                     console.log(loser.name()+', the loser, has '+loser.wins()+'  wins.');

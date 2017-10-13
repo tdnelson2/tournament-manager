@@ -34,7 +34,17 @@ CREATE TABLE players ( name TEXT,
                        PRIMARY KEY (id) );
 
 CREATE TABLE matches ( winner INTEGER REFERENCES players (id),
-					   loser INTEGER REFERENCES players (id) );
+					   loser INTEGER REFERENCES players (id),
+                       round_is_complete BOOLEAN );
+
+
+CREATE VIEW matches_from_completed_rounds AS
+    SELECT
+        *
+    FROM
+        matches
+    WHERE
+        round_is_complete = true;
 
 
 -- show how each player is doing sorted by number of games played and wins
@@ -50,12 +60,12 @@ CREATE VIEW standings AS
     	-- add up wins for each player (players may appear twice)
         (
         SELECT
-            players.id, players.name, COUNT(matches.winner) AS wins, players.user_id, players.placeholder
+            players.id, players.name, COUNT(matches_from_completed_rounds.winner) AS wins, players.user_id, players.placeholder
         FROM
             players
         LEFT JOIN
-        	matches
-        ON players.id = matches.winner
+        	matches_from_completed_rounds
+        ON players.id = matches_from_completed_rounds.winner
         GROUP BY players.id, players.name
         )
         AS player_wins
@@ -63,12 +73,12 @@ CREATE VIEW standings AS
     	-- add up loses for each player
         (
         SELECT
-            players.id, COUNT(matches.loser) AS loses
+            players.id, COUNT(matches_from_completed_rounds.loser) AS loses
         FROM
             players
         LEFT JOIN
-            matches
-        ON players.id = matches.loser
+            matches_from_completed_rounds
+        ON players.id = matches_from_completed_rounds.loser
         GROUP BY players.id
         )
         AS player_loses

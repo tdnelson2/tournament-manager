@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 import psycopg2
 import json
 import tournament
+import sys
 
 from my_path_data import root_url
 from my_path_data import html_index_root
@@ -27,8 +28,10 @@ def index():
                 should_replace = bool(int(r[2]))
                 should_clear = bool(int(r[3]))
                 s = tournament.reportMatch(winner, loser, should_replace, should_clear)
-                return json.dumps(dict(standings=s))
+                print s
+                return json.dumps(standings=[s])
             except:
+                print sys.exc_info()[0]
                 print 'Server error. Result could not be recorded'
         return 'OK'
     else:
@@ -45,6 +48,14 @@ def standingsJSON():
 def pairingJSON():
     pairings = tournament.swissPairings()
     return json.dumps(dict(pairings=pairings))
+
+
+@app.route(root_url+'/current-state/JSON/')
+def roundJSON():
+    standings = tournament.fullStandings()
+    pairings = tournament.currentPairings()
+    return json.dumps(dict(standings=standings, pairings=pairings))
+
 
 @app.context_processor
 def utility_processor():
