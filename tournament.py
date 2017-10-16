@@ -4,7 +4,9 @@
 #
 
 import psycopg2
+import math
 currentUserID = 1;
+
 
 
 def connect():
@@ -139,7 +141,7 @@ def registerPlayer(name):
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
-    This list DOES NOT INCLUDE matches from rounds 
+    This list DOES NOT INCLUDE matches from rounds
     where `round_is_complete` is `False`.
 
     The first entry in the list should be the player in first place, or a player
@@ -183,7 +185,7 @@ def fullStandings():
     uncounted_wins = [id1 for id1, id2 in uncounted]
     uncounted_loses = [id2 for id1, id2 in uncounted]
 
-    # [dict(id=a, name=b, wins=int(c), matches=int(d), user_id=e)
+    # [dict(id=a, name=b, wins=int(c), matches=int(d), user_id=e)]
 
     standings = playerStandings()
     for s in standings:
@@ -226,18 +228,18 @@ def reportMatch(winner, loser, should_replace=False, should_clear=False):
     c = db.cursor()
     if should_replace:
         c.execute("DELETE FROM matches \
-                   WHERE winner = %s AND loser = %s", (l,w))
+                   WHERE winner = %s AND loser = %s;", (l,w))
     if should_clear:
         c.execute("DELETE FROM matches \
-                   WHERE winner = %s AND loser = %s", (w,l))
+                   WHERE winner = %s AND loser = %s;", (w,l))
     else:
         c.execute("INSERT INTO matches \
-                   values (%s, %s, %s, %s)", (w,l, str(currentUserID), 'true'))
+                   values (%s, %s, false);", (w,l))
     db.commit()
     c.execute("SELECT * FROM standings WHERE id = %s;", (str(winner),))
-    w_standings = processStandings(c.fetchone())
+    w_standings = processStandings([c.fetchone()])[0]
     c.execute("SELECT * FROM standings WHERE id = %s;", (str(loser),))
-    l_standings = processStandings(c.fetchone())
+    l_standings = processStandings([c.fetchone()])[0]
 
     # Since standings only reflect matches AFTER the round
     # is complete, we need to adjust accordingly.
@@ -245,9 +247,12 @@ def reportMatch(winner, loser, should_replace=False, should_clear=False):
         w_standings['wins'] += 1
         w_standings['matches'] += 1
         l_standings['matches'] += 1
-    return dict(winner=w_standings, loser=l_standings)
-    db.close()
 
+    # Keep front-end up-to date where we are in the tournament.
+    prog = progress(c)
+
+    db.close()
+    return dict(winner=w_standings, loser=l_standings, progress=prog)
 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -266,57 +271,31 @@ def swissPairings():
     c = db.cursor()
     c.execute("SELECT * FROM pairup WHERE user_id = %s;", str(currentUserID))
     rows = list(reversed( c.fetchall() ))
+
     db.close()
     return [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d,e in rows]
 
 
     return processStandings([w_standings, l_standings])
 
-def currentPairings():
-    """Same as `swissPairings()` except...
-    Returns pairings from rounds that a currently in progress INCLUDING
-    winners that have been selected in previous user sessions
-    Useful for instances such as when a user ends their session mid-way through
-    a round. 
+def completedMatches():
+    """Shows the state of the current round for mataches in which
+    winner have been chosen.
 
     Returns:
-      A list of lists, each of which contains [id1, id2, match_played]
-        id1: the first player's unique id (the winner if match_played is true)
-        id2: the second player's unique id (the loser if match_played is true)
-        match_played: boolean indicating whether a winner has been selected
+      A list of lists, each of which contains [winner, loser]
+        winner: the match winner
+        loser: the match loser
     """
     db = connect()
     c = db.cursor()
-    c.execute("SELECT id1, id2 FROM pairup \
-               WHERE user_id = %s;", str(currentUserID))
-    current_round = c.fetchall()
-    print "current round "+str(current_round)
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
                WHERE user_id = %s \
                AND round_is_complete = false;", str(currentUserID))
-    current_results = c.fetchall()
-    print "current matches "+str(current_results)
+    matches_completed = c.fetchall()
     db.close()
-    pairs = []
-    for x in current_round:
-        # Check if paring in either or is present in `current_results`
-        # If it is, a winner has already a been chosen
-        a = (x[0],x[1])
-        b = (x[1],x[0])
-        if a in current_results:
-            # Winner reported.
-            a = a + (True,)
-            pairs.append(a)
-        elif b in current_results:
-            # Winner reported.
-            b = b + (True,)
-            pairs.append(b)
-        else:
-            # Match winner has not been reported.
-            a = a + (False,)
-            pairs.append(a)
-    return pairs
+    return [dict(winner=a, loser=b) for a,b in matches_completed]
 
 
 def markRoundComplete():
@@ -330,8 +309,49 @@ def markRoundComplete():
                FROM players WHERE matches.winner = players.id \
                AND players.user_id = %s \
                AND matches.round_is_complete = false;", str(currentUserID))
-    c.commit()
+    db.commit()
     db.close()
+
+def progress(c=None):
+    """Returns data on tournament progress including number of rounds,
+    which round we're currently in, and number of matches.
+
+    Args:
+      c: optionally db cursor can be provided for efficency if another
+         function in `tournament` is calling `progress`.
+    Returns:
+      `total_matches`: number of matches to crown a champion.
+      `match_count`: current number of matches played.
+      `player_count`: total number of players.
+      `total_rounds`: number of rounds to crown a champion.
+      `this_round`: current round being played.
+    """
+    isNewSession = True if c == None else False
+    if isNewSession:
+        db = connect()
+        c = db.cursor()
+    c.execute("SELECT COUNT(*) FROM players \
+               WHERE user_id = %s;", str(currentUserID))
+    player_count = c.fetchone()[0]
+    if player_count > 0:
+        c.execute("SELECT COUNT(*) FROM matches \
+                   INNER JOIN players ON (matches.winner = players.id) \
+                   WHERE user_id = %s \
+                   AND round_is_complete = true;", str(currentUserID))
+        match_count = c.fetchone()[0]
+        total_rounds = int(round(math.log(player_count,2)))
+        total_matches = (player_count/2) * total_rounds
+        this_round = int((float(match_count)/float(total_matches))*float(total_rounds))+1
+    else:
+        match_count=total_rounds=total_matches=this_round = 0
+    if isNewSession:
+        db.close()
+
+    return dict(player_count=player_count,
+                match_count=match_count,
+                total_matches=total_matches,
+                total_rounds=total_rounds,
+                this_round=this_round)
 
 
 

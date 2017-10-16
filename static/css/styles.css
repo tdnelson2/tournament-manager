@@ -62,3 +62,36 @@ body {
 .disabled {
     cursor: pointer !important;
 }
+
+.next-round {
+    color: #337ab7;
+    background-color: #fff !important;
+    border-width: 2px;
+    border-color: #337ab7;
+    font-weight: 500;
+}
+
+.next-round:hover {
+    color: #fff;
+    background-color: #337ab7 !important;
+    border-width: 2px;
+    border-color: #337ab7;
+    font-weight: 500;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.standings-btn {
+/*    margin-bottom: 5px;*/
+    /*padding-bottom: 5px;*/
+    position: absolute;
+    top: 20px;
+    left: 93%;
+    color: #337ab7;
+}
+
+.pairs {
+    margin-top: 5px;
+}

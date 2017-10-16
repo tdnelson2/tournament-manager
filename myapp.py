@@ -3,7 +3,6 @@ from flask import Flask, render_template, request
 import psycopg2
 import json
 import tournament
-import sys
 
 from my_path_data import root_url
 from my_path_data import html_index_root
@@ -15,6 +14,7 @@ app.secret_key = 'super_secret_key'
 @app.route(root_url+'/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        print request.form
         if 'newPlayer' in request.form:
             id = tournament.registerPlayer(
                             request.form['newPlayer'])
@@ -27,13 +27,16 @@ def index():
                 loser = int(r[1])
                 should_replace = bool(int(r[2]))
                 should_clear = bool(int(r[3]))
-                s = tournament.reportMatch(winner, loser, should_replace, should_clear)
-                print s
-                return json.dumps(standings=[s])
+                s = tournament.reportMatch(winner, loser,
+                                           should_replace, should_clear)
+                return json.dumps(s)
             except:
-                print sys.exc_info()[0]
                 print 'Server error. Result could not be recorded'
-        return 'OK'
+        elif 'roundComplete' in request.form:
+            tournament.markRoundComplete()
+            p = tournament.progress()
+            return json.dumps(p)
+        return 'ERR'
     else:
         """Serve the client-side application."""
         return render_template('index.html')
@@ -47,14 +50,18 @@ def standingsJSON():
 @app.route(root_url+'/swiss-pairing/JSON/')
 def pairingJSON():
     pairings = tournament.swissPairings()
-    return json.dumps(dict(pairings=pairings))
+    progress = tournament.progress()
+    return json.dumps(dict(pairings=pairings, progress=progress))
 
 
 @app.route(root_url+'/current-state/JSON/')
 def roundJSON():
     standings = tournament.fullStandings()
-    pairings = tournament.currentPairings()
-    return json.dumps(dict(standings=standings, pairings=pairings))
+    completed_matches = tournament.completedMatches()
+    progress = tournament.progress()
+    return json.dumps(dict(standings=standings,
+                           completed_matches=completed_matches,
+                           progress=progress))
 
 
 @app.context_processor

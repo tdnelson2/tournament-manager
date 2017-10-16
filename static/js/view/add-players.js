@@ -72,7 +72,7 @@ var AddPlayersView = {
 				// Notify: MainViewModel to show PairingsViewModel
 				NOTIFIER.notifySubscribers("pairings", "showPairingsView");
 			} else {
-				// Flash: 'You must have an even number of players to proceed'
+				alert('You must have an even number of players to proceed');
 			}
 		};
     }

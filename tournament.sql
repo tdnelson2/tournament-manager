@@ -37,6 +37,20 @@ CREATE TABLE matches ( winner INTEGER REFERENCES players (id),
 					   loser INTEGER REFERENCES players (id),
                        round_is_complete BOOLEAN );
 
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Red',1,false);
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Blue',1,false);
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Green',1,false);
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Black',1,false);
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Orange',2,false);
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Pink',2,false);
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Yellow',2,false);
+-- INSERT INTO players (name, user_id, placeholder) VALUES ('Purple',2,false);
+
+-- INSERT INTO matches VALUES (6,7,false);
+-- INSERT INTO matches VALUES (5,8,false);
+-- INSERT INTO matches VALUES (4,3,false);
+-- INSERT INTO matches VALUES (2,1,false);
+
 
 CREATE VIEW matches_from_completed_rounds AS
     SELECT

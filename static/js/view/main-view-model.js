@@ -2,15 +2,17 @@ var MainViewModel = function() {
     // Primary view model from which all others are initiated
     var self = this;
     self.players = ko.observableArray([]);
+    self.progress = ko.observable();
 
 
 	NOTIFIER.subscribe(function() {
-		PairingsView.populate(self.players);
+		PairingsView.populate(self.players, self.progress);
 	}, self, "showPairingsView");
 
 
 	NOTIFIER.subscribe(function() {
-		StandingsView.populate(self.players);
+        console.log('show standings view');
+		StandingsView.populate(self.players, self.progress);
 	}, self, "showStandingsView");
 
     self.init = function() {
@@ -19,15 +21,22 @@ var MainViewModel = function() {
             url: '/current-state/JSON/'
         }).done(function(result) {
             var r = JSON.parse(result);
-            console.log(r.standings.length);
 
-            // Collect data on current state.
-            var roundIsInProgress = false;
-            for (var i = 0; i < r.pairings.length; i++) {
-            	var x = r.pairings[i];
-            	if (x[2] === true) { roundIsInProgress = true; break; }
-            }
+            // `r.standings` shows each player's win/loss record
+            // including matches from if a round is not yet concluded.
+            // `r.completed_matches` contains completed matches from
+            // the current round if one is in progress.
+            // `r.progress` contains:
+                // `total_matches`: number of matches to crown a champion.
+                // `match_count`: current number of matches played.
+                // `player_count`: total number of players.
+                // `total_rounds`: number of rounds to crown a champion.
+                // `this_round`: current round being played.
 
+            self.progress( new Model.Progress(r.progress) );
+
+            // We know a round is in progress if completed_matches is not empty
+            var roundIsInProgress = r.completed_matches.length > 0;
 
             // Load data from server into local model.
             var matchesPlayed = false;
@@ -40,18 +49,23 @@ var MainViewModel = function() {
 
 	        // Determine which view should display.
 
+            // If tournament is complete, show results
+            if(r.progress.this_round > r.progress.total_rounds) {
+                console.log('show results');
+                StandingsView.populate(self.players, self.progress);
+            }
 	        // If standings is empty, start new session
 	        // i.e. show `AddPlayersView`.
-	        if(r.standings.length === 0) {
+	        else if(r.standings.length === 0) {
 	        	console.log('should start new session');
 	        	AddPlayersView.populate(self.players);
 	        }
 
-	        // If pairings is empty, but matches have been played,
+	        // If a round is not in progress, but matches have been played,
 	        // start new round by showing the `PairingsView`.
 	        else if(!roundIsInProgress && matchesPlayed) {
 	        	console.log('matches previously played but this is a new round');
-	        	PairingsView.populate(self.players);
+	        	PairingsView.populate(self.players, self.progress);
 	        }
 
 
@@ -64,33 +78,12 @@ var MainViewModel = function() {
 
 	        // If matches have been played, but user has not advanced
 	        // to the next round or some results remain to be reported,
-	        // show `PairingsView` and include results from previously 
+	        // show `PairingsView` and include results from previously
 	        // reported matches.
 	        else if(roundIsInProgress) {
 	        	console.log('restore uncompleted round');
+                PairingsView.populate(self.players, self.progress, r.completed_matches);
 	        }
-
-	        // TODO: determine maximun number of rounds and display view accordingly
-
-
-
-
-	     //    var noMatchesPlayed = true;
-	     //    var previousPlayersPlayed = 0;
-	     //    var roundIsInProgress = false;
-	     //    for (var i = 0; i < self.players().length; i++) {
-	     //    	var played = self.players()[i].matches();
-	     //    	if(played > 0) {noMatchesPlayed = false;}
-	     //    	if(i !== 0 && played !== previousPlayersPlayed) {roundIsInProgress = true; break;}
-	     //    }
-
-	     //    // If matches are in progress, show `PairingsView`.
-	     //    if(roundIsInProgress) {console.log('round in progress');}
-
-	     //    // If is first time or 'Pair' button was not pressed, display `AddPlayerView`.
-	    	// else if(noMatchesPlayed) { AddPlayersView.populate(self.players); }
-
-	     //    // If maximum rounds have been reached, show `ResultsView`.
         });
     };
 
