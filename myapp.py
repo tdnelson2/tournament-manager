@@ -57,11 +57,16 @@ def pairingJSON():
 @app.route(root_url+'/current-state/JSON/')
 def roundJSON():
     standings = tournament.fullStandings()
+    print standings
     completed_matches = tournament.completedMatches()
     progress = tournament.progress()
     return json.dumps(dict(standings=standings,
                            completed_matches=completed_matches,
                            progress=progress))
+
+@app.route(root_url+'/progress/JSON/')
+def progressJSON():
+    return json.dumps(dict(progress=tournament.progress()))
 
 
 @app.context_processor

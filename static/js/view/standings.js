@@ -1,47 +1,47 @@
 var StandingsView = {
-    rowHTML: ''+
-             '<tr>'+
-               '<td>%PLAYER%</td>'+
-               '<td>%WINS%</td>'+
-               '<td>%LOSES%</td>'+
-               '<td>%MATCHES%</td>'+
-             '</tr>',
     tableHTML: ''+
-          '<table class="table">'+
-            '<thead>'+
-              '<tr>'+
-                '<th>Player</th>'+
-                '<th>Wins</th>'+
-                '<th>Loses</th>'+
-                '<th>Matches</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody>'+
-               '%ROWS%'+
-            '</tbody>'+
-          '</table>',
+      '<!-- Modal -->'+
+      '<div class="modal fade" id="myModal" role="dialog">'+
+        '<div class="modal-dialog">'+
+          '<!-- Modal content-->'+
+          '<div class="modal-content">'+
+            '<div class="modal-header">'+
+              '<button type="button" class="close" data-dismiss="modal">&times;</button>'+
+              '<!-- <h4 class="modal-title"></h4> -->'+
+              '<h4 class="modal-title" data-bind="text: progress().this_round() > progress().total_rounds() ? \'Results\' : \'Standings\'"></h4>'+
+            '</div>'+
+            '<div class="modal-body">'+
+              '<table class="table">'+
+                '<thead>'+
+                  '<tr>'+
+                    '<th>Player</th>'+
+                    '<th>Wins</th>'+
+                    '<th>Loses</th>'+
+                    '<th>Matches</th>'+
+                  '</tr>'+
+                '</thead>'+
+                '<tbody data-bind="foreach: players">'+
+                   '<tr>'+
+                     '<td data-bind="text: name"></td>'+
+                     '<td data-bind="text: wins"></td>'+
+                     '<td data-bind="text: loses"></td>'+
+                     '<td data-bind="text: matches"></td>'+
+                   '</tr>'+
+                '</tbody>'+
+              '</table>'+
+            '</div>'+
+            '<div class="modal-footer">'+
+              '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+              // '<button type="button" class="btn btn-default" data-dismiss="modal" data-bind="click: standingsModalClose">Close</button>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>',
 
     populate: function(model, progress) {
-        // Add HTML to the DOM and init view
-        var buildRow = function(player) {
-
-            // Returns a row using `rowHTML` as template.
-            var h = StandingsView.rowHTML.slice();
-
-            var r = [[/%PLAYER%/g, player.name],
-                     [/%WINS%/g, player.wins],
-                     [/%LOSES%/g, player.loses],
-                     [/%MATCHES%/g, player.matches]];
-
-            for (var i = 0; i < r.length; i++) {
-                x = r[i];
-                var h = h.replace(x[0], x[1]);
-            };
-            return h;
-        }
 
         // Make a copy of the model.
-        var players = [];
+        var players = ko.observableArray([]);
         model().map(function(x) {
             var p = {
                 name: x.name(),
@@ -49,7 +49,7 @@ var StandingsView = {
                 loses: x.matches() - x.wins(),
                 matches: x.matches()
             };
-            players.push(p);
+            players().push(p);
         });
 
         // Sort the players by wins/matches played.
@@ -61,29 +61,35 @@ var StandingsView = {
             });
         })
 
-        // Build all rows in the table.
-        var rowsHTML = '';
-        for (var i = 0; i < players.length; i++) {
-            rowsHTML += buildRow(players[i]);
-        }
-
         // Insert into DOM
         var $standings = document.getElementById('standings');
         $standings.innerHTML = ''
         $standings.innerHTML = '<div id="standings-bindings"></div>';
         var $bindings = document.getElementById('standings-bindings');
-        // var header = progress().match_count() == progress().total_matches() ? 'Standings' : 'Results';
-        var tableHTML = StandingsView.tableHTML.slice().replace('%ROWS%', rowsHTML);
-        // var tableHTML = tableHTML.replace('%HEADER%', header);
+        var tableHTML = StandingsView.tableHTML.slice();
         $bindings.innerHTML = tableHTML;
 
+        $('#myModal').modal('show');
+
         // Init binding
-        ko.applyBindings( new StandingsView.View(), $bindings );
+        ko.applyBindings( new StandingsView.View(players, progress), $bindings );
     },
 
-    View: function() {
-        this.exit = function() {
-            console.log('play again clicked');
-        }
+    View: function(players, progress) {
+      var self = this;
+      self.players = players;
+      self.progress = progress;
+
+      self.standingsModalClose = function() {
+        console.log('close button clicked');
+      };
+
+      
+      $.ajax({
+        url: '/progress/JSON/'
+      }).done(function(result) {
+        var r = JSON.parse(result);
+        self.progress().update(r.progress);
+      });
     }
 }

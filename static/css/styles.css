@@ -2,10 +2,15 @@
     font-size: 20pt;
 }
 
-body {
+/*body {
+    max-width: 100%;
+    overflow: hidden !important;
+}*/
+
+/*body {
     max-width: 1200px;
     margin: auto;
-}
+}*/
 
 .list-group-item {
     font-size: 15pt;

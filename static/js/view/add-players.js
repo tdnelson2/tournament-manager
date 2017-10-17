@@ -50,7 +50,7 @@ var AddPlayersView = {
 		self.addPlayer = function() {
 			var player = self.playerInput();
 			if(player != "") {
-				var data = { name:player, wins:0, totalPlayed:0 };
+				var data = { name:player, wins:0, matches:0 };
 				self.players.push( new Model.Player(data) );
 				var playerObj = self.players()[self.players().length - 1];
 

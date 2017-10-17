@@ -9,6 +9,11 @@ var MainViewModel = function() {
 		PairingsView.populate(self.players, self.progress);
 	}, self, "showPairingsView");
 
+    NOTIFIER.subscribe(function() {
+        console.log('next round view messge recieved');
+        NextRoundView.populate(self.progress);
+    }, self, "showNextRoundView");
+
 
 	NOTIFIER.subscribe(function() {
         console.log('show standings view');
@@ -30,7 +35,7 @@ var MainViewModel = function() {
                 // `total_matches`: number of matches to crown a champion.
                 // `match_count`: current number of matches played.
                 // `player_count`: total number of players.
-                // `total_rounds`: number of rounds to crown a champion.
+                // `total_rounds`: number of rounds needed to crown a champion.
                 // `this_round`: current round being played.
 
             self.progress( new Model.Progress(r.progress) );
@@ -44,6 +49,7 @@ var MainViewModel = function() {
             	// [dict(id=a, name=b, wins=int(c), matches=int(d), user_id=e)
             	// console.log(r.standings[i].matches);
             	if(r.standings[i].matches > 0) { matchesPlayed = true; }
+                self.progress().update(r.progress);
                 self.players.push( new Model.Player(r.standings[i]) );
             }
 

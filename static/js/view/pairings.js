@@ -3,11 +3,27 @@ var PairingsView = {
     '<div class="well well-lg inner-well">'+
         '<div class="pair">'+
             '<div class="list-group player-paired">'+
-                '<div class="list-group-item list-group-item-action pointer" data-bind="css: { active : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">%PLAYER-1%</div>'+
+                '<div class="list-group-item list-group-item-action pointer" '+
+                    'data-bind="css: { active : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
+                    'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
+                    '%PLAYER-1% '+
+                        '<span class="badge badge-default badge-pill" '+
+                        'data-bind="text: players()[%PLAYER-1-INDEX%].wins()+\' - \'+players()[%PLAYER-1-INDEX%].matches(), '+
+                        'visible: players()[%PLAYER-1-INDEX%].isSelected() || players()[%PLAYER-2-INDEX%].isSelected()">'+
+                        '</span>'+
+                '</div>'+
             '</div>'+
             '<div class="paired-spacer"></div>'+
             '<div class="list-group player-paired">'+
-                '<div class="list-group-item list-group-item-action pointer" data-bind="css: { active : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">%PLAYER-2%</div>'+
+                '<div class="list-group-item list-group-item-action pointer" '+
+                    'data-bind="css: { active : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, '+
+                    'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
+                    '%PLAYER-2% '+
+                        '<span class="badge badge-default badge-pill" '+
+                        'data-bind="text: players()[%PLAYER-2-INDEX%].wins()+\' - \'+players()[%PLAYER-2-INDEX%].matches(), '+
+                        'visible: players()[%PLAYER-1-INDEX%].isSelected() || players()[%PLAYER-2-INDEX%].isSelected()">'+
+                        '</span>'+
+                '</div>'+
             '</div>'+
         '</div>'+
     '</div>',
@@ -19,14 +35,14 @@ var PairingsView = {
                 '<h4>Round %THIS-ROUND% of %TOTAL-ROUNDS%</h4>'+
                 '<i>Click on a player to report winner</i>'+
             '</div>'+
-            '<i class="fa fa-info-circle fa-2x pull-right standings-btn" data-toggle="modal" data-target="#myModal" data-bind="click: showStandings"></i>'+
+            '<i class="fa fa-info-circle fa-2x pull-right standings-btn" data-bind="click: showStandings"></i>'+
         '</div>'+
         '<div class="row pairs">'+
             '%PAIRS-HTML%'+
         '</div>'+
-        '<div class="row" data-bind="visible: buttonState">'+
-            '<button type="submit" class="btn btn-primary btn-lg btn-block next-round" data-bind="text: nextRoundBtnText, click: pairUp"></button>'+
-        '</div>'+
+        // '<div class="row" data-bind="visible: buttonState">'+
+        //     '<button type="submit" class="btn btn-primary btn-lg btn-block next-round" data-bind="text: nextRoundBtnText, click: pairUp"></button>'+
+        // '</div>'+
     '</div>',
 
     populate: function(model, progress, completed_matches) {
@@ -97,7 +113,7 @@ var PairingsView = {
 
             // Add HTML to the DOM and init the view model
             var $pairings = document.getElementById('pairings');
-            $pairings.innerHTML = ''
+            $pairings.innerHTML = '';
             $pairings.innerHTML = '<div id="pairings-bindings"></div>';
             var $bindings = document.getElementById('pairings-bindings');
             $bindings.innerHTML = html;
@@ -151,6 +167,10 @@ var PairingsView = {
 
                 winner.isSelected(!shouldClear);
                 loser.isSelected(false);
+
+                // Increment players in the pair's wins/matches accordingly
+                winner.wins(winner.wins()+1); winner.matches(winner.matches()+1); loser.matches(loser.matches()+1);
+
                 var data = {'reportResult' : winner.id+","+loser.id+","+shouldReplace+","+shouldClear};
                 $.post('/', data, function(returnedData) {
                     var r = JSON.parse(returnedData);
@@ -158,17 +178,14 @@ var PairingsView = {
                     console.log(r.progress);
                     self.progress().update(r.progress);
 
-
-                    // Synchronize local model with server data.
-                    winner.wins(r.winner.wins);
-                    winner.matches(r.winner.matches);
-                    loser.wins(r.loser.wins);
-                    loser.matches(r.loser.matches);
-                    // console.log(winner.name()+', the winner, has '+winner.wins()+' wins.');
-                    // console.log(winner.name()+', the winner, has played '+winner.matches()+' matches.');
-                    // console.log(loser.name()+', the loser, has '+loser.wins()+'  wins.');
-                    // console.log(loser.name()+', the loser, has played '+loser.matches()+'  matches.');
+                    // Synchronize local model with server data (if there is a discrepancy, the server data will trump).
+                    winner.wins(r.winner.wins); winner.matches(r.winner.matches); loser.wins(r.loser.wins); loser.matches(r.loser.matches);
                 });
+
+                if(self.num() === (self.players().length / 2)) {
+                    console.log('next round button should appear');
+                    NOTIFIER.notifySubscribers("next round", "showNextRoundView");
+                }
             }
 
             self.pairUp = function() {
@@ -182,10 +199,8 @@ var PairingsView = {
                 $.post('/', data, function(returnedData) {
                     var r = JSON.parse(returnedData);
                     if(r.this_round > r.total_rounds) {
-                        $('#myModal').modal('show');
                         NOTIFIER.notifySubscribers("results", "showStandingsView");
                     } else {
-                        $('#myModal').modal('show');
                         NOTIFIER.notifySubscribers("results", "showStandingsView");
                         NOTIFIER.notifySubscribers("pairings", "showPairingsView");
                     }

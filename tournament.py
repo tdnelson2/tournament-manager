@@ -185,8 +185,6 @@ def fullStandings():
     uncounted_wins = [id1 for id1, id2 in uncounted]
     uncounted_loses = [id2 for id1, id2 in uncounted]
 
-    # [dict(id=a, name=b, wins=int(c), matches=int(d), user_id=e)]
-
     standings = playerStandings()
     for s in standings:
         if s['id'] in uncounted_wins:
