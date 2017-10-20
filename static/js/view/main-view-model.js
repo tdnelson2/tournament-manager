@@ -1,3 +1,4 @@
+
 var MainViewModel = function() {
     // Primary view model from which all others are initiated
     var self = this;
@@ -5,13 +6,26 @@ var MainViewModel = function() {
     self.progress = ko.observable();
 
 
-	NOTIFIER.subscribe(function() {
-		PairingsView.populate(self.players, self.progress);
+	NOTIFIER.subscribe(function(status) {
+        if(status === RoundStatus.FIRST_ROUND) {
+            PairingsView.populate(self.players, self.progress);
+        } else {
+            self.players().map(function(x) {x.isSelected(false);});
+            $.post('/', {roundComplete: 'mark_complete'}, function(returnedData) {
+                var r = JSON.parse(returnedData);
+                if(r.this_round > r.total_rounds) {
+                    StandingsView.populate(self.players, self.progress);
+                } else {
+                    StandingsView.populate(self.players, self.progress);
+                    PairingsView.populate(self.players, self.progress);
+                }
+            });
+        }
 	}, self, "showPairingsView");
 
     NOTIFIER.subscribe(function() {
         console.log('next round view messge recieved');
-        NextRoundView.populate(self.progress);
+        NextRoundView.populate(self.players, self.progress);
     }, self, "showNextRoundView");
 
 

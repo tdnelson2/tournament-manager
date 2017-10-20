@@ -8,8 +8,7 @@ var PairingsView = {
                     'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
                     '%PLAYER-1% '+
                         '<span class="badge badge-default badge-pill" '+
-                        'data-bind="text: players()[%PLAYER-1-INDEX%].wins()+\' - \'+players()[%PLAYER-1-INDEX%].matches(), '+
-                        'visible: players()[%PLAYER-1-INDEX%].isSelected() || players()[%PLAYER-2-INDEX%].isSelected()">'+
+                        'data-bind="text: players()[%PLAYER-1-INDEX%].wins()+\' - \'+players()[%PLAYER-1-INDEX%].matches()"'+
                         '</span>'+
                 '</div>'+
             '</div>'+
@@ -20,8 +19,7 @@ var PairingsView = {
                     'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
                     '%PLAYER-2% '+
                         '<span class="badge badge-default badge-pill" '+
-                        'data-bind="text: players()[%PLAYER-2-INDEX%].wins()+\' - \'+players()[%PLAYER-2-INDEX%].matches(), '+
-                        'visible: players()[%PLAYER-1-INDEX%].isSelected() || players()[%PLAYER-2-INDEX%].isSelected()">'+
+                        'data-bind="text: players()[%PLAYER-2-INDEX%].wins()+\' - \'+players()[%PLAYER-2-INDEX%].matches()"'+
                         '</span>'+
                 '</div>'+
             '</div>'+
@@ -32,7 +30,10 @@ var PairingsView = {
     '<div data-bind="visible: shouldShowView()">'+
         '<div class="row">'+
             '<div class="pairings-header">'+
-                '<h4>Round %THIS-ROUND% of %TOTAL-ROUNDS%</h4>'+
+                '<h4 style="margin-bottom: 2px;">Round %THIS-ROUND%</h4>'+
+                '<small>A maximum of %TOTAL-ROUNDS% rounds may be needed to crown a winner</small>'+
+                '<br>'+
+                '<hr>'+
                 '<i>Click on a player to report winner</i>'+
             '</div>'+
             '<i class="fa fa-info-circle fa-2x pull-right standings-btn" data-bind="click: showStandings"></i>'+
@@ -186,25 +187,6 @@ var PairingsView = {
                     console.log('next round button should appear');
                     NOTIFIER.notifySubscribers("next round", "showNextRoundView");
                 }
-            }
-
-            self.pairUp = function() {
-                var p = [];
-                for (var i = 0; i < self.players().length; i++) {
-                    var x = self.players()[i];
-                    x.isSelected(false);
-                    p.push(x.id);
-                }
-                var data = {roundComplete: JSON.stringify({p})};
-                $.post('/', data, function(returnedData) {
-                    var r = JSON.parse(returnedData);
-                    if(r.this_round > r.total_rounds) {
-                        NOTIFIER.notifySubscribers("results", "showStandingsView");
-                    } else {
-                        NOTIFIER.notifySubscribers("results", "showStandingsView");
-                        NOTIFIER.notifySubscribers("pairings", "showPairingsView");
-                    }
-                });
             }
         }
     }

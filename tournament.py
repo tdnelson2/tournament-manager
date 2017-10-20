@@ -5,6 +5,7 @@
 
 import psycopg2
 import math
+import manage_duplicate_pairs as dup_manager
 currentUserID = 1;
 
 
@@ -268,13 +269,19 @@ def swissPairings():
     db = connect()
     c = db.cursor()
     c.execute("SELECT * FROM pairup WHERE user_id = %s;", str(currentUserID))
-    rows = list(reversed( c.fetchall() ))
+    r = list(reversed( c.fetchall() ))
+    c.execute("SELECT winner, loser FROM matches \
+               INNER JOIN players ON (matches.winner = players.id) \
+               WHERE user_id = %s \
+               AND round_is_complete = true;", str(currentUserID))
+    match_history = c.fetchall()
 
     db.close()
-    return [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d,e in rows]
+    unique_pairs = dup_manager.fixDuplicates(r, match_history)
+    return [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d,e in unique_pairs]
 
 
-    return processStandings([w_standings, l_standings])
+    # return processStandings([w_standings, l_standings])
 
 def completedMatches():
     """Shows the state of the current round for mataches in which
@@ -337,7 +344,21 @@ def progress(c=None):
                    WHERE user_id = %s \
                    AND round_is_complete = true;", str(currentUserID))
         match_count = c.fetchone()[0]
+
+        # # Determine number of rounds expected to find a winner.
         total_rounds = int(round(math.log(player_count,2)))
+
+        # # Determine number of rounds expected to find a winner.
+        # p = float(player_count)
+        # total_rounds = 0
+        # while p > 1:
+        #     p = p/2.0
+        #     if p % 2.0 == 1.0 and not p == 1.0:
+        #         p -= 1.0
+        #     total_rounds += 1
+        # print 'total rounds is '+str(total_rounds)
+
+
         total_matches = (player_count/2) * total_rounds
         this_round = int((float(match_count)/float(total_matches))*float(total_rounds))+1
     else:

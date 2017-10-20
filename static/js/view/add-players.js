@@ -70,7 +70,7 @@ var AddPlayersView = {
 				self.shouldShowView(false);
 
 				// Notify: MainViewModel to show PairingsViewModel
-				NOTIFIER.notifySubscribers("pairings", "showPairingsView");
+				NOTIFIER.notifySubscribers(RoundStatus.FIRST_ROUND, "showPairingsView");
 			} else {
 				alert('You must have an even number of players to proceed');
 			}
