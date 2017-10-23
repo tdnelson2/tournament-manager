@@ -7,12 +7,16 @@ import psycopg2
 import math
 import manage_duplicate_pairs as dup_manager
 currentUserID = 1;
+currentTournamentID = 1;
 
 
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname='tournament' user='postgres' host='localhost' password='password'")
+    return psycopg2.connect("dbname='tournament' "
+                            "user='postgres' "
+                            "host='localhost' "
+                            "password='password'")
 
 def createUser(name, email, photo):
     """Add user
@@ -24,14 +28,35 @@ def createUser(name, email, photo):
     """
     db = connect()
     c = db.cursor()
-    c.execute("INSERT INTO a_user (name, email, photo) values (%s, %s, %s);", (name, email, photo))
-    db.commit()
-    c.execute("SELECT id FROM a_user WHERE email = %s", (email,));
+    c.execute("INSERT INTO a_user (name, email, photo) \
+               VALUES (%s, %s, %s) RETURNING id;", (name, email, photo))
     id = c.fetchone()[0]
+    db.commit()
     db.close
     global currentUserID
     currentUserID = id
     return id
+
+def createTournament(name):
+    """Create a new tournament
+    Each user should be allowed to create an
+    unlimited number of tournaments. 
+
+    RETURNS
+    Database id of new tournament
+    """
+    db = connect()
+    c = db.cursor()
+    c.execute("INSERT INTO tournaments (name, user_id) \
+               VALUES (%s, %s) RETURNING id;", (name, str(currentUserID)))
+    id = c.fetchone()[0]
+    db.commit()
+    db.close
+    global currentTournamentID
+    currentTournamentID = id
+    return id
+
+
 
 def getUsers():
     """
@@ -88,7 +113,8 @@ def countPlayers():
     """Returns the number of players currently registered."""
     db = connect()
     c = db.cursor()
-    c.execute("SELECT COUNT(*) FROM players WHERE user_id = %s;", str(currentUserID))
+    c.execute("SELECT COUNT(*) FROM players \
+               WHERE tournament_id = %s;", (str(currentTournamentID)))
     rows = c.fetchone()
     db.close
     return rows[0]
@@ -102,8 +128,12 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
+
+# INSERT INTO players (name, placeholder, tournament_id) VALUES ('Purple',false,2);
+
     p_count = countPlayers()
-    sql = "INSERT INTO players (name, user_id, placeholder) values (%s, %s, %s)"
+    # sql = "INSERT INTO players (name, user_id, placeholder) values (%s, %s, %s)"
+    sql = "INSERT INTO players (name, tournament_id, placeholder) values (%s, %s, %s)"
 
     db = connect()
     c = db.cursor()
@@ -115,10 +145,11 @@ def registerPlayer(name):
     # preventing players from separate users from
     # bleeding into each other's pairings.
     placeholderExists = False
-    e = "FROM players WHERE user_id = %s AND placeholder = true"
-    e = e % str(currentUserID)
+    e = "FROM players WHERE tournament_id = %s AND placeholder = true"
+    e = e % str(currentTournamentID)
     c.execute("SELECT EXISTS (SELECT 1 "+e+");")
     isPlaceholder = c.fetchone()[0]
+
     # Remove the placeholder if it exists
     if isPlaceholder == True:
         c.execute("DELETE "+e+";")
@@ -130,10 +161,10 @@ def registerPlayer(name):
         # if the count is currently even, it would become
         # odd if we were to add a player without first
         # inserting a placeholder row.
-        c.execute(sql+";", ('PLACEHOLDER', str(currentUserID), 'true'))
+        c.execute(sql+";", ('PLACEHOLDER', str(currentTournamentID), 'true'))
 
     # Add the new name
-    c.execute(sql+" RETURNING id;", (name, str(currentUserID), 'false'))
+    c.execute(sql+" RETURNING id;", (name, str(currentTournamentID), 'false'))
     id = c.fetchone()[0]
     db.commit()
     db.close()
@@ -159,7 +190,7 @@ def playerStandings():
     """
     db = connect()
     c = db.cursor()
-    c.execute("SELECT * FROM standings WHERE user_id = %s", str(currentUserID))
+    c.execute("SELECT * FROM standings WHERE tournament_id = %s", str(currentTournamentID))
     rows = c.fetchall()
     db.close()
     return processStandings(rows)
@@ -179,13 +210,17 @@ def fullStandings():
     # c.execute("SELECT winner, loser FROM matches_with_user_id WHERE user_id = %s AND round_is_complete = false;", str(currentUserID))
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
-               WHERE user_id = %s \
-               AND round_is_complete = false;", str(currentUserID))
+               WHERE tournament_id = %s \
+               AND round_is_complete = false;", str(currentTournamentID))
     uncounted = list(c.fetchall())
     db.close()
+
+    # Make 1 list of wins and 2 list of loses from 
+    # the current (not yet completed) round.
     uncounted_wins = [id1 for id1, id2 in uncounted]
     uncounted_loses = [id2 for id1, id2 in uncounted]
 
+    # Account for the additional win/loses by adding them to standings.
     standings = playerStandings()
     for s in standings:
         if s['id'] in uncounted_wins:
@@ -268,12 +303,12 @@ def swissPairings():
     """
     db = connect()
     c = db.cursor()
-    c.execute("SELECT * FROM pairup WHERE user_id = %s;", str(currentUserID))
+    c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", str(currentTournamentID))
     r = list(reversed( c.fetchall() ))
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
-               WHERE user_id = %s \
-               AND round_is_complete = true;", str(currentUserID))
+               WHERE tournament_id = %s \
+               AND round_is_complete = true;", str(currentTournamentID))
     match_history = c.fetchall()
 
     db.close()
@@ -296,8 +331,8 @@ def completedMatches():
     c = db.cursor()
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
-               WHERE user_id = %s \
-               AND round_is_complete = false;", str(currentUserID))
+               WHERE tournament_id = %s \
+               AND round_is_complete = false;", str(currentTournamentID))
     matches_completed = c.fetchall()
     db.close()
     return [dict(winner=a, loser=b) for a,b in matches_completed]
@@ -312,8 +347,8 @@ def markRoundComplete():
     c = db.cursor()
     c.execute("UPDATE matches SET round_is_complete = true \
                FROM players WHERE matches.winner = players.id \
-               AND players.user_id = %s \
-               AND matches.round_is_complete = false;", str(currentUserID))
+               AND players.tournament_id = %s \
+               AND matches.round_is_complete = false;", str(currentTournamentID))
     db.commit()
     db.close()
 
@@ -336,13 +371,13 @@ def progress(c=None):
         db = connect()
         c = db.cursor()
     c.execute("SELECT COUNT(*) FROM players \
-               WHERE user_id = %s;", str(currentUserID))
+               WHERE tournament_id = %s;", str(currentTournamentID))
     player_count = c.fetchone()[0]
     if player_count > 0:
         c.execute("SELECT COUNT(*) FROM matches \
                    INNER JOIN players ON (matches.winner = players.id) \
-                   WHERE user_id = %s \
-                   AND round_is_complete = true;", str(currentUserID))
+                   WHERE tournament_id = %s \
+                   AND round_is_complete = true;", str(currentTournamentID))
         match_count = c.fetchone()[0]
 
         # # Determine number of rounds expected to find a winner.
