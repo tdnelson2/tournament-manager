@@ -1,5 +1,5 @@
 var ViewModel = {
-	View: function() {
+	View: function(shouldShowToolbar) {
 
 		var self = this;
 
@@ -7,6 +7,20 @@ var ViewModel = {
 		self.playerInput = ko.observable("");
 		self.shouldShowPairedPlayers = ko.observable(false);
 		self.pairedPlayers = ko.observableArray([]);
+
+		// Sidebar show/hide
+		self.toolbarVisible = ko.observable(shouldShowToolbar);
+	    self.toggleToolbar = function() {
+	        self.toolbarVisible(!self.toolbarVisible());
+	    }
+
+		$( window ).resize(function() {
+			if($( window ).width() < 768) {
+				self.toolbarVisible(false);
+			} else {
+				self.toolbarVisible(true);
+			}
+		});
 
 		self.shouldShowPlayersAdded = function() {
 			if(self.players().length > 0 && !self.shouldShowPairedPlayers()) {

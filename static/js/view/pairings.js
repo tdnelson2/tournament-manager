@@ -1,50 +1,53 @@
 var PairingsView = {
     pairingHTML: ''+
-    '<div class="well well-lg inner-well">'+
-        '<div class="pair">'+
-            '<div class="list-group player-paired">'+
-                '<div class="list-group-item list-group-item-action pointer" '+
-                    'data-bind="css: { active : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
-                    'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
-                    '%PLAYER-1% '+
+                '<div class="bg-muted clearfix pair-card">'+
+                '<div class="list-group float-left player-paired">'+
+                  '<a href="#" class="list-group-item list-group-item-action flex-column align-items-start" '+
+                      'data-bind="css: { active : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
+                      'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
+                      '<div class="d-flex w-100 justify-content-between">'+
+                        '<h6 class="mb-1">%PLAYER-1%</h6>'+
                         '<span class="badge badge-default badge-pill" '+
-                        'data-bind="text: players()[%PLAYER-1-INDEX%].wins()+\' - \'+players()[%PLAYER-1-INDEX%].matches()"'+
-                        '</span>'+
+                        'data-bind="text: players()[%PLAYER-1-INDEX%].wins()+\' - \'+players()[%PLAYER-1-INDEX%].matches()"></span>'+
+                      '</div>'+
+                  '</a>'+
                 '</div>'+
-            '</div>'+
-            '<div class="paired-spacer"></div>'+
-            '<div class="list-group player-paired">'+
-                '<div class="list-group-item list-group-item-action pointer" '+
-                    'data-bind="css: { active : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, '+
-                    'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
-                    '%PLAYER-2% '+
+                '<div class="list-group float-right player-paired">'+
+                  '<a href="#" class="list-group-item list-group-item-action flex-column align-items-start" '+
+                      'data-bind="css: { active : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, '+
+                      'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
+                      '<div class="d-flex w-100 justify-content-between">'+
+                        '<h6 class="mb-1">%PLAYER-2%</h6>'+
                         '<span class="badge badge-default badge-pill" '+
-                        'data-bind="text: players()[%PLAYER-2-INDEX%].wins()+\' - \'+players()[%PLAYER-2-INDEX%].matches()"'+
-                        '</span>'+
+                        'data-bind="text: players()[%PLAYER-2-INDEX%].wins()+\' - \'+players()[%PLAYER-2-INDEX%].matches()"></span>'+
+                      '</div>'+
+                  '</a>'+
                 '</div>'+
-            '</div>'+
-        '</div>'+
-    '</div>',
+                '</div>'+
+                '<div class="pair-separator"></div>',
 
     rowHTML: ''+
-    '<div data-bind="visible: shouldShowView()">'+
-        '<div class="row">'+
-            '<div class="pairings-header">'+
-                '<h4 style="margin-bottom: 2px;">Round %THIS-ROUND%</h4>'+
-                '<small>A maximum of %TOTAL-ROUNDS% rounds may be needed to crown a winner</small>'+
-                '<br>'+
-                '<hr>'+
-                '<i>Click on a player to report winner</i>'+
-            '</div>'+
-            '<i class="fa fa-info-circle fa-2x pull-right standings-btn" data-bind="click: showStandings"></i>'+
-        '</div>'+
-        '<div class="row pairs">'+
-            '%PAIRS-HTML%'+
-        '</div>'+
-        // '<div class="row" data-bind="visible: buttonState">'+
-        //     '<button type="submit" class="btn btn-primary btn-lg btn-block next-round" data-bind="text: nextRoundBtnText, click: pairUp"></button>'+
-        // '</div>'+
-    '</div>',
+                '<!-- Page Content -->'+
+                '<div id="page-content-wrapper">'+
+                    '<div class="categories">'+
+                        '<div class="bs-container-fluid-modified bs-container-modified">'+
+                            '<div class="content">'+
+                              '<div class="row justify-content-md-center">'+
+                                  '<div class="col col-lg-6">'+
+                                        '<div class="pairings-header">'+
+                                            '<h4 style="margin-bottom: 2px;">Round %THIS-ROUND%</h4>'+
+                                            '<small>A maximum of %TOTAL-ROUNDS% rounds may be needed to crown a winner</small>'+
+                                        '</div>'+
+                                      '<div class="round-card">'+
+                                      '%PAIRS-HTML%'+
+                                      '</div>'+
+                                  '</div>'+
+                              '</div>'+
+                            '</div>'+
+                        '</div>'+
+                    '</div> <!-- /categories -->'+
+                '</div>'+
+                '<!-- /#page-content-wrapper -->',
 
     populate: function(model, progress, completed_matches) {
 

@@ -6,9 +6,8 @@ var StandingsView = {
         '<!-- Modal content-->'+
         '<div class="modal-content">'+
           '<div class="modal-header">'+
-            '<button type="button" class="close" data-dismiss="modal">&times;</button>'+
-            '<!-- <h4 class="modal-title"></h4> -->'+
             '<h4 class="modal-title" data-bind="text: headerText() === true ? \'Results\' : \'Standings\'"></h4>'+
+            '<button type="button" class="close" data-dismiss="modal">&times;</button>'+
           '</div>'+
           '<div class="modal-body">'+
             '<table class="table">'+

@@ -1,31 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tournament Manager</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
-	<meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="{{ links_root() }}static/css/bootstrap.min.css">
-  <link rel="stylesheet" href="{{ links_root() }}static/css/styles.css">
-  <link rel="stylesheet" href="{{ links_root() }}static/css/font-awesome.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <title>Tournament Manager</title>
+    <link href="{{ links_root() }}static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ links_root() }}static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{{ links_root() }}static/vendor/simple-sidebar/css/simple-sidebar.css" rel="stylesheet">
+    <link href="{{ links_root() }}static/css/styles.css" rel="stylesheet">
 </head>
 <body>
-	<div class="container">
-		<div class="col-xs-10 col-sm-6 col-md-6 col-lg-6 col-xs-offset-1 col-sm-offset-3 col-md-offset-3 col-lg-offset-3">
-			<div id="add-players"></div>
-			<div id="pairings"></div>
-      <div id="standings"></div>
-      <div id="next-round"></div>
-		</div> <!-- columns -->
-	</div> <!-- container -->
-	<script src="{{ links_root() }}static/js/libs/jquery.min.js"></script>
-	<script src="{{ links_root() }}static/js/libs/knockout-3.2.0.js"></script>
-	<script src="{{ links_root() }}static/js/model/model.js"></script>
-	<script src="{{ links_root() }}static/js/view/add-players.js"></script>
-	<script src="{{ links_root() }}static/js/view/pairings.js"></script>
-	<script src="{{ links_root() }}static/js/view/standings.js"></script>
-	<script src="{{ links_root() }}static/js/view/next-round.js"></script>
-	<script src="{{ links_root() }}static/js/view/main-view-model.js"></script>
-	<script src="{{ links_root() }}static/js/app.js"></script>
-	<script src="{{ links_root() }}static/js/libs/bootstrap.min.js"></script>
+    <div id="btn-wrapper" data-bind="css: { toggled : toolbarVisible() }">
+        <div id="toggle-btn">
+            <a href="" class="toggle-btn" data-bind="click: toggleToolbar">⋮</a>
+        </div>
+    </div>
+    <div id="wrapper" data-bind="css: { toggled : toolbarVisible() }">
+        <header id="header" class="header-bar">
+            <h1 id="header-text">Tournament Manager</h1>
+        </header>
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="#"><i class="fa fa-plus-square-o fa-2x"></i></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-wrench fa-2x"></i></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-pie-chart fa-2x"></i></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-dashboard fa-2x"></i></a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-infoo fa-2x"></i></a>
+                </li>
+            </ul>
+        </div> <!-- /sidebar-wrapper -->
+
+        <div id="dashboard"></div>
+        <div id="add-players"></div>
+        <div id="pairings"></div>
+        <div id="standings"></div>
+        <div id="next-round"></div>
+
+
+    </div> <!-- /wrapper -->
+
+
+    
+    <!-- Bootstrap core JavaScript -->
+    <script src="{{ links_root() }}static/vendor/jquery/jquery.min.js"></script>
+    <script src="{{ links_root() }}static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Knockout -->
+    <script src="{{ links_root() }}static/vendor/knockoutjs/knockout-3.2.0.js"></script>
+    <script src="{{ links_root() }}static/js/model/model.js"></script>
+    <script src="{{ links_root() }}static/js/view/add-players.js"></script>
+    <script src="{{ links_root() }}static/js/view/pairings.js"></script>
+    <script src="{{ links_root() }}static/js/view/standings.js"></script>
+    <script src="{{ links_root() }}static/js/view/next-round.js"></script>
+    <script src="{{ links_root() }}static/js/view/main-view-model.js"></script>
+    <script src="{{ links_root() }}static/js/app.js"></script>
 </body>
+</html>

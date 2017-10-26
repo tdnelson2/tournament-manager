@@ -1,16 +1,182 @@
+/******************/
+/* Toolbar/Header */
+/******************/
+
+/* Toolbar toggle button */
+
+.toggle-btn {
+  z-index: 999;
+  position: fixed;
+  margin-left: 20px;
+  top: 14px;
+  font-size: 25pt;
+  font-weight: 900;
+  color: #333;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+#wrapper.toggled #toggle-btn {
+    padding-left: 60px;
+}
+
+#btn-wrapper #toggle-btn {
+  padding-left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+#btn-wrapper.toggled #toggle-btn {
+  padding-left: 60px;
+}
+
+.toggle-btn:hover {
+  background-color: #333;
+  color: #fff;
+  text-decoration: none;
+}
+
+/*Header bar*/
+
+.header-bar {
+  z-index: 998;
+  position: fixed;
+  top: -5px;
+  height: 90px;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+#header-text {
+  font-size: 30pt;
+  margin-top: 20px;
+  text-align: center;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+/*************/
+/* Dashboard */
+/*************/
+
+bs-container-modified {
+  width: 100%;
+  margin: auto;
+}
+
+.categories {
+  /*border:3px solid #333;*/
+  margin-top: 100px;
+}
+
+.category-text {
+  text-align: center;
+}
+
+.content {
+  margin: 90px auto auto auto;
+  /*max-width: 800px;*/
+}
+
+.circle {
+    border:3px solid #333;
+    height:250px;
+    border-radius:50%;
+    -moz-border-radius:50%;
+    -webkit-border-radius:50%;
+    width:250px;
+    /*text-align: center;*/
+}
+
+.center {
+    margin: auto;
+}
+
+.head-room {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.circle-text {
+    position: relative;
+    top: 35%;
+    text-align: center;
+}
+
+@media(max-width:768px) {
+
+  .bs-container-fluid-modified {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .circle {
+    height:200px !important;
+    width: 200px !important;
+  }
+
+/*  .categories {
+    width: 90%;
+  }*/
+
+}
+
+@media(max-width:600px) {
+
+  #wrapper #header #header-text {
+    margin-top: 30px;
+    font-size: 22pt;
+  }
+
+  #wrapper.toggled #header #header-text {
+    margin-top: 35px;
+    font-size: 15pt;
+  }
+}
+
+
+
+
+/*************************/
+/* Tournament add/rounds */
+/*************************/
+
+.round-card {
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: .25rem;
+}
+
+.pair-card {
+  margin: 20px 20px 20px 20px;
+}
+
+.pairings-header {
+  margin-bottom: 10px;
+}
+
+
+.new-player-input, .new-players, .player-list {
+  margin-bottom: 20px;
+}
+
+.add-players-view {
+  max-width: 400px; 
+  margin: auto;
+}
+
 .lg-nav-txt {
     font-size: 20pt;
 }
-
-/*body {
-    max-width: 100%;
-    overflow: hidden !important;
-}*/
-
-/*body {
-    max-width: 1200px;
-    margin: auto;
-}*/
 
 .list-group-item {
     font-size: 15pt;
@@ -19,11 +185,6 @@
 .align-to-categories {
     padding-left: 10pt;
 }
-
-/*.active, .category-items:hover {
-    background-color: #222222 !important;
-    color: #ffffff !important;
-}*/
 
 .active {
     border: #222222 !important;
@@ -42,30 +203,18 @@
     color: #222222;
 }
 
-.centered {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.inner-well {
-    height: 100px;
-}
-
-.pair {
-    display: flex;
-}
-
-.paired-spacer {
-    width: 4%;
-}
-
 .player-paired {
     width: 48%;
 }
 
 .disabled {
     cursor: pointer !important;
+}
+
+.pair-separator {
+  height: 1px;
+  width: 100%;
+  background-color:rgba(0,0,0,.125);
 }
 
 .next-round {

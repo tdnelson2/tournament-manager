@@ -1,31 +1,36 @@
 var AddPlayersView = {
     html: ''+
-    '<div data-bind="visible: shouldShowView()">'+
-	    '<div class="row">'+
-	        '<form>'+
-	            '<div class="form-group">'+
-	                '<label for="title">Add Players</label>'+
-	                '<input type="text" class="form-control" id="title" placeholder="" data-bind="value: playerInput">'+
-	                '</div>'+
-	            '<button type="submit" class="btn btn-primary" data-bind="click: addPlayer">Add</button>'+
-	        '</form>'+
-	    '</div>'+
-	    '<div data-bind="visible: shouldShowPlayersAdded()">'+
-	        '<div class="row">'+
-	            '<h4>Players</h4>'+
-	        '</div>'+
-	        '<div class="row">'+
-	            '<div class="well well-lg" data-bind="foreach: players">'+
-	                '<div class="list-group">'+
-	                    '<a href="" class="list-group-item list-group-item-action category-items" data-bind="text: name"></a>'+
-	                '</div>'+
-	            '</div>'+
-	        '</div>'+
-	        '<div class="row">'+
-	            '<button type="submit" class="btn btn-primary" data-bind="click: pairUp">Pair Up</button>'+
-	        '</div>'+
-	    '</div>'+
-    '</div>',
+        '<div id="page-content-wrapper" data-bind="visible: shouldShowView()">'+
+            '<div class="text-center add-players-view">'+
+                '<div class="bs-container-fluid-modified bs-container-modified">'+
+	                '<div class="content"'+
+					    '<div class="row">'+
+					        '<form class="new-player-input">'+
+					            '<div class="form-group">'+
+					                '<label for="title">Add Players</label>'+
+					                '<input type="text" class="form-control" id="title" placeholder="" data-bind="value: playerInput">'+
+				                '</div>'+
+					            '<button type="submit" class="btn btn-primary" data-bind="click: addPlayer">Add</button>'+
+					        '</form>'+
+					    '</div>'+
+					    '<div data-bind="visible: shouldShowPlayersAdded()" class="new-players">'+
+					        '<div class="text-center">'+
+					            '<h4>Players</h4>'+
+					        '</div>'+
+					        '<div class="card player-list">'+
+					            '<div data-bind="foreach: players" class="list-group list-group-flush w-100 align-items-stretch">'+
+					                '<li class="list-group-item text-center d-inline-block" data-bind="text: name"></li>'+
+					            '</div>'+
+					        '</div>'+
+					        '<div class="text-center">'+
+					            '<button type="submit" class="btn btn-primary" data-bind="click: pairUp">Pair Up</button>'+
+					        '</div>'+
+					    '</div>'+
+				    '</div>'+
+                '</div>'+
+            '</div> <!-- /categories -->'+
+        '</div>'+
+        '<!-- /#page-content-wrapper -->',
 
     populate: function(model) {
         // Add HTML to the DOM and init the view model

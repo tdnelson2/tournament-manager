@@ -1,9 +1,25 @@
 
-var MainViewModel = function() {
+var MainViewModel = function(shouldShowToolbar) {
     // Primary view model from which all others are initiated
     var self = this;
     self.players = ko.observableArray([]);
     self.progress = ko.observable();
+
+
+
+    // Sidebar show/hide
+    self.toolbarVisible = ko.observable(shouldShowToolbar);
+    self.toggleToolbar = function() {
+        self.toolbarVisible(!self.toolbarVisible());
+    }
+
+    $( window ).resize(function() {
+        if($( window ).width() < 768) {
+            self.toolbarVisible(false);
+        } else {
+            self.toolbarVisible(true);
+        }
+    });
 
 
 	NOTIFIER.subscribe(function(status) {
