@@ -7,8 +7,8 @@ var NextRoundView = {
         '<!-- Modal content-->'+
         '<div class="modal-content">'+
           '<div class="modal-header">'+
-            '<button class="btn btn-primary btn-lg btn-block" data-dismiss="modal" data-bind="text: nextText(), click: next"></button>'+
-            '<button class="btn btn-secondary btn-lg btn-block" data-dismiss="modal">I\'m Not Ready Yet</button>'+
+            '<button class="btn btn-primary" data-dismiss="modal" data-bind="text: nextText(), click: next"></button>'+
+            '<button class="btn btn-secondary" data-dismiss="modal">I\'m Not Ready Yet</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -41,12 +41,12 @@ var NextRoundView = {
     });
 
     self.next = function() {
-      var status = progress.this_round >= progress.total_rounds 
-                   ? RoundStatus.FINAL_ROUND 
+      var status = progress.this_round >= progress.total_rounds
+                   ? RoundStatus.FINAL_ROUND
                    : RoundStatus.NOT_FIRST_ROUND;
       NOTIFIER.notifySubscribers(status, "showPairingsView");
     };
-  }, 
+  },
 
   isLastRound: function(players) {
     var champion = '';

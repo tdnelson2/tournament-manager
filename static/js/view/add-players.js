@@ -1,7 +1,6 @@
 var AddPlayersView = {
     html: ''+
-        '<div id="page-content-wrapper" data-bind="visible: shouldShowView()">'+
-            '<div class="text-center add-players-view">'+
+            '<div class="text-center add-players-view" data-bind="visible: shouldShowView">'+
                 '<div class="bs-container-fluid-modified bs-container-modified">'+
 	                '<div class="content"'+
 					    '<div class="row">'+
@@ -27,10 +26,7 @@ var AddPlayersView = {
 					        '</div>'+
 					    '</div>'+
 				    '</div>'+
-                '</div>'+
-            '</div> <!-- /categories -->'+
-        '</div>'+
-        '<!-- /#page-content-wrapper -->',
+                '</div>',
 
     populate: function(model) {
         // Add HTML to the DOM and init the view model
@@ -40,7 +36,7 @@ var AddPlayersView = {
     },
 
     View: function(model) {
-        // KO object
+        self = this;
         self.shouldShowView = ko.observable(true);
         self.players = model;
         self.playerInput = ko.observable("");

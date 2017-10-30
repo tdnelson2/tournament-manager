@@ -36,11 +36,21 @@ def index():
             tournament.markRoundComplete()
             p = tournament.progress()
             return json.dumps(p)
+        elif 'newTournament' in request.form:
+            name = request.form['newTournament']
+            id = tournament.createTournament(name)
+            return json.dumps(dict(id=id, name=name))
         return 'ERR'
     else:
         """Serve the client-side application."""
         return render_template('index.html')
 
+
+@app.route(root_url+'/tournaments/JSON/')
+def tournamentsJSON():
+    tournaments = tournament.getTournaments()
+    print tournaments
+    return json.dumps(dict(tournaments=tournaments))
 
 @app.route(root_url+'/standings/JSON/')
 def standingsJSON():
@@ -53,9 +63,9 @@ def pairingJSON():
     progress = tournament.progress()
     return json.dumps(dict(pairings=pairings, progress=progress))
 
-
-@app.route(root_url+'/current-state/JSON/')
-def roundJSON():
+@app.route(root_url+'/tournament/<int:tournament_id>/JSON/')
+def roundJSON(tournament_id):
+    tournament.currentTournamentID = tournament_id
     standings = tournament.fullStandings()
     print standings
     completed_matches = tournament.completedMatches()

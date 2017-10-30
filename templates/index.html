@@ -10,17 +10,16 @@
     <link href="{{ links_root() }}static/css/styles.css" rel="stylesheet">
 </head>
 <body>
-    <div id="btn-wrapper" data-bind="css: { toggled : toolbarVisible() }">
-        <div id="toggle-btn">
-            <a href="" class="toggle-btn" data-bind="click: toggleToolbar">⋮</a>
-        </div>
-    </div>
-    <div id="wrapper" data-bind="css: { toggled : toolbarVisible() }">
-        <header id="header" class="header-bar">
-            <h1 id="header-text">Tournament Manager</h1>
-        </header>
+    <a href="#" id="toolbar-toggle" class="toggle-btn">⋮</a>
+    <div id="wrapper">
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
+                <li>
+                    <a href="#"><i id="toolbar-close" class="fa fa-close fa-2x"></i></a>
+                </li>
+            </ul>
+            <div class="divider" ></div>
+            <ul class="sidebar-options">
                 <li>
                     <a href="#"><i class="fa fa-plus-square-o fa-2x"></i></a>
                 </li>
@@ -39,17 +38,27 @@
             </ul>
         </div> <!-- /sidebar-wrapper -->
 
-        <div id="dashboard"></div>
-        <div id="add-players"></div>
-        <div id="pairings"></div>
-        <div id="standings"></div>
-        <div id="next-round"></div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
 
+            <header id="header" class="header-bar">
+                <h1 id="header-text">Tournament Manager</h1>
+            </header>
+
+            <div id="dashboard"></div>
+            <div id="new-tournament"></div>
+            <div id="add-players"></div>
+            <div id="pairings"></div>
+            <div id="standings"></div>
+            <div id="next-round"></div>
+
+        </div>
+        <!-- /#page-content-wrapper -->
 
     </div> <!-- /wrapper -->
 
 
-    
+
     <!-- Bootstrap core JavaScript -->
     <script src="{{ links_root() }}static/vendor/jquery/jquery.min.js"></script>
     <script src="{{ links_root() }}static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -61,7 +70,22 @@
     <script src="{{ links_root() }}static/js/view/pairings.js"></script>
     <script src="{{ links_root() }}static/js/view/standings.js"></script>
     <script src="{{ links_root() }}static/js/view/next-round.js"></script>
+    <script src="{{ links_root() }}static/js/view/dashboard.js"></script>
     <script src="{{ links_root() }}static/js/view/main-view-model.js"></script>
+    <script src="{{ links_root() }}static/js/view/add-tournament.js"></script>
     <script src="{{ links_root() }}static/js/app.js"></script>
+
+
+    <!-- Toolbar Toggle Script -->
+    <script>
+    var toggle = function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    }
+    $("#toolbar-toggle").click(function(e) { toggle(e); });
+    $("#toolbar-close").click(function(e) {
+        toggle(e);
+    });
+    </script>
 </body>
 </html>

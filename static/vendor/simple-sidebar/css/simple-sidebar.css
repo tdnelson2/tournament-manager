@@ -49,33 +49,40 @@ body {
 
 /* Sidebar Styles */
 
-.sidebar-nav {
+.sidebar-nav, .sidebar-options {
   position: absolute;
-  top: 0;
   width: 60px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sidebar-nav li {
+.sidebar-nav {
+  top: 5px;
+}
+
+.sidebar-options {
+  top: 100px;
+}
+
+.sidebar-nav li, .sidebar-options li {
   margin-top: 20px;
   text-indent: 8px;
   line-height: 40px;
 }
 
-.sidebar-nav li a {
+.sidebar-nav li a, .sidebar-options li a {
   display: block;
   text-decoration: none;
   color: #999999;
 }
 
-.sidebar-nav li a:hover {
+.sidebar-nav li a:hover, .sidebar-options li a:hover {
   text-decoration: none;
   color: #fff;
 }
 
-.sidebar-nav li a:active, .sidebar-nav li a:focus {
+.sidebar-nav li a:active, .sidebar-nav li a:focus, .sidebar-options li a:active, .sidebar-options li a:focus  {
   text-decoration: none;
 }
 

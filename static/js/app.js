@@ -14,4 +14,6 @@ RoundStatus = {
 	FINAL_ROUND: 3
 }
 
-ko.applyBindings(new MainViewModel(SHOW_TOOLBAR));
+ // document.getElementById('sidebar-wrapper')
+
+ko.applyBindings(new MainViewModel(SHOW_TOOLBAR), document.getElementById('sidebar-wrapper'));

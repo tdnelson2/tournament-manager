@@ -27,9 +27,7 @@ var PairingsView = {
                 '<div class="pair-separator"></div>',
 
     rowHTML: ''+
-                '<!-- Page Content -->'+
-                '<div id="page-content-wrapper">'+
-                    '<div class="categories">'+
+                    '<div class="categories" data-bind="visible: shouldShowView">'+
                         '<div class="bs-container-fluid-modified bs-container-modified">'+
                             '<div class="content">'+
                               '<div class="row justify-content-md-center">'+
@@ -45,9 +43,7 @@ var PairingsView = {
                               '</div>'+
                             '</div>'+
                         '</div>'+
-                    '</div> <!-- /categories -->'+
-                '</div>'+
-                '<!-- /#page-content-wrapper -->',
+                    '</div> <!-- /categories -->',
 
     populate: function(model, progress, completed_matches) {
 
@@ -148,9 +144,15 @@ var PairingsView = {
         self.nextRoundBtnText = ko.pureComputed(function() {
             console.log(self.progress().total_rounds());
             console.log(self.progress().this_round());
-            return self.progress().total_rounds() == self.progress().this_round() ? 
+            return self.progress().total_rounds() == self.progress().this_round() ?
                    'Crown The Champion!' : 'Next Round';
         });
+
+
+        NOTIFIER.subscribe(function() {
+            console.log('hied pairings view');
+            self.shouldShowView(false);
+        }, self, "showDashboard");
 
         // Update the server each time user chooses a winner
         self.clicks = 0;

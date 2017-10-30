@@ -8,6 +8,11 @@ var Model = {
 		this.isSelected = ko.observable(false);
 	},
 
+	Tournament: function(data) {
+		this.id = data.id;
+		this.name = ko.observable(data.name);
+	},
+
 	Progress: function(data) {
 		var self = this;
 

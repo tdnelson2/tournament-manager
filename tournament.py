@@ -32,15 +32,37 @@ def createUser(name, email, photo):
                VALUES (%s, %s, %s) RETURNING id;", (name, email, photo))
     id = c.fetchone()[0]
     db.commit()
-    db.close
+    db.close()
     global currentUserID
     currentUserID = id
     return id
 
+def getTournaments():
+    """Get all tournaments for current user
+    Each user should be allowed to create an
+    unlimited number of tournaments.
+
+    RETURNS
+    An array of dictionaris containing...
+      id: the id of the tournament
+      name: the tournament's name
+      user_id: id of the user who own's the tournament
+    """
+    db = connect()
+    c = db.cursor()
+    c.execute("SELECT * FROM tournaments \
+               WHERE user_id = %s;", (str(currentUserID),))
+    tournaments = c.fetchall()
+    db.close()
+    print tournaments
+    data = [dict(name=a, id=b, user_id=c) for a,b,c in tournaments]
+    return data
+
+
 def createTournament(name):
     """Create a new tournament
     Each user should be allowed to create an
-    unlimited number of tournaments. 
+    unlimited number of tournaments.
 
     RETURNS
     Database id of new tournament
@@ -51,7 +73,7 @@ def createTournament(name):
                VALUES (%s, %s) RETURNING id;", (name, str(currentUserID)))
     id = c.fetchone()[0]
     db.commit()
-    db.close
+    db.close()
     global currentTournamentID
     currentTournamentID = id
     return id
@@ -70,7 +92,7 @@ def getUsers():
     c = db.cursor()
     c.execute("SELECT * FROM a_user");
     results = c.fetchall()
-    db.close
+    db.close()
     return results
 
 def getUser(email):
@@ -85,7 +107,7 @@ def getUser(email):
     c = db.cursor()
     c.execute("SELECT id FROM a_user WHERE email = %s", (email,));
     result = c.fetchall()
-    db.close
+    db.close()
     if result != []:
         return result[0][0]
     return 0
@@ -96,7 +118,7 @@ def deleteMatches():
     c = db.cursor()
     c.execute("DELETE FROM matches;")
     db.commit()
-    db.close
+    db.close()
 
 
 def deletePlayers():
@@ -106,7 +128,7 @@ def deletePlayers():
     c = db.cursor()
     c.execute("DELETE FROM players;")
     db.commit()
-    db.close
+    db.close()
 
 
 def countPlayers():
@@ -116,7 +138,7 @@ def countPlayers():
     c.execute("SELECT COUNT(*) FROM players \
                WHERE tournament_id = %s;", (str(currentTournamentID)))
     rows = c.fetchone()
-    db.close
+    db.close()
     return rows[0]
 
 
@@ -215,7 +237,7 @@ def fullStandings():
     uncounted = list(c.fetchall())
     db.close()
 
-    # Make 1 list of wins and 2 list of loses from 
+    # Make 1 list of wins and 2 list of loses from
     # the current (not yet completed) round.
     uncounted_wins = [id1 for id1, id2 in uncounted]
     uncounted_loses = [id2 for id1, id2 in uncounted]

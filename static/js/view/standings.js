@@ -6,7 +6,7 @@ var StandingsView = {
         '<!-- Modal content-->'+
         '<div class="modal-content">'+
           '<div class="modal-header">'+
-            '<h4 class="modal-title" data-bind="text: headerText() === true ? \'Results\' : \'Standings\'"></h4>'+
+            '<h4 class="modal-title" data-bind="text: tournamentIsComplete() === true ? \'Results\' : \'Standings\'"></h4>'+
             '<button type="button" class="close" data-dismiss="modal">&times;</button>'+
           '</div>'+
           '<div class="modal-body">'+
@@ -79,9 +79,17 @@ var StandingsView = {
     self.players = players;
     self.progress = progress;
 
-    self.headerText = ko.pureComputed(function(){
+    self.tournamentIsComplete = ko.pureComputed(function(){
       var r = NextRoundView.isLastRound(self.model);
       return r !== undefined;
+    });
+
+
+    $('#myModal').on('hide.bs.modal', function (e) {
+      if(self.tournamentIsComplete()) {
+        console.log('show dashboard');
+        NOTIFIER.notifySubscribers('', "showDashboard");
+      }
     });
   }
 }

@@ -5,7 +5,7 @@
 /* Toolbar toggle button */
 
 .toggle-btn {
-  z-index: 999;
+  z-index: 998;
   position: fixed;
   margin-left: 20px;
   top: 14px;
@@ -22,15 +22,15 @@
 
 #btn-wrapper #toggle-btn {
   padding-left: 0;
-  -webkit-transition: all 0.5s ease;
+/*  -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;*/
   transition: all 0.5s ease;
 }
 
-#btn-wrapper.toggled #toggle-btn {
+/*#btn-wrapper.toggled #toggle-btn {
   padding-left: 60px;
-}
+}*/
 
 .toggle-btn:hover {
   background-color: #333;
@@ -41,9 +41,10 @@
 /*Header bar*/
 
 .header-bar {
-  z-index: 998;
+  z-index: 997;
   position: fixed;
   top: -5px;
+  right: 1px;
   height: 90px;
   width: 100%;
   background-color: #fff;
@@ -51,6 +52,7 @@
 }
 
 #header-text {
+  z-index: 999;
   font-size: 30pt;
   margin-top: 20px;
   text-align: center;
@@ -83,14 +85,22 @@ bs-container-modified {
   /*max-width: 800px;*/
 }
 
-.circle {
-    border:3px solid #333;
+.circle, .add-circle {
     height:250px;
     border-radius:50%;
     -moz-border-radius:50%;
     -webkit-border-radius:50%;
     width:250px;
     /*text-align: center;*/
+}
+
+.circle {
+    border:3px solid #333;
+}
+
+.add-circle {
+  border:3px dashed gray;
+  color: gray;
 }
 
 .center {
@@ -125,20 +135,18 @@ bs-container-modified {
     width: 200px !important;
   }
 
-/*  .categories {
-    width: 90%;
-  }*/
-
 }
 
 @media(max-width:600px) {
 
   #wrapper #header #header-text {
+    z-index: 999;
     margin-top: 30px;
     font-size: 22pt;
   }
 
   #wrapper.toggled #header #header-text {
+    z-index: 999;
     margin-top: 35px;
     font-size: 15pt;
   }
@@ -170,7 +178,7 @@ bs-container-modified {
 }
 
 .add-players-view {
-  max-width: 400px; 
+  max-width: 400px;
   margin: auto;
 }
 
@@ -211,10 +219,19 @@ bs-container-modified {
     cursor: pointer !important;
 }
 
-.pair-separator {
+.pair-separator, .divider {
   height: 1px;
   width: 100%;
+}
+
+.pair-separator {
   background-color:rgba(0,0,0,.125);
+}
+
+.divider {
+  background-color: #999999;
+  position: absolute;
+  top: 85px;
 }
 
 .next-round {
