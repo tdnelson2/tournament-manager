@@ -20,10 +20,25 @@ var MainViewModel = function() {
         if(status === RoundStatus.FIRST_ROUND) {
             PairingsView.populate(self.players, self.progress);
         } else {
+
+            // Reset all players who were marked 'selected'.
             self.players().map(function(x) {x.isSelected(false);});
+
+            // Tell the server to mark the round complete.
             $.post('/', {roundComplete: 'mark_complete'}, function(returnedData) {
                 var r = JSON.parse(returnedData);
+
+
+
+
+// PROBLEM
+
+
+
+
+
                 if(r.this_round > r.total_rounds) {
+                    console.log('should show next round');
                     StandingsView.populate(self.players, self.progress);
                 } else {
                     StandingsView.populate(self.players, self.progress);

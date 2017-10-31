@@ -36,8 +36,8 @@ def fixDuplicates(pairs, match_history):
 				target = (p[0], pairs[i][2])
 				if ( not findDuplicate(origin, match_history) and 
 					 not findDuplicate(target, match_history) ):
-					full_origin = (pairs[i][0], pairs[i][1], p[2], p[3], p[4])
-					full_target = (p[0], p[1], pairs[i][2], pairs[i][3], p[4])
+					full_origin = (pairs[i][0], pairs[i][1], p[2], p[3])
+					full_target = (p[0], p[1], pairs[i][2], pairs[i][3])
 					replaceListItem(x, full_origin, pairs)
 					replaceListItem(p, full_target, pairs)
 					break

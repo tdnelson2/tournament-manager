@@ -78,8 +78,6 @@ def createTournament(name):
     currentTournamentID = id
     return id
 
-
-
 def getUsers():
     """
     Get all users from database
@@ -144,49 +142,17 @@ def countPlayers():
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
-
     The database assigns a unique serial id number for the player.
 
     Args:
       name: the player's full name (need not be unique).
     """
-
-# INSERT INTO players (name, placeholder, tournament_id) VALUES ('Purple',false,2);
-
-    p_count = countPlayers()
-    # sql = "INSERT INTO players (name, user_id, placeholder) values (%s, %s, %s)"
-    sql = "INSERT INTO players (name, tournament_id, placeholder) values (%s, %s, %s)"
-
     db = connect()
     c = db.cursor()
-
-    # REMOVE PLACEHOLDER ROW
-    # Placeholder rows will be present to maintain
-    # database integrity. It does so by keeping
-    # total row count to an even number thus
-    # preventing players from separate users from
-    # bleeding into each other's pairings.
-    placeholderExists = False
-    e = "FROM players WHERE tournament_id = %s AND placeholder = true"
-    e = e % str(currentTournamentID)
-    c.execute("SELECT EXISTS (SELECT 1 "+e+");")
-    isPlaceholder = c.fetchone()[0]
-
-    # Remove the placeholder if it exists
-    if isPlaceholder == True:
-        c.execute("DELETE "+e+";")
-        placeholderExists = True
-
-    if p_count % 2 == 0 and not placeholderExists:
-        # Add a placeholder if player count will be odd
-        # once the new player has been added. That means
-        # if the count is currently even, it would become
-        # odd if we were to add a player without first
-        # inserting a placeholder row.
-        c.execute(sql+";", ('PLACEHOLDER', str(currentTournamentID), 'true'))
-
     # Add the new name
-    c.execute(sql+" RETURNING id;", (name, str(currentTournamentID), 'false'))
+    c.execute("INSERT INTO players (name, tournament_id) \
+               VALUES (%s, %s) RETURNING id;",
+               (name, str(currentTournamentID)))
     id = c.fetchone()[0]
     db.commit()
     db.close()
@@ -258,7 +224,7 @@ def fullStandings():
 def processStandings(standings):
     # Convert `Decimal('[VALUE]')` to integer
     return [dict(id=a, name=b, wins=int(c), matches=int(d), user_id=e)
-            for a,b,c,d,e,f in standings if f == False]
+            for a,b,c,d,e in standings]
 
 
 def reportMatch(winner, loser, should_replace=False, should_clear=False):
@@ -323,10 +289,31 @@ def swissPairings():
         id1: the first player's unique id
         id2: the second player's unique id
     """
+    print 'current tournament = '+str(currentTournamentID)
     db = connect()
     c = db.cursor()
-    c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", str(currentTournamentID))
+    # c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", str(currentTournamentID))
+    # r = list(reversed( c.fetchall() ))
+
+
+
+    c.execute("SELECT * FROM standings WHERE tournament_id = %s;", str(currentTournamentID))
     r = list(reversed( c.fetchall() ))
+
+    i = 0
+    pairs = []
+    current_pair = []
+    while i < len(r):
+        current_pair.append(r[i][0])
+        current_pair.append(r[i][1])
+
+        if i%2 == 1:
+            pairs.append(current_pair)
+            current_pair = []
+        i +=1
+
+
+
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
                WHERE tournament_id = %s \
@@ -334,8 +321,8 @@ def swissPairings():
     match_history = c.fetchall()
 
     db.close()
-    unique_pairs = dup_manager.fixDuplicates(r, match_history)
-    return [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d,e in unique_pairs]
+    unique_pairs = dup_manager.fixDuplicates(pairs, match_history)
+    return [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d in unique_pairs]
 
 
     # return processStandings([w_standings, l_standings])
