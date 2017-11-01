@@ -91,15 +91,20 @@ bs-container-modified {
     -moz-border-radius:50%;
     -webkit-border-radius:50%;
     width:250px;
-    /*text-align: center;*/
+    cursor: pointer;
+}
+
+.circle:hover, .add-circle:hover {
+  background-color: #f8f9fa;
 }
 
 .circle {
-    border:3px solid #333;
+    border: 1px solid;
 }
 
 .add-circle {
-  border:3px dashed gray;
+  border: 1px dashed gray;
+  /*border:3px dashed gray;*/
   color: gray;
 }
 
@@ -116,7 +121,8 @@ bs-container-modified {
 
 .circle-text {
     position: relative;
-    top: 35%;
+    top: 50%;
+    transform: translateY(-50%);
     text-align: center;
 }
 
@@ -130,7 +136,7 @@ bs-container-modified {
     margin-left: auto;
   }
 
-  .circle {
+  .circle, .add-circle {
     height:200px !important;
     width: 200px !important;
   }

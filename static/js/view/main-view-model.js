@@ -90,7 +90,7 @@ var MainViewModel = function() {
             // Determine which view should display.
 
             // If tournament is complete, show results
-            if(utilities.overallWinner(self.players) !== undefined) {
+            if(utilities.overallWinner(self.players) !== undefined && !roundIsInProgress) {
                 console.log('show results');
                 StandingsView.populate(self.players, self.progress);
             }

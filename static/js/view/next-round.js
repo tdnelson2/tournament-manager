@@ -1,15 +1,22 @@
 var NextRoundView = {
+    // top margin is 25px
+    // right margin is 50px
+    // bottom margin is 75px
+    // left margin is 100px
 
   modalHTML: ''+
     '<!-- Modal -->'+
     '<div class="modal fade" id="nextModal" role="dialog">'+
-      '<div class="modal-dialog">'+
-        '<!-- Modal content-->'+
+      '<div class="modal-dialog modal-sm" style="max-width:325px;">'+
         '<div class="modal-content">'+
-          '<div class="modal-header">'+
-            '<button class="btn btn-primary" data-dismiss="modal" data-bind="text: nextText(), click: next"></button>'+
-            '<button class="btn btn-secondary" data-dismiss="modal">I\'m Not Ready Yet</button>'+
-          '</div>'+
+            '<div class="modal-body">'+
+            '<div class="container-fluid">'+
+              '<form class="text-center">'+
+                        '<button type="submit" class="btn btn-primary" style="margin:5px 0 0 0;" data-dismiss="modal" data-bind="text: nextText(), click: next"></button>'+
+                        '<button type="button" class="btn btn-secondary" style="margin:5px 0 0 0;" data-dismiss="modal">I\'m Not Ready Yet</button>'+
+              '</form>'+
+              '</div>'+
+            '</div>'+
         '</div>'+
       '</div>'+
     '</div>',

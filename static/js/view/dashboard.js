@@ -7,8 +7,8 @@ var DashboardView = {
                 '<div class="bs-container-fluid-modified bs-container-modified">'+
                     '<div class="content">'+
                         '<div class="row" data-bind="foreach: tournaments">'+
-                            '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 head-room" data-bind="click: $root.openTournament">'+
-                                '<div class="circle center" data-bind="css: { circle : id !== 0, \'add-circle\' : id === 0 }">'+
+                            '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 head-room">'+
+                                '<div class="circle center" data-bind="css: { circle : id !== 0, \'add-circle\' : id === 0 }, click: $root.openTournament">'+
                                     '<h3 class="circle-text" data-bind="text: name"></h3>'+
                                 '</div>'+
                             '</div>'+
