@@ -61,7 +61,9 @@ def standingsJSON():
 def pairingJSON():
     pairings = tournament.swissPairings()
     progress = tournament.progress()
-    return json.dumps(dict(pairings=pairings, progress=progress))
+    return json.dumps(dict(pairings=pairings['pairs'], 
+                           tournamentName=pairings['tournamentName'], 
+                           progress=progress))
 
 @app.route(root_url+'/tournament/<int:tournament_id>/JSON/')
 def roundJSON(tournament_id):

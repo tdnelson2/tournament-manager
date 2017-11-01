@@ -225,13 +225,18 @@ bs-container-modified {
     cursor: pointer !important;
 }
 
-.pair-separator, .divider {
+.pair-separator, .divider, .sub-header-separator {
   height: 1px;
   width: 100%;
 }
 
-.pair-separator {
+.pair-separator, .sub-header-separator {
   background-color:rgba(0,0,0,.125);
+}
+
+.sub-header-separator {
+  margin-bottom: 15px;
+  margin-top: 15px;
 }
 
 .divider {

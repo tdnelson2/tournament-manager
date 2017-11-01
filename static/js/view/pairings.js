@@ -32,9 +32,11 @@ var PairingsView = {
                             '<div class="content">'+
                               '<div class="row justify-content-md-center">'+
                                   '<div class="col col-lg-6">'+
+                                        '<h3 class="text-center">%TOURNAMENT-NAME%</h3>'+
+                                        '<div class="sub-header-separator"></div>'+
                                         '<div class="pairings-header">'+
                                             '<h4 style="margin-bottom: 2px;">Round %THIS-ROUND%</h4>'+
-                                            '<small>A maximum of %TOTAL-ROUNDS% rounds may be needed to crown a winner</small>'+
+                                            '<small>%TOTAL-ROUNDS% or more rounds may be needed to crown a winner</small>'+
                                         '</div>'+
                                       '<div class="round-card">'+
                                       '%PAIRS-HTML%'+
@@ -111,6 +113,7 @@ var PairingsView = {
             var html = html.replace('%THIS-ROUND%', r.progress.this_round)
             var html = html.replace('%TOTAL-ROUNDS%', r.progress.total_rounds)
             var html = html.replace('%PAIRS-HTML%', pairingsHTML);
+            var html = html.replace('%TOURNAMENT-NAME%', r.tournamentName);
 
             // Add HTML to the DOM and init the view model
             var $pairings = document.getElementById('pairings');

@@ -12,7 +12,7 @@ var NextRoundView = {
             '<div class="modal-body">'+
             '<div class="container-fluid">'+
               '<form class="text-center">'+
-                        '<button type="submit" class="btn btn-primary" style="margin:5px 0 0 0;" data-dismiss="modal" data-bind="text: nextText(), click: next"></button>'+
+                        '<button id="goToNextRound" type="submit" class="btn btn-primary" style="margin:5px 0 0 0;" data-dismiss="modal" data-bind="text: nextText(), click: next"></button>'+
                         '<button type="button" class="btn btn-secondary" style="margin:5px 0 0 0;" data-dismiss="modal">I\'m Not Ready Yet</button>'+
               '</form>'+
               '</div>'+
@@ -28,6 +28,12 @@ var NextRoundView = {
     $next.innerHTML = '<div id="next-bindings"></div>';
     var $bindings = document.getElementById('next-bindings');
     $bindings.innerHTML = NextRoundView.modalHTML;
+
+
+
+    $('#nextModal').on('shown.bs.modal', function () {
+        $('#goToNextRound').focus();
+    })
 
     $('#nextModal').modal('show');
 

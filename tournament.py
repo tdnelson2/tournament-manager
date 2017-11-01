@@ -178,7 +178,7 @@ def playerStandings():
     """
     db = connect()
     c = db.cursor()
-    c.execute("SELECT * FROM standings WHERE tournament_id = %s", str(currentTournamentID))
+    c.execute("SELECT * FROM standings WHERE tournament_id = %s", (str(currentTournamentID),))
     rows = c.fetchall()
     db.close()
     return processStandings(rows)
@@ -193,13 +193,15 @@ def fullStandings():
       standings: list of dictionaries containing FULL standings
         See `playerStandings()`
     """
+    print currentTournamentID
+    print str(currentTournamentID)
     db = connect()
     c = db.cursor()
     # c.execute("SELECT winner, loser FROM matches_with_user_id WHERE user_id = %s AND round_is_complete = false;", str(currentUserID))
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
                WHERE tournament_id = %s \
-               AND round_is_complete = false;", str(currentTournamentID))
+               AND round_is_complete = false;", (str(currentTournamentID),))
     uncounted = list(c.fetchall())
     db.close()
 
@@ -292,12 +294,12 @@ def swissPairings():
     print 'current tournament = '+str(currentTournamentID)
     db = connect()
     c = db.cursor()
-    # c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", str(currentTournamentID))
+    # c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", (str(currentTournamentID),))
     # r = list(reversed( c.fetchall() ))
 
 
 
-    c.execute("SELECT * FROM standings WHERE tournament_id = %s;", str(currentTournamentID))
+    c.execute("SELECT * FROM standings WHERE tournament_id = %s;", (str(currentTournamentID),))
     r = list(reversed( c.fetchall() ))
 
     i = 0
@@ -317,12 +319,16 @@ def swissPairings():
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
                WHERE tournament_id = %s \
-               AND round_is_complete = true;", str(currentTournamentID))
+               AND round_is_complete = true;", (str(currentTournamentID),))
     match_history = c.fetchall()
+
+    c.execute("SELECT name FROM tournaments WHERE id = %s", (str(currentTournamentID),))
+    tournament_name = c.fetchone()
 
     db.close()
     unique_pairs = dup_manager.fixDuplicates(pairs, match_history)
-    return [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d in unique_pairs]
+    pair_dicts = [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d in unique_pairs]
+    return dict(pairs=pair_dicts, tournamentName=tournament_name)
 
 
     # return processStandings([w_standings, l_standings])
@@ -341,7 +347,7 @@ def completedMatches():
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
                WHERE tournament_id = %s \
-               AND round_is_complete = false;", str(currentTournamentID))
+               AND round_is_complete = false;", (str(currentTournamentID),))
     matches_completed = c.fetchall()
     db.close()
     return [dict(winner=a, loser=b) for a,b in matches_completed]
@@ -357,7 +363,7 @@ def markRoundComplete():
     c.execute("UPDATE matches SET round_is_complete = true \
                FROM players WHERE matches.winner = players.id \
                AND players.tournament_id = %s \
-               AND matches.round_is_complete = false;", str(currentTournamentID))
+               AND matches.round_is_complete = false;", (str(currentTournamentID),))
     db.commit()
     db.close()
 
@@ -380,13 +386,13 @@ def progress(c=None):
         db = connect()
         c = db.cursor()
     c.execute("SELECT COUNT(*) FROM players \
-               WHERE tournament_id = %s;", str(currentTournamentID))
+               WHERE tournament_id = %s;", (str(currentTournamentID),))
     player_count = c.fetchone()[0]
     if player_count > 0:
         c.execute("SELECT COUNT(*) FROM matches \
                    INNER JOIN players ON (matches.winner = players.id) \
                    WHERE tournament_id = %s \
-                   AND round_is_complete = true;", str(currentTournamentID))
+                   AND round_is_complete = true;", (str(currentTournamentID),))
         match_count = c.fetchone()[0]
 
         # # Determine number of rounds expected to find a winner.

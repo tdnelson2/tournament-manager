@@ -1,7 +1,7 @@
 var StandingsView = {
   tableHTML: ''+
     '<!-- Modal -->'+
-    '<div class="modal fade" id="myModal" role="dialog">'+
+    '<div class="modal fade" id="standingsModal" role="dialog">'+
       '<div class="modal-dialog">'+
         '<!-- Modal content-->'+
         '<div class="modal-content">'+
@@ -30,8 +30,7 @@ var StandingsView = {
             '</table>'+
           '</div>'+
           '<div class="modal-footer">'+
-            '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
-            // '<button type="button" class="btn btn-default" data-dismiss="modal" data-bind="click: standingsModalClose">Close</button>'+
+            '<button id="closeStandingsModal" type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -67,7 +66,13 @@ var StandingsView = {
       var tableHTML = StandingsView.tableHTML.slice();
       $bindings.innerHTML = tableHTML;
 
-      $('#myModal').modal('show');
+
+
+      $('#standingsModal').on('shown.bs.modal', function () {
+          $('#closeStandingsModal').focus();
+      })
+
+      $('#standingsModal').modal('show');
 
       // Init binding
       ko.applyBindings( new StandingsView.View(players, progress, model), $bindings );
@@ -85,7 +90,7 @@ var StandingsView = {
     });
 
 
-    $('#myModal').on('hide.bs.modal', function (e) {
+    $('#standingsModal').on('hide.bs.modal', function (e) {
       if(self.tournamentIsComplete()) {
         console.log('show dashboard');
         NOTIFIER.notifySubscribers('', "showDashboard");
