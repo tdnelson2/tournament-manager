@@ -80,7 +80,7 @@ var StandingsView = {
     self.progress = progress;
 
     self.tournamentIsComplete = ko.pureComputed(function(){
-      var r = NextRoundView.isLastRound(self.model);
+      var r = utilities.overallWinner(self.model);
       return r !== undefined;
     });
 

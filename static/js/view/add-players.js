@@ -6,8 +6,8 @@ var AddPlayersView = {
 					    '<div class="row">'+
 					        '<form class="new-player-input">'+
 					            '<div class="form-group">'+
-					                '<label for="title">Add Players</label>'+
-					                '<input type="text" class="form-control" id="title" placeholder="" data-bind="value: playerInput">'+
+					                '<label for="addPlayerField">Add Players</label>'+
+					                '<input type="text" class="form-control" id="addPlayerField" placeholder="" data-bind="value: playerInput">'+
 				                '</div>'+
 					            '<button type="submit" class="btn btn-primary" data-bind="click: addPlayer">Add</button>'+
 					        '</form>'+
@@ -28,11 +28,17 @@ var AddPlayersView = {
 				    '</div>'+
                 '</div>',
 
+
     populate: function(model) {
         // Add HTML to the DOM and init the view model
         var $players = document.getElementById('add-players');
-        $players.innerHTML = AddPlayersView.html;
-        ko.applyBindings( new AddPlayersView.View(model), $players );
+        $players.innerHTML = '';
+        $players.innerHTML = '<div id="players-bindings"></div>';
+        var $bindings = document.getElementById('players-bindings');
+        $bindings.innerHTML = AddPlayersView.html;
+
+        ko.applyBindings( new AddPlayersView.View(model), $bindings );
+        $('#addPlayerField').focus();
     },
 
     View: function(model) {

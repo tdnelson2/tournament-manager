@@ -89,25 +89,20 @@ var PairingsView = {
             url: '/swiss-pairing/JSON/'
         }).done(function(result) {
             var r = JSON.parse(result);
-            console.log(result);
-            // model().map(function(x){console.log(x.id)})
-            
+
 
             // Build list of pairings.
             var pairingsHTML = '';
             for (var v = 0; v < r.pairings.length; v++) {
                 var x = r.pairings[v];
-                console.log(x);
                 var player1INDEX = null;
                 var player2INDEX = null;
                 for (var i = 0; i < model().length; i++) {
                     var player = model()[i];
-                    if( player.id === x.id1 ) { player1INDEX = i; console.log(player.id+' == '+x.id1);}
-                    if( player.id === x.id2 ) { player2INDEX = i; console.log(player.id+' == '+x.id2);}
+                    if( player.id === x.id1 ) { player1INDEX = i; }
+                    if( player.id === x.id2 ) { player2INDEX = i; }
                     if( player1INDEX !== null && player2INDEX !== null ) { break; }
                 };
-                // console.log('player1: '+player1INDEX);
-                // console.log('player2: '+player2INDEX);
                 pairingsHTML += buildPairing(player1INDEX, player2INDEX);
             };
 

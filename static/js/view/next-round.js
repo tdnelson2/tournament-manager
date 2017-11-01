@@ -33,7 +33,7 @@ var NextRoundView = {
     self.progress = progress;
     self.players = players;
     self.nextText = ko.pureComputed(function(){
-      var r = NextRoundView.isLastRound(self.players);
+      var r = utilities.overallWinner(self.players);
       if( r !== undefined ) {
         return 'Crown \''+r+'\' The Champion!';
       }
@@ -46,20 +46,5 @@ var NextRoundView = {
                    : RoundStatus.NOT_FIRST_ROUND;
       NOTIFIER.notifySubscribers(status, "showPairingsView");
     };
-  },
-
-  isLastRound: function(players) {
-    var champion = '';
-    var zeroLossCount = 0;
-    players().map(function(x){
-      if(x.wins()-x.matches() === 0){
-        zeroLossCount += 1;
-        champion = x.name()
-      }
-    });
-    if(zeroLossCount === 1) {
-      return champion;
-    }
-    return undefined;
   }
-}
+};
