@@ -31,11 +31,7 @@ var AddPlayersView = {
 
     populate: function(model) {
         // Add HTML to the DOM and init the view model
-        var $players = document.getElementById('add-players');
-        $players.innerHTML = '';
-        $players.innerHTML = '<div id="players-bindings"></div>';
-        var $bindings = document.getElementById('players-bindings');
-        $bindings.innerHTML = AddPlayersView.html;
+        var $bindings = utilities.addToDOM('add-players', AddPlayersView.html);
 
         ko.applyBindings( new AddPlayersView.View(model), $bindings );
         $('#addPlayerField').focus();
@@ -82,5 +78,9 @@ var AddPlayersView = {
 				alert('You must have an even number of players to proceed');
 			}
 		};
+
+        NOTIFIER.subscribe(function(tournament_id) {
+            self.shouldShowView(false);
+        }, self, "hideAllExceptDashboard");
     }
 };

@@ -134,7 +134,7 @@ def countPlayers():
     db = connect()
     c = db.cursor()
     c.execute("SELECT COUNT(*) FROM players \
-               WHERE tournament_id = %s;", (str(currentTournamentID)))
+               WHERE tournament_id = %s;", (str(currentTournamentID),))
     rows = c.fetchone()
     db.close()
     return rows[0]
@@ -323,7 +323,7 @@ def swissPairings():
     match_history = c.fetchall()
 
     c.execute("SELECT name FROM tournaments WHERE id = %s", (str(currentTournamentID),))
-    tournament_name = c.fetchone()
+    tournament_name = c.fetchone()[0]
 
     db.close()
     unique_pairs = dup_manager.fixDuplicates(pairs, match_history)

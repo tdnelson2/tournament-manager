@@ -5,6 +5,7 @@ var MainViewModel = function() {
     self.players = ko.observableArray([]);
     self.progress = ko.observable();
     self.tournaments = ko.observableArray([new Model.Tournament({id:0, name:"Create New Tournament"})]);
+    self.toolbarItems = ko.observableArray([]);
 
     NOTIFIER.subscribe(function() {
         console.log('create a tournament');
@@ -125,9 +126,29 @@ var MainViewModel = function() {
                 PairingsView.populate(self.players, self.progress, r.completed_matches);
             }
         });
-    }
+    };
+
+
+    // TOOLBAR ITEMS
+
+    self.toolbarAdd = function() {
+        self.createTournament()
+    };
+
+    self.toolbarSettings = function() {
+        alert('The settings option is still under construction');
+    };
+
+    self.toolbarDashboard = function() {
+        NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
+    };
+
+    self.toolbarStandings = function() {
+        alert('The standings option is still under construction');
+    };
 
     self.init = function() {
+
         // Fetch tournaments from the server
         $.ajax({
             url: '/tournaments/JSON/'

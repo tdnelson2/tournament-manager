@@ -73,11 +73,13 @@ var PairingsView = {
 
             // Returns a pairing html string using `pairingHTML` as a template
             var h = PairingsView.pairingHTML.slice();
+            var player1name = utilities.sanitize(model()[player1INDEX].name());
+            var player2name = utilities.sanitize(model()[player2INDEX].name());
 
             var r = [[/%PLAYER-1-INDEX%/g, player1INDEX],
                      [/%PLAYER-2-INDEX%/g, player2INDEX],
-                     [/%PLAYER-1%/g, model()[player1INDEX].name()],
-                     [/%PLAYER-2%/g, model()[player2INDEX].name()]];
+                     [/%PLAYER-1%/g, utilities.sanitize(model()[player1INDEX].name())],
+                     [/%PLAYER-2%/g, utilities.sanitize(model()[player2INDEX].name())]];
 
             for (var i = 0; i < r.length; i++) {
                 x = r[i];
@@ -113,14 +115,13 @@ var PairingsView = {
             var html = html.replace('%THIS-ROUND%', r.progress.this_round)
             var html = html.replace('%TOTAL-ROUNDS%', r.progress.total_rounds)
             var html = html.replace('%PAIRS-HTML%', pairingsHTML);
-            var html = html.replace('%TOURNAMENT-NAME%', r.tournamentName);
+            console.log(r.tournamentName);
+            var html = html.replace('%TOURNAMENT-NAME%', utilities.sanitize(r.tournamentName));
 
             // Add HTML to the DOM and init the view model
-            var $pairings = document.getElementById('pairings');
-            $pairings.innerHTML = '';
-            $pairings.innerHTML = '<div id="pairings-bindings"></div>';
-            var $bindings = document.getElementById('pairings-bindings');
-            $bindings.innerHTML = html;
+            var $bindings = utilities.addToDOM('pairings', html);
+
+
             ko.applyBindings( new PairingsView.View(model, progress, reported_count), $bindings );
         });
     },
@@ -153,10 +154,12 @@ var PairingsView = {
         });
 
 
-        NOTIFIER.subscribe(function() {
-            console.log('hied pairings view');
+        // NOTIFIER.subscribe(function() {
+        // }, self, "showDashboard");        
+
+        NOTIFIER.subscribe(function(tournament_id) {
             self.shouldShowView(false);
-        }, self, "showDashboard");
+        }, self, "hideAllExceptDashboard");
 
         // Update the server each time user chooses a winner
         self.clicks = 0;

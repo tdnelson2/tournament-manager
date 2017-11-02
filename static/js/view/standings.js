@@ -58,13 +58,9 @@ var StandingsView = {
                 (left.matches > right.matches ? -1 : 1)
       });
 
+
       // Insert into DOM
-      var $standings = document.getElementById('standings');
-      $standings.innerHTML = ''
-      $standings.innerHTML = '<div id="standings-bindings"></div>';
-      var $bindings = document.getElementById('standings-bindings');
-      var tableHTML = StandingsView.tableHTML.slice();
-      $bindings.innerHTML = tableHTML;
+      $bindings = utilities.addToDOM('standings', StandingsView.tableHTML);
 
 
 
@@ -90,10 +86,10 @@ var StandingsView = {
     });
 
 
-    $('#standingsModal').on('hide.bs.modal', function (e) {
+    $('#standingsModal').on('hide.bs.modal', function(e) {
       if(self.tournamentIsComplete()) {
         console.log('show dashboard');
-        NOTIFIER.notifySubscribers('', "showDashboard");
+        NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
       }
     });
   }

@@ -31,11 +31,7 @@ var AddTournamentView = {
 	populate : function(tournaments) {
 
 	    // Add HTML to the DOM and init the view model
-	    var $newTournament = document.getElementById('new-tournament');
-	    $newTournament.innerHTML = '';
-	    $newTournament.innerHTML = '<div id="new-tournament-bindings"></div>';
-	    var $bindings = document.getElementById('new-tournament-bindings');
-	    $bindings.innerHTML = AddTournamentView.html;
+	    var $bindings = utilities.addToDOM('new-tournament', AddTournamentView.html);
 
 	    $('#newTournamentModal').on('shown.bs.modal', function () {
 		    $('#tournamentNameInput').focus();
@@ -54,6 +50,11 @@ var AddTournamentView = {
 		self.tournaments = tournaments;
 		self.tournamentInput = ko.observable('');
 
+
+
+        NOTIFIER.subscribe(function(tournament_id) {
+            $('#newTournamentModal').modal('hide');
+        }, self, "hideAllExceptDashboard");
 
 
 		self.createTournament = function() {
@@ -77,17 +78,5 @@ var AddTournamentView = {
 				});
 			}
 		};
-
-// $(function(){
-//   $('#newTournamentModal').keypress(function(e){
-//     if(e.which == 13) {
-//       //dosomething
-//       e.stopPropagation();
-//       console.log('enter key pressed');
-//     }
-//   })
-// });
-
-
 	}
 }

@@ -23,13 +23,7 @@ var NextRoundView = {
 
   populate: function(players, progress) {
     // Insert into DOM
-    var $next = document.getElementById('next-round');
-    $next.innerHTML = '';
-    $next.innerHTML = '<div id="next-bindings"></div>';
-    var $bindings = document.getElementById('next-bindings');
-    $bindings.innerHTML = NextRoundView.modalHTML;
-
-
+    var $bindings = utilities.addToDOM('next-round', NextRoundView.modalHTML);
 
     $('#nextModal').on('shown.bs.modal', function () {
         $('#goToNextRound').focus();
@@ -51,7 +45,11 @@ var NextRoundView = {
         return 'Crown \''+r+'\' The Champion!';
       }
       return 'Next Round';
-    });
+    }); 
+
+    NOTIFIER.subscribe(function(tournament_id) {
+        $('#nextModal').modal('hide');
+    }, self, "hideAllExceptDashboard");
 
     self.next = function() {
       var status = progress.this_round >= progress.total_rounds

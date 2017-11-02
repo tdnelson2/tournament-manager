@@ -20,11 +20,8 @@ var DashboardView = {
         populate: function(tournaments) {
 
             // Add HTML to the DOM and init the view model
-            var $tournaments = document.getElementById('dashboard');
-            $tournaments.innerHTML = '';
-            $tournaments.innerHTML = '<div id="tournaments-bindings"></div>';
-            var $bindings = document.getElementById('tournaments-bindings');
-            $bindings.innerHTML = DashboardView.html;
+            var $bindings = utilities.addToDOM('dashboard', DashboardView.html);
+
             ko.applyBindings( new DashboardView.View(tournaments), $bindings );
         },
 
@@ -54,5 +51,9 @@ var DashboardView = {
                 console.log('hide dashboard view');
                 self.shouldShowDashboard(false);
             }, self, "hideDashboard");
+
+            NOTIFIER.subscribe(function(tournament_id) {
+                self.shouldShowDashboard(true);
+            }, self, "hideAllExceptDashboard");
         }
 }
