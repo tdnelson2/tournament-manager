@@ -42,12 +42,16 @@
                 <h1 id="header-text">Tournament Manager</h1>
             </header>
 
-            <div id="dashboard"></div>
-            <div id="new-tournament"></div>
-            <div id="add-players"></div>
-            <div id="pairings"></div>
-            <div id="standings"></div>
-            <div id="next-round"></div>
+            <div style="max-width: 1000px; margin: auto;">
+                <div id="dashboard"></div>
+                <div id="new-tournament"></div>
+                <div id="add-players"></div>
+                <div id="pairings"></div>
+                <div id="standings"></div>
+                <div id="next-round"></div>
+                <div id="delete-prompt"></div>
+                <div id="delete-tournaments"></div>
+            <div>
 
         </div>
         <!-- /#page-content-wrapper -->
@@ -70,7 +74,11 @@
     <script src="{{ links_root() }}static/js/view/dashboard.js"></script>
     <script src="{{ links_root() }}static/js/view/main-view-model.js"></script>
     <script src="{{ links_root() }}static/js/view/add-tournament.js"></script>
+    <script src="{{ links_root() }}static/js/view/delete-prompt.js"></script>
+    <script src="{{ links_root() }}static/js/view/delete-tournaments.js"></script>
     <script src="{{ links_root() }}static/js/utilities/utilities.js"></script>
+    <script src="{{ links_root() }}static/js/utilities/modal-prompt.js"></script>
+    <script src="{{ links_root() }}static/js/utilities/options-modal.js"></script>
     <script src="{{ links_root() }}static/js/app.js"></script>
 
 

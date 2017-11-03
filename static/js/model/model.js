@@ -11,6 +11,8 @@ var Model = {
 	Tournament: function(data) {
 		this.id = data.id;
 		this.name = ko.observable(data.name);
+		this.isSelected = ko.observable(false);
+		this.isSlatedToDelete = ko.observable(false);
 	},
 
 	Progress: function(data) {

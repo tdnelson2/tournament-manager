@@ -5,6 +5,7 @@
 
 import psycopg2
 import math
+import re
 import manage_duplicate_pairs as dup_manager
 currentUserID = 1;
 currentTournamentID = 1;
@@ -77,6 +78,27 @@ def createTournament(name):
     global currentTournamentID
     currentTournamentID = id
     return id
+
+
+def deleteTournaments(ids):
+    """Delete a tournament and all players/matches
+    contained within
+
+    RETURNS
+    Database True if succesful False if not
+    """
+    db = connect()
+    c = db.cursor()
+    try:
+        tupIDs = tuple(ids)
+        c.execute("DELETE FROM tournaments WHERE id IN \
+                   %s AND user_id = %s;", (tupIDs, str(currentUserID)))
+        db.commit()
+        db.close()
+        r = True
+    except:
+        r = False
+    return r
 
 def getUsers():
     """

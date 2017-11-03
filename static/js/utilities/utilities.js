@@ -16,14 +16,23 @@ var utilities = {
 
   addToDOM: function(target, html) {
     var $target = document.getElementById(target);
-    $target.innerHTML = ''
+    $target.innerHTML = '';
     $target.innerHTML = '<div id="'+target+'-bindings"></div>';
     var $bindings = document.getElementById(target+'-bindings');
     $bindings.innerHTML = html;
-    return $bindings
+    return $bindings;
   },
 
   sanitize: function(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  },
+
+  indexOfID: function(items, targetID) {
+    for (var i = 0; i < item().length; i++) {
+        if(items()[i] === thisTournament) {
+            return i;
+        }
+    }
+    return -1;
   }
 };

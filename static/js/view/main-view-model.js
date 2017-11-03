@@ -17,6 +17,26 @@ var MainViewModel = function() {
         self.showTournament(tournament_id);
     }, self, "showTournament");
 
+    NOTIFIER.subscribe(function(thisTournament) {
+        DeletePrompt.populate(thisTournament, ItemType.TOURNAMENT);
+    }, self, "promptForTournamentDelete");
+
+    NOTIFIER.subscribe(function() {
+        var deleteIDs = [];
+
+        // Loop through tournaments backwards removing as we go.
+        for (var i = self.tournaments().length - 1; i >= 0; --i) {
+            var t = self.tournaments()[i]
+            if(t.isSlatedToDelete()) {
+                deleteIDs.push(t.id);
+                self.tournaments.splice(i,1);
+            }
+        }
+
+        var data = {'deleteTournaments' : JSON.stringify(deleteIDs)};
+        $.post('/', data, function(returnedData) {});
+    }, self, "deleteTournaments");
+
 	NOTIFIER.subscribe(function(status) {
         if(status === RoundStatus.FIRST_ROUND) {
             PairingsView.populate(self.players, self.progress);

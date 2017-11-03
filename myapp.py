@@ -40,6 +40,11 @@ def index():
             name = request.form['newTournament']
             id = tournament.createTournament(name)
             return json.dumps(dict(id=id, name=name))
+        elif 'deleteTournaments' in request.form:
+            tournaments = json.loads(request.form['deleteTournaments'])
+            r = tournament.deleteTournaments(tournaments)
+            return json.dumps(dict(result=r))
+            
         return 'ERR'
     else:
         """Serve the client-side application."""
@@ -61,8 +66,8 @@ def standingsJSON():
 def pairingJSON():
     pairings = tournament.swissPairings()
     progress = tournament.progress()
-    return json.dumps(dict(pairings=pairings['pairs'], 
-                           tournamentName=pairings['tournamentName'], 
+    return json.dumps(dict(pairings=pairings['pairs'],
+                           tournamentName=pairings['tournamentName'],
                            progress=progress))
 
 @app.route(root_url+'/tournament/<int:tournament_id>/JSON/')
