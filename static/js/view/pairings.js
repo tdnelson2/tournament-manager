@@ -111,10 +111,10 @@ var PairingsView = {
             };
 
             // Put list of pairings in `rowHTML`
-            var html = PairingsView.rowHTML.slice();
-            var html = html.replace('%THIS-ROUND%', r.progress.this_round)
-            var html = html.replace('%TOTAL-ROUNDS%', r.progress.total_rounds)
-            var html = html.replace('%PAIRS-HTML%', pairingsHTML);
+            var html = PairingsView.rowHTML.slice()
+                       .replace('%THIS-ROUND%', r.progress.this_round)
+                       .replace('%TOTAL-ROUNDS%', r.progress.total_rounds)
+                       .replace('%PAIRS-HTML%', pairingsHTML);
             console.log(r.tournamentName);
             var html = html.replace('%TOURNAMENT-NAME%', utilities.sanitize(r.tournamentName));
 

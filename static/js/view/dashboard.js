@@ -1,6 +1,6 @@
 
- //  
 var DashboardView = {
+
     html: ''+
             '<div class="categories" data-bind="visible: shouldShowDashboard">'+
                 '<div class="category-text">'+
@@ -18,17 +18,27 @@ var DashboardView = {
                 '</div>'+
                 '<div class="bs-container-fluid-modified bs-container-modified">'+
                     '<div class="content">'+
-                        '<div class="row" data-bind="foreach: tournaments">'+
+                        '<div class="row">'+
+
                             '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 head-room">'+
-                                '<!-- ko if: id !== 0 -->'+
+                                '<div class="add-circle center" data-bind="click: createTournament">'+
+                                    '<h3 class="circle-text">Create New Tournament</h3>'+
+                                '</div>'+
+                            '</div>'+
+
+                            '<!-- ko foreach: tournaments -->'+
+
+                            '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 head-room">'+
                                 '<div data-bind="css: { \'details-shown\' : isSelected }, event: { mouseover: $root.enableDetails, mouseout: $root.disableDetails }" class="btn-group btn-group-sm delete-tournament" role="group" aria-label="Delete">'+
                                     '<button type="button" class="btn btn-outline-secondary" data-bind="click: $root.promptForDelete"><i class="fa fa-trash-o fa-lg" style="color:#212529;" aria-hidden="true"></i></button>'+
                                 '</div>'+
-                                '<!-- /ko -->'+
-                                '<div class="circle center" data-bind="css: { circle : id !== 0, \'add-circle\' : id === 0 }, click: $root.openTournament, event: { mouseover: $root.enableDetails, mouseout: $root.disableDetails }">'+
+                                '<div class="circle center" data-bind="click: $root.openTournament, event: { mouseover: $root.enableDetails, mouseout: $root.disableDetails }">'+
                                     '<h3 class="circle-text" data-bind="text: name"></h3>'+
                                 '</div>'+
                             '</div>'+
+
+                            '<!-- /ko -->'+ 
+
                         '</div>'+
                     '</div>'+
                 '</div>'+
@@ -61,13 +71,9 @@ var DashboardView = {
 
             self.openTournament = function(tournament) {
                 console.log(tournament.id);
-                if(tournament.id === 0) {
-                    self.createTournament();
-                } else {
-                    console.log('openTournament');
-                    NOTIFIER.notifySubscribers(tournament.id, "showTournament");
-                    self.shouldShowDashboard(false);
-                }
+                console.log('openTournament');
+                NOTIFIER.notifySubscribers(tournament, "showTournament");
+                self.shouldShowDashboard(false);
             };
 
             self.createTournament = function() {

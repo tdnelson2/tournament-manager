@@ -4,6 +4,8 @@ var AddPlayersView = {
                 '<div class="bs-container-fluid-modified bs-container-modified">'+
 	                '<div class="content"'+
 					    '<div class="row">'+
+                        '<h3 class="text-center" style="margin-bottom:15px;">%TOURNAMENT-NAME%</h3>'+
+                        '<div class="pair-separator" style="margin-bottom:15px;"></div>'+
 					        '<form class="new-player-input">'+
 					            '<div class="form-group">'+
 					                '<label for="addPlayerField">Add Players</label>'+
@@ -29,9 +31,10 @@ var AddPlayersView = {
                 '</div>',
 
 
-    populate: function(model) {
+    populate: function(model, tournament) {
         // Add HTML to the DOM and init the view model
-        var $bindings = utilities.addToDOM('add-players', AddPlayersView.html);
+        var html = AddPlayersView.html.slice().replace('%TOURNAMENT-NAME%', tournament.name());
+        var $bindings = utilities.addToDOM('add-players', html);
 
         ko.applyBindings( new AddPlayersView.View(model), $bindings );
         $('#addPlayerField').focus();

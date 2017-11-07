@@ -74,7 +74,7 @@ var AddTournamentView = {
 					self.tournamentInput('');
 
 					$('#newTournamentModal').modal('hide');
-					NOTIFIER.notifySubscribers(tournamentObj.id, "showTournament");
+					NOTIFIER.notifySubscribers(tournamentObj, "showTournament");
 				});
 			}
 		};

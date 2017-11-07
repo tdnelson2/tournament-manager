@@ -4,7 +4,7 @@ var MainViewModel = function() {
     var self = this;
     self.players = ko.observableArray([]);
     self.progress = ko.observable();
-    self.tournaments = ko.observableArray([new Model.Tournament({id:0, name:"Create New Tournament"})]);
+    self.tournaments = ko.observableArray([]);
     self.toolbarItems = ko.observableArray([]);
 
     NOTIFIER.subscribe(function() {
@@ -12,9 +12,9 @@ var MainViewModel = function() {
         self.createTournament();
     }, self, "createTournament");
 
-    NOTIFIER.subscribe(function(tournament_id) {
+    NOTIFIER.subscribe(function(tournament) {
         console.log('open a tournament');
-        self.showTournament(tournament_id);
+        self.showTournament(tournament);
     }, self, "showTournament");
 
     NOTIFIER.subscribe(function(thisTournament) {
@@ -74,10 +74,10 @@ var MainViewModel = function() {
         AddTournamentView.populate(self.tournaments);
     }
 
-    self.showTournament = function(tournament_id) {
+    self.showTournament = function(tournament) {
         // Fetch data from server if available
         $.ajax({
-            url: '/tournament/'+tournament_id+'/JSON/'
+            url: '/tournament/'+tournament.id+'/JSON/'
         }).done(function(result) {
             var r = JSON.parse(result);
 
@@ -101,8 +101,6 @@ var MainViewModel = function() {
             var matchesPlayed = false;
             self.players = ko.observableArray([]);
             for (var i = 0; i < r.standings.length; i++) {
-             // [dict(id=a, name=b, wins=int(c), matches=int(d), user_id=e)
-             // console.log(r.standings[i].matches);
              if(r.standings[i].matches > 0) { matchesPlayed = true; }
                 self.progress().update(r.progress);
                 self.players.push( new Model.Player(r.standings[i]) );
@@ -119,7 +117,7 @@ var MainViewModel = function() {
             // i.e. show `AddPlayersView`.
             else if(r.standings.length === 0) {
              console.log('should start new session');
-             AddPlayersView.populate(self.players);
+             AddPlayersView.populate(self.players, tournament);
             }
 
             // If a round is not in progress, but matches have been played,
@@ -134,7 +132,7 @@ var MainViewModel = function() {
             // added, show the `AddPlayerView`.
             else if(!roundIsInProgress && !matchesPlayed) {
              console.log('no matches have been played yet, user can safely add more players');
-             AddPlayersView.populate(self.players);
+             AddPlayersView.populate(self.players, tournament);
             }
 
             // If matches have been played, but user has not advanced
