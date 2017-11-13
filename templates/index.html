@@ -40,6 +40,29 @@
 
             <header id="header" class="header-bar">
                 <h1 id="header-text">Tournament Manager</h1>
+<!--                 <div>
+                    <a href="/logout/" class="user-btn">
+                        <img src="https://placeimg.com/640/480/any" class="rounded-circle user-img" alt="{{ username }}'s picture">
+                    </a>
+                </div> -->
+<div class="dropdown user-btn">
+    <a href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <img src="{{ user_picture }}" class="rounded-circle user-img" alt="{{ username }}'s picture">
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="
+
+          {% with provider = login_provider() %}
+              {% if provider == 'google' %}
+                  {{ url_for('login.gdisconnect') }}
+              {% elif provider == 'facebook' %}
+                  {{ url_for('login.fbdisconnect') }}
+              {% endif %}
+          {% endwith %}
+
+        "><i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>Sign Out</a>
+    </div>
+</div>
             </header>
 
             <div style="max-width: 1000px; margin: auto;">

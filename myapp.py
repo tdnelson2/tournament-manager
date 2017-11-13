@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
+from flask import session
+from modules.login import login
+from modules.decorators import login_required
 
 import psycopg2
 import json
@@ -10,8 +13,11 @@ from my_path_data import html_index_root
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
+app.register_blueprint(login)
+
 
 @app.route(root_url+'/', methods=['GET', 'POST'])
+@login_required
 def index():
     if request.method == 'POST':
         print request.form
@@ -22,16 +28,16 @@ def index():
         elif 'reportResult' in request.form:
             r = request.form['reportResult'].split(',')
             print r
-            try:
-                winner = int(r[0])
-                loser = int(r[1])
-                should_replace = bool(int(r[2]))
-                should_clear = bool(int(r[3]))
-                s = tournament.reportMatch(winner, loser,
-                                           should_replace, should_clear)
-                return json.dumps(s)
-            except:
-                print 'Server error. Result could not be recorded'
+            # try:
+            winner = int(r[0])
+            loser = int(r[1])
+            should_replace = bool(int(r[2]))
+            should_clear = bool(int(r[3]))
+            s = tournament.reportMatch(winner, loser,
+                                       should_replace, should_clear)
+            return json.dumps(s)
+            # except:
+            #     print 'Server error. Result could not be recorded'
         elif 'roundComplete' in request.form:
             tournament.markRoundComplete()
             p = tournament.progress()
@@ -59,21 +65,28 @@ def index():
         return 'ERR'
     else:
         """Serve the client-side application."""
-        return render_template('index.html')
+        return render_template('index.html',
+                               user_picture=session['picture'],
+                               username=session['username'])
 
 
 @app.route(root_url+'/tournaments/JSON/')
+@login_required
 def tournamentsJSON():
     tournaments = tournament.getTournaments()
     print tournaments
     return json.dumps(dict(tournaments=tournaments))
 
+
 @app.route(root_url+'/standings/JSON/')
+@login_required
 def standingsJSON():
     standings = tournament.playerStandings()
     return json.dumps(dict(standings=standings))
 
+
 @app.route(root_url+'/swiss-pairing/JSON/')
+@login_required
 def pairingJSON():
     pairings = tournament.swissPairings()
     progress = tournament.progress()
@@ -81,9 +94,11 @@ def pairingJSON():
                            tournamentName=pairings['tournamentName'],
                            progress=progress))
 
+
 @app.route(root_url+'/tournament/<int:tournament_id>/JSON/')
+@login_required
 def roundJSON(tournament_id):
-    tournament.currentTournamentID = tournament_id
+    session['tournament_id'] = tournament_id
     standings = tournament.fullStandings()
     print standings
     completed_matches = tournament.completedMatches()
@@ -92,10 +107,11 @@ def roundJSON(tournament_id):
                            completed_matches=completed_matches,
                            progress=progress))
 
+
 @app.route(root_url+'/progress/JSON/')
+@login_required
 def progressJSON():
     return json.dumps(dict(progress=tournament.progress()))
-
 
 @app.context_processor
 def utility_processor():
@@ -107,8 +123,19 @@ def utility_processor():
     """
     def links_root():
     	return html_index_root
+    def links_and_scripts():
+        return render_template('links-and-scripts.html')
+    def login_provider():
+        """
+        used to set the logout link depending on
+        if we're logged in under google or facebook
+        """
+        if 'provider' in session:
+            return session['provider']
 
-    return dict(links_root=links_root)
+    return dict(links_root=links_root,
+                render_links_and_scripts=links_and_scripts,
+                login_provider=login_provider)
 
 if __name__ == '__main__':
     app.debug = True

@@ -5,11 +5,13 @@
 
 import psycopg2
 from psycopg2 import sql as sql2
+from functools import wraps
+from flask import session
 import math
 import re
 import manage_duplicate_pairs as dup_manager
-currentUserID = 1;
-currentTournamentID = 1;
+# currentUserID = 1;
+# currentTournamentID = 1;
 
 
 
@@ -20,7 +22,42 @@ def connect():
                             "host='localhost' "
                             "password='password'")
 
-def createUser(name, email, photo):
+def addUserID(func):
+    """
+    A decorator to add the current user's id to kwargs.
+    """
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        kwargs['currentUserID'] = session['user_id']
+        return func(*args, **kwargs)
+    return wrap
+
+def addTournamentID(func):
+    """
+    A decorator to add the currently open tournament's id to kwargs.
+    """
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        kwargs['currentTournamentID'] = session['tournament_id']
+        return func(*args, **kwargs)
+    return wrap
+
+def establishConnection(func):
+    """
+    A decorator to establish database connection
+    and create a cursor.
+    """
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        if not 'c' in kwargs:
+            db = connect()
+            kwargs['db'] = db
+            kwargs['c'] = db.cursor()
+        return func(*args, **kwargs)
+    return wrap
+
+@establishConnection
+def createUser(name, email, photo, db, c):
     """Add user
     Should first check if email is already present
     a second function getUser will be needed
@@ -28,18 +65,18 @@ def createUser(name, email, photo):
     RETURNS
     Database id of new user
     """
-    db = connect()
-    c = db.cursor()
     c.execute("INSERT INTO a_user (name, email, photo) \
                VALUES (%s, %s, %s) RETURNING id;", (name, email, photo))
     id = c.fetchone()[0]
     db.commit()
     db.close()
-    global currentUserID
-    currentUserID = id
+    # global currentUserID
+    # currentUserID = id
     return id
 
-def getTournaments():
+@addUserID
+@establishConnection
+def getTournaments(currentUserID, db, c,):
     """Get all tournaments for current user
     Each user should be allowed to create an
     unlimited number of tournaments.
@@ -50,8 +87,6 @@ def getTournaments():
       name: the tournament's name
       user_id: id of the user who own's the tournament
     """
-    db = connect()
-    c = db.cursor()
     c.execute("SELECT * FROM tournaments \
                WHERE user_id = %s;", (str(currentUserID),))
     tournaments = c.fetchall()
@@ -61,7 +96,9 @@ def getTournaments():
     return data
 
 
-def createTournament(name):
+@addUserID
+@establishConnection
+def createTournament(name, currentUserID, db, c):
     """Create a new tournament
     Each user should be allowed to create an
     unlimited number of tournaments.
@@ -69,19 +106,17 @@ def createTournament(name):
     RETURNS
     Database id of new tournament
     """
-    db = connect()
-    c = db.cursor()
     c.execute("INSERT INTO tournaments (name, user_id) \
                VALUES (%s, %s) RETURNING id;", (name, str(currentUserID)))
     id = c.fetchone()[0]
     db.commit()
     db.close()
-    global currentTournamentID
-    currentTournamentID = id
+    # global currentTournamentID
+    # currentTournamentID = id
     return id
 
-
-def deleteTournaments(ids):
+@addUserID
+def deleteTournaments(ids, currentUserID):
     """Delete tournaments and all players/matches
     contained within
 
@@ -91,7 +126,8 @@ def deleteTournaments(ids):
 
     return deleteItems(ids, 'tournaments', 'user_id', str(currentUserID))
 
-def deletePlayers(ids):
+@addTournamentID
+def deletePlayers(ids, currentTournamentID):
     """Delete tournaments and all players/matches
     contained within
 
@@ -102,7 +138,8 @@ def deletePlayers(ids):
     return deleteItems(ids, 'players', 'tournament_id',
                        str(currentTournamentID))
 
-def deleteItems(ids, table_name, column_name, column_value):
+@establishConnection
+def deleteItems(ids, table_name, column_name, column_value, db, c):
     """Delete items from a list of ids
 
     RETURNS
@@ -111,8 +148,6 @@ def deleteItems(ids, table_name, column_name, column_value):
     if len(ids) == 0:
         r = False
 
-    db = connect()
-    c = db.cursor()
     # try:
     tupIDs = tuple(ids)
 
@@ -130,10 +165,11 @@ def deleteItems(ids, table_name, column_name, column_value):
     db.close()
     return r
 
-def updateTournamentNames(tournaments):
+@addUserID
+def updateTournamentNames(tournaments, currentUserID):
     """Update tournament names
     ARGS
-     list of lists, each of with contain
+     list of lists, each of which contain
      `id`: unique tournament identifier
      `name`: new name to be updated
 
@@ -143,10 +179,11 @@ def updateTournamentNames(tournaments):
     return updateNames(tournaments, 'tournaments',
                        'user_id', str(currentUserID))
 
-def updatePlayerNames(players):
-    """Update tournament names
+@addTournamentID
+def updatePlayerNames(players, currentTournamentID):
+    """Update player names
     ARGS
-     list of lists, each of with contain
+     list of lists, each of which contain
      `id`: unique player identifier
      `name`: new name to be updated
 
@@ -158,12 +195,16 @@ def updatePlayerNames(players):
 
 
 
-def updateNames(new_values, table_name, column_name, column_value):
+@establishConnection
+def updateNames(new_values, table_name, column_name, column_value, db, c):
     """Update values from columns named `name`
     ARGS
-     list of lists, each of with contain
-     `id`: unique item identifier
-     `name`: new name to be updated
+     `new_values`: list of lists, each of with contain
+       `id`: unique item identifier
+       `name`: new name to be updated
+      `table_name`: the table to update
+      `column_name`: an additional column to filter using `column_value`
+      `column_value`: a value in `column_name` to restrict `new_values`
 
     RETURNS
     True if succesful False if not
@@ -172,8 +213,6 @@ def updateNames(new_values, table_name, column_name, column_value):
     if len(new_values) == 0:
         return False
 
-    db = connect()
-    c = db.cursor()
     try:
         new_values = [tuple(x) for x in new_values]
 
@@ -194,6 +233,8 @@ def updateNames(new_values, table_name, column_name, column_value):
         print c.mogrify(' '.join(update_query.as_string(c).replace('\n', '').split()), new_values)
 
         c.execute(update_query, new_values)
+        v = c.fetchall()
+        print v
         db.commit()
         r = True
     except:
@@ -201,7 +242,9 @@ def updateNames(new_values, table_name, column_name, column_value):
     db.close()
     return r
 
-def getUsers():
+
+@establishConnection
+def getUsers(db, c):
     """
     Get all users from database
 
@@ -209,14 +252,13 @@ def getUsers():
     A list of tuples containing all information
     for each user
     """
-    db = connect()
-    c = db.cursor()
     c.execute("SELECT * FROM a_user");
     results = c.fetchall()
     db.close()
     return results
 
-def getUser(email):
+@establishConnection
+def getUser(email, db, c):
     """
     Queries the db to see if an email exists
 
@@ -224,20 +266,20 @@ def getUser(email):
     user's `id` if user exists
     `0` if user does not exist
     """
-    db = connect()
-    c = db.cursor()
-    c.execute("SELECT id FROM a_user WHERE email = %s", (email,));
-    result = c.fetchall()
+    print 'second get user is called'
+    c.execute("SELECT * FROM a_user WHERE email = %s", (email,));
+    results = c.fetchall()
     db.close()
-    if result != []:
-        return result[0][0]
-    return 0
+    if results != []:
+        r = results[0]
+        return dict(id=r[0], name=r[1], email=r[2], photo=r[3])
+    return None
 
 
-def countPlayers():
+@addTournamentID
+@establishConnection
+def countPlayers(currentTournamentID, db, c):
     """Returns the number of players currently registered."""
-    db = connect()
-    c = db.cursor()
     c.execute("SELECT COUNT(*) FROM players \
                WHERE tournament_id = %s;", (str(currentTournamentID),))
     rows = c.fetchone()
@@ -245,15 +287,15 @@ def countPlayers():
     return rows[0]
 
 
-def registerPlayer(name):
+@addTournamentID
+@establishConnection
+def registerPlayer(name, currentTournamentID, db, c):
     """Adds a player to the tournament database.
     The database assigns a unique serial id number for the player.
 
     Args:
       name: the player's full name (need not be unique).
     """
-    db = connect()
-    c = db.cursor()
     # Add the new name
     c.execute("INSERT INTO players (name, tournament_id) \
                VALUES (%s, %s) RETURNING id;",
@@ -264,7 +306,9 @@ def registerPlayer(name):
     return id
 
 
-def playerStandings():
+@addTournamentID
+@establishConnection
+def playerStandings(currentTournamentID, db, c):
     """Returns a list of the players and their win records, sorted by wins.
     This list DOES NOT INCLUDE matches from rounds
     where `round_is_complete` is `False`.
@@ -281,8 +325,6 @@ def playerStandings():
         matches: the number of matches the player has played
         user_id: unique id of the user who owns this tournament
     """
-    db = connect()
-    c = db.cursor()
     c.execute("SELECT * FROM standings WHERE tournament_id = %s", (str(currentTournamentID),))
     rows = c.fetchall()
     db.close()
@@ -290,7 +332,9 @@ def playerStandings():
 
 
 
-def fullStandings():
+@addTournamentID
+@establishConnection
+def fullStandings(currentTournamentID, db, c):
     """Same as `playerStandings()` except...
     Returns standings INCLUDING rounds in progress
 
@@ -300,8 +344,6 @@ def fullStandings():
     """
     print currentTournamentID
     print str(currentTournamentID)
-    db = connect()
-    c = db.cursor()
     # c.execute("SELECT winner, loser FROM matches_with_user_id WHERE user_id = %s AND round_is_complete = false;", str(currentUserID))
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
@@ -343,6 +385,8 @@ def reportMatch(winner, loser, should_replace=False, should_clear=False):
       should_replace: replace the last match report
       should_clear: remove the pairing
     """
+    db = connect()
+    c = db.cursor()
     try:
         int(winner)
         int(loser)
@@ -353,8 +397,6 @@ def reportMatch(winner, loser, should_replace=False, should_clear=False):
         )
     w = str(winner)
     l = str(loser)
-    db = connect()
-    c = db.cursor()
     if should_replace:
         c.execute("DELETE FROM matches \
                    WHERE winner = %s AND loser = %s;", (l,w))
@@ -383,7 +425,9 @@ def reportMatch(winner, loser, should_replace=False, should_clear=False):
     db.close()
     return dict(winner=w_standings, loser=l_standings, progress=prog)
 
-def swissPairings():
+@addTournamentID
+@establishConnection
+def swissPairings(currentTournamentID, db, c):
     """Returns a list of pairs of players for the next round of a match.
 
     Assuming that there are an even number of players registered, each player
@@ -397,8 +441,6 @@ def swissPairings():
         id2: the second player's unique id
     """
     print 'current tournament = '+str(currentTournamentID)
-    db = connect()
-    c = db.cursor()
     # c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", (str(currentTournamentID),))
     # r = list(reversed( c.fetchall() ))
 
@@ -438,7 +480,9 @@ def swissPairings():
 
     # return processStandings([w_standings, l_standings])
 
-def completedMatches():
+@addTournamentID
+@establishConnection
+def completedMatches(currentTournamentID, db, c):
     """Shows the state of the current round for mataches in which
     winner have been chosen.
 
@@ -447,8 +491,6 @@ def completedMatches():
         winner: the match winner
         loser: the match loser
     """
-    db = connect()
-    c = db.cursor()
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
                WHERE tournament_id = %s \
@@ -458,19 +500,20 @@ def completedMatches():
     return [dict(winner=a, loser=b) for a,b in matches_completed]
 
 
-def markRoundComplete():
+@addTournamentID
+@establishConnection
+def markRoundComplete(currentTournamentID, db, c):
     """Sets all matches to complete
     Function should be called when all match results have been
     reported and user has chosen to move on to the next round
     """
-    db = connect()
-    c = db.cursor()
     c.execute("UPDATE matches SET round_is_complete = true \
                FROM players WHERE matches.winner = players.id \
                AND players.tournament_id = %s \
                AND matches.round_is_complete = false;", (str(currentTournamentID),))
     db.commit()
     db.close()
+
 
 def progress(c=None):
     """Returns data on tournament progress including number of rounds,
@@ -486,6 +529,7 @@ def progress(c=None):
       `total_rounds`: number of rounds to crown a champion.
       `this_round`: current round being played.
     """
+    currentTournamentID = session['tournament_id']
     isNewSession = True if c == None else False
     if isNewSession:
         db = connect()
@@ -502,17 +546,6 @@ def progress(c=None):
 
         # # Determine number of rounds expected to find a winner.
         total_rounds = int(round(math.log(player_count,2)))
-
-        # # Determine number of rounds expected to find a winner.
-        # p = float(player_count)
-        # total_rounds = 0
-        # while p > 1:
-        #     p = p/2.0
-        #     if p % 2.0 == 1.0 and not p == 1.0:
-        #         p -= 1.0
-        #     total_rounds += 1
-        # print 'total rounds is '+str(total_rounds)
-
 
         total_matches = (player_count/2) * total_rounds
         this_round = int((float(match_count)/float(total_matches))*float(total_rounds))+1
