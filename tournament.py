@@ -7,9 +7,8 @@ import psycopg2
 from psycopg2 import sql as sql2
 from functools import wraps
 from flask import session
-import math
 import re
-import manage_duplicate_pairs as dup_manager
+import pairing_tools
 # currentUserID = 1;
 # currentTournamentID = 1;
 
@@ -444,24 +443,8 @@ def swissPairings(currentTournamentID, db, c):
     # c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", (str(currentTournamentID),))
     # r = list(reversed( c.fetchall() ))
 
-
-
     c.execute("SELECT * FROM standings WHERE tournament_id = %s;", (str(currentTournamentID),))
-    r = list(reversed( c.fetchall() ))
-
-    i = 0
-    pairs = []
-    current_pair = []
-    while i < len(r):
-        current_pair.append(r[i][0])
-        current_pair.append(r[i][1])
-
-        if i%2 == 1:
-            pairs.append(current_pair)
-            current_pair = []
-        i +=1
-
-
+    standings = list(reversed( c.fetchall() ))
 
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
@@ -473,9 +456,8 @@ def swissPairings(currentTournamentID, db, c):
     tournament_name = c.fetchone()[0]
 
     db.close()
-    unique_pairs = dup_manager.fixDuplicates(pairs, match_history)
-    pair_dicts = [dict(id1=a,name1=b,id2=c,name2=d) for a,b,c,d in unique_pairs]
-    return dict(pairs=pair_dicts, tournamentName=tournament_name)
+
+    return pairing_tools.pairup(standings, match_history, tournament_name)
 
 
     # return processStandings([w_standings, l_standings])
@@ -514,7 +496,6 @@ def markRoundComplete(currentTournamentID, db, c):
     db.commit()
     db.close()
 
-
 def progress(c=None):
     """Returns data on tournament progress including number of rounds,
     which round we're currently in, and number of matches.
@@ -537,28 +518,18 @@ def progress(c=None):
     c.execute("SELECT COUNT(*) FROM players \
                WHERE tournament_id = %s;", (str(currentTournamentID),))
     player_count = c.fetchone()[0]
-    if player_count > 0:
-        c.execute("SELECT COUNT(*) FROM matches \
-                   INNER JOIN players ON (matches.winner = players.id) \
-                   WHERE tournament_id = %s \
-                   AND round_is_complete = true;", (str(currentTournamentID),))
-        match_count = c.fetchone()[0]
 
-        # # Determine number of rounds expected to find a winner.
-        total_rounds = int(round(math.log(player_count,2)))
+    c.execute("SELECT COUNT(*) FROM matches \
+               INNER JOIN players ON (matches.winner = players.id) \
+               WHERE tournament_id = %s \
+               AND round_is_complete = true;", (str(currentTournamentID),))
+    match_count = c.fetchone()[0]
 
-        total_matches = (player_count/2) * total_rounds
-        this_round = int((float(match_count)/float(total_matches))*float(total_rounds))+1
-    else:
-        match_count=total_rounds=total_matches=this_round = 0
     if isNewSession:
         db.close()
 
-    return dict(player_count=player_count,
-                match_count=match_count,
-                total_matches=total_matches,
-                total_rounds=total_rounds,
-                this_round=this_round)
+    return pairing_tools.calculateProgress(player_count, match_count)
+
 
 
 

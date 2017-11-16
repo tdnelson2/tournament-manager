@@ -1,6 +1,8 @@
 // Pub/Sub for upstream communication with MainViewModel
 var NOTIFIER = new ko.subscribable();
 
+var GUEST_MODE = utilities.isGuestMode();
+console.log('isGuestMode: '+GUEST_MODE);
 
 // Determine if toolbar should be shown on load.
 var SHOW_TOOLBAR = true;

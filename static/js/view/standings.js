@@ -62,8 +62,6 @@ var StandingsView = {
       // Insert into DOM
       $bindings = utilities.addToDOM('standings', StandingsView.tableHTML);
 
-
-
       $('#standingsModal').on('shown.bs.modal', function () {
           $('#closeStandingsModal').focus();
       })

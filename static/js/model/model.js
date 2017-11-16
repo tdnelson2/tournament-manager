@@ -3,8 +3,8 @@ var Model = {
 	Player: function(data) {
 		this.id = data.id;
 		this.name = ko.observable(data.name);
-		this.wins = ko.observable(data.wins);
-		this.matches = ko.observable(data.matches);
+		this.wins = ko.observable(data.wins === undefined ? 0 : data.wins);
+		this.matches = ko.observable(data.matches === undefined ? 0 : data.matches);
 		this.isSelected = ko.observable(false);
 		this.isSlatedToDelete = ko.observable(false);
 	},

@@ -1,5 +1,5 @@
 from flask import flash, redirect
-from flask import session as login_session
+from flask import session as login_session, url_for
 from functools import wraps
 
 
@@ -7,7 +7,7 @@ from functools import wraps
 
 def login_required(func):
     """
-    A decorator to confirm login or redirect as needed
+    A decorator to confirm login or redirect as needed.
     """
     @wraps(func)
     def wrap(*args, **kwargs):
@@ -18,4 +18,20 @@ def login_required(func):
         else:
             flash("[warning]You need to login first")
             return redirect('/login/')
+    return wrap
+
+
+def logout_required(func):
+    """
+    A decorator redirect to index if user is logged in.
+    """
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        print args
+
+        if 'logged_in' in login_session:
+            flash("[warning]Guest version is for logged out users only. Log out if you wish to use it.")
+            return redirect(url_for('index'))
+        else:
+            return func(*args, **kwargs)
     return wrap

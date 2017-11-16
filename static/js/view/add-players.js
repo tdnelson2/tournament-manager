@@ -44,14 +44,15 @@ var AddPlayersView = {
 			        .replace('%TOURNAMENT-NAME%', tournament.name());
         var $bindings = utilities.addToDOM('add-players', html);
 
-        ko.applyBindings( new AddPlayersView.View(model), $bindings );
+        ko.applyBindings( new AddPlayersView.View(model, tournament), $bindings );
         $('#addPlayerField').focus();
     },
 
-    View: function(model) {
+    View: function(model, tournament) {
         self = this;
         self.shouldShowView = ko.observable(true);
         self.players = model;
+        self.tournament = tournament;
         self.playerInput = ko.observable("");
 
 		self.shouldShowPlayersAdded = function() {
@@ -64,15 +65,13 @@ var AddPlayersView = {
 		self.addPlayer = function() {
 			var player = self.playerInput();
 			if(player != "") {
-				var data = { name:player, wins:0, matches:0 };
-				self.players.push( new Model.Player(data) );
-				var playerObj = self.players()[self.players().length - 1];
-
-				var data = { 'newPlayer': player };
-				$.post('/', data, function(returnedData) {
-					var playerID = JSON.parse(returnedData);
-					playerObj.id = playerID.id;
-				});
+				data = {
+					name: player,
+					wins: 0,
+					matches: 0,
+					tournament_id: tournament.id
+				};
+				NOTIFIER.notifySubscribers(data, "postNewPlayer");
 				self.playerInput("");
 			}
 		};
@@ -83,8 +82,12 @@ var AddPlayersView = {
 				// Hide AddPlayerView
 				self.shouldShowView(false);
 
+                var data = {
+                    status: RoundStatus.FIRST_ROUND,
+                    tournament: self.tournament
+                };
 				// Notify: MainViewModel to show PairingsViewModel
-				NOTIFIER.notifySubscribers(RoundStatus.FIRST_ROUND, "showPairingsView");
+				NOTIFIER.notifySubscribers(data, "showPairingsView");
 			} else {
 				alert('You must have an even number of players to proceed');
 			}
@@ -92,7 +95,7 @@ var AddPlayersView = {
 
 		self.deletePlayers = function() {
 			if(self.players().length > 0) {
-                NOTIFIER.notifySubscribers('','showDeletePlayersModal');
+                NOTIFIER.notifySubscribers(self.tournament,'showDeletePlayersModal');
 			} else {
 				alert('There are no players to delete!\nPlease add players.')
 			}
@@ -100,7 +103,7 @@ var AddPlayersView = {
 
 		self.editPlayers = function() {
 			if(self.players().length > 0) {
-                NOTIFIER.notifySubscribers('','showEditPlayersModal');
+                NOTIFIER.notifySubscribers(self.tournament,'showEditPlayersModal');
 			} else {
 				alert('There are no players to edit!\nPlease add players.')
 			}

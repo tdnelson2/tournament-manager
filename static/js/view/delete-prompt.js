@@ -28,7 +28,8 @@ var DeletePrompt = {
 
 	    self.primaryAction = function() {
     		item.isSlatedToDelete(true);
-			NOTIFIER.notifySubscribers(self.itemType, "deleteItems");
+    		console.log(itemType);
+			NOTIFIER.notifySubscribers({serverKey:self.itemType}, "deleteItems");
 	    };
 
 	    self.secondaryText = ko.pureComputed(function(){

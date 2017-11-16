@@ -39,8 +39,6 @@ var AddTournamentView = {
 
 	    $('#newTournamentModal').modal('show');
 
-
-
 	    ko.applyBindings( new AddTournamentView.View(tournaments), $bindings );
 	},
 
@@ -60,22 +58,10 @@ var AddTournamentView = {
 		self.createTournament = function() {
 			var tournament = self.tournamentInput();
 			if(tournament != "") {
-
 				NOTIFIER.notifySubscribers('', "hideDashboard");
-
-				var data = { name:tournament, id:-1 };
-				self.tournaments.unshift( new Model.Tournament(data) );
-				var tournamentObj = self.tournaments()[0];
-
-				var data = { 'newTournament': tournament };
-				$.post('/', data, function(returnedData) {
-					var tournamentID = JSON.parse(returnedData);
-					tournamentObj.id = tournamentID.id;
-					self.tournamentInput('');
-
-					$('#newTournamentModal').modal('hide');
-					NOTIFIER.notifySubscribers(tournamentObj, "showTournament");
-				});
+				NOTIFIER.notifySubscribers(tournament, "postNewTournament");
+                self.tournamentInput('');
+                $('#newTournamentModal').modal('hide');
 			}
 		};
 	}

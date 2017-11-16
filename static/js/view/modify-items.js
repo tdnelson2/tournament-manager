@@ -2,13 +2,13 @@ var ModifyItemsView = {
 
 	populate: function(parameters) {
 		/*
-		Parameters is an object with the following keys:
-		`titleTxt`: The text that will appear in the modal's header.
-		`modalID`: The id that will be given to the modal.
-		`bodyHTML`: The html that will appear in the modal's body.
-		`closeBtnTxt`: Text that will appear in the close button.
-		`finishBtnTxt`: Text that will appear in the finish button.
-		`domTargetID`: The id of the element in which the modal will be added.
+		`parameters` is an object with the following keys:
+		  `titleTxt`: The text that will appear in the modal's header.
+		  `modalID`: The id that will be given to the modal.
+		  `bodyHTML`: The html that will appear in the modal's body.
+		  `closeBtnTxt`: Text that will appear in the close button.
+		  `finishBtnTxt`: Text that will appear in the finish button.
+		  `domTargetID`: The id of the element in which the modal will be added.
 		*/
 
 		var p = parameters;
@@ -26,11 +26,12 @@ var ModifyItemsView = {
 	    return $bindings
 	},
 
-	EditView: function(src, modalID, serverKey) {
+	EditView: function(src, modalID, serverKey, tournament) {
 		var self = this;
 		self.src = src;
 		self.modalID = modalID;
 		self.serverKey = serverKey;
+		self.tournament = tournament;
 		self.items = ko.observableArray([])
 
 
@@ -50,9 +51,13 @@ var ModifyItemsView = {
 	      };
 
 	      if(newNames.length > 0) {
-	        var data = {};
-	        data[serverKey] =  JSON.stringify(newNames);
-	              $.post('/', data, function(r) {;});
+	      	var newNameList = [];
+	      	var data = {
+	      		serverKey: serverKey,
+	      		tournament: self.tournament,
+	      		newNames: newNames
+	      	};
+			NOTIFIER.notifySubscribers(data, 'postItemNamesUpdate');
 	      }
 		};
 
@@ -63,13 +68,19 @@ var ModifyItemsView = {
 		$('#'+self.modalID).modal('show');
 	},
 
-	DeleteView: function(src, modalID, itemType) {
+	DeleteView: function(src, modalID, itemType, tournament) {
 		var self = this;
 		self.items = src;
 		self.itemType = itemType;
+		self.tournament = tournament;
 
 		self.finish = function() {
-			NOTIFIER.notifySubscribers(self.itemType, 'deleteItems');
+			console.log(tournament);
+			var data = {
+				serverKey: self.itemType,
+				tournament: self.tournament
+			};
+			NOTIFIER.notifySubscribers(data, 'deleteItems');
 		};
 
 		$('#'+modalID).modal('show');

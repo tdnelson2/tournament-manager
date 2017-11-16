@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask import session
 from modules.login import login
-from modules.decorators import login_required
+from modules.decorators import login_required, logout_required
 
 import psycopg2
 import json
 import tournament
+import pairing_tools
 
 from my_path_data import root_url
 from my_path_data import html_index_root
@@ -15,6 +16,8 @@ app = Flask(__name__)
 app.secret_key = 'super_secret_key'
 app.register_blueprint(login)
 
+
+# User account tournaments
 
 @app.route(root_url+'/', methods=['GET', 'POST'])
 @login_required
@@ -26,15 +29,11 @@ def index():
                             request.form['newPlayer'])
             return '{"id": %s}'%id
         elif 'reportResult' in request.form:
-            r = request.form['reportResult'].split(',')
+            r = json.loads(request.form['reportResult'])
             print r
             # try:
-            winner = int(r[0])
-            loser = int(r[1])
-            should_replace = bool(int(r[2]))
-            should_clear = bool(int(r[3]))
-            s = tournament.reportMatch(winner, loser,
-                                       should_replace, should_clear)
+            s = tournament.reportMatch(r['winner_id'], r['loser_id'],
+                                       r['shouldReplace'], r['shouldClear'])
             return json.dumps(s)
             # except:
             #     print 'Server error. Result could not be recorded'
@@ -113,6 +112,47 @@ def roundJSON(tournament_id):
 def progressJSON():
     return json.dumps(dict(progress=tournament.progress()))
 
+
+# Guest tournaments
+
+
+@app.route(root_url+'/guest/', methods=['GET', 'POST'])
+@logout_required
+def guest():
+    """Guest mode
+    Allows the user to use the app without creating
+    an account. Data is managed and saved locally
+    in localStorage. Swiss pairing, however, is still done
+    by the server.
+    """
+    if request.method == 'POST':
+        if 'swiss_pairing_requested' in request.form:
+            r = json.loads(request.form['swiss_pairing_requested'])
+            print r
+
+            pairings = pairing_tools.pairup(r['standings'],
+                                            r['matches'],
+                                            r['tournament_name'])
+
+            progress = pairing_tools.calculateProgress(len(r['standings']),
+                                                       len(r['matches']))
+            return json.dumps(dict(pairings=pairings['pairs'],
+                                   tournamentName=pairings['tournamentName'],
+                                   progress=progress))
+        if 'progress' in request.form:
+            r = json.loads(request.form['progress'])
+            print r
+
+            progress = pairing_tools.calculateProgress(len(r['standings']),
+                                                       len(r['matches']))
+            return json.dumps(dict(progress=progress))
+        return 'ERR'
+    else:
+        """Serve the client-side application in guest mode."""
+        return render_template('index.html',
+                               user_picture=None,
+                               username=None)
+
 @app.context_processor
 def utility_processor():
     """
@@ -132,10 +172,18 @@ def utility_processor():
         """
         if 'provider' in session:
             return session['provider']
+    def logout_url():
+        if 'provider' in session:
+            if session['provider'] == 'google':
+                return url_for('login.gdisconnect')
+            if session['provider'] == 'facebook':
+                return url_for('login.fbdisconnect')
+            return None
 
     return dict(links_root=links_root,
                 render_links_and_scripts=links_and_scripts,
-                login_provider=login_provider)
+                login_provider=login_provider,
+                logout_url=logout_url)
 
 if __name__ == '__main__':
     app.debug = True

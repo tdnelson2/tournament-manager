@@ -34,5 +34,19 @@ var utilities = {
         }
     }
     return -1;
+  },
+
+  isGuestMode: function() {
+
+    // Get the last path component of pages url.
+    var lastPathComponent = function(loc) {
+      return loc.pop() || loc.pop();
+    }
+    var loc = window.location.href.split('/');
+    var seg = lastPathComponent(loc);
+    if(seg === '#'){
+      seg = lastPathComponent(loc);
+    }
+    return seg.toLowerCase() === 'guest'
   }
 };
