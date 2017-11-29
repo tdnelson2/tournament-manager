@@ -63,10 +63,10 @@ var PairingsView = {
         var reported_count = 0;
         if(completed_matches !== undefined) {
             for (var i = 0; i < completed_matches.length; i++) {
-                c = completed_matches[i];
+                var c = completed_matches[i];
                 console.log('this completed match: winner: '+c.winner+' loser: '+c.loser);
                 for (var x = 0; x < model().length; x++) {
-                    p = model()[x];
+                    var p = model()[x];
                     if(p.id == c.winner) {
                         p.isSelected(true);
                         reported_count += 1;
@@ -81,18 +81,16 @@ var PairingsView = {
 
             // Returns a pairing html string using `pairingHTML` as a template
             var h = PairingsView.pairingHTML.slice();
-            var player1name = utilities.sanitize(model()[player1INDEX].name());
-            var player2name = utilities.sanitize(model()[player2INDEX].name());
 
             var r = [[/%PLAYER-1-INDEX%/g, player1INDEX],
                      [/%PLAYER-2-INDEX%/g, player2INDEX]];
 
             for (var i = 0; i < r.length; i++) {
                 x = r[i];
-                var h = h.replace(x[0], x[1]);
-            };
+                h = h.replace(x[0], x[1]);
+            }
             return h;
-        }
+        };
 
 
         /* Build list of pairings by looping through
@@ -100,7 +98,6 @@ var PairingsView = {
            the index of the coresponding player for each
            pair from the player ko view model, and adding
            it to the the template. */
-        // model().map(function(x){console.log(x.id)});
         var pairingsHTML = '';
         for (var v = 0; v < r.pairings.length; v++) {
             var x = r.pairings[v];
@@ -108,16 +105,12 @@ var PairingsView = {
             var player2INDEX = null;
             for (var i = 0; i < model().length; i++) {
                 var player = model()[i];
-                // console.log('player.id: '+player.id+' type: '+typeof player.id);
-                // console.log('x.id1: '+x.id2+' type: '+typeof x.id2);
                 if( player.id === x.id1 ) { player1INDEX = i; }
                 if( player.id === x.id2 ) { player2INDEX = i; }
                 if( player1INDEX !== null && player2INDEX !== null ) { break; }
-            };
-            // console.log('player1INDEX: '+player1INDEX);
-            // console.log('player2INDEX: '+player2INDEX);
+            }
             pairingsHTML += buildPairing(player1INDEX, player2INDEX);
-        };
+        }
 
         var dropdown = DropDownMenu.prepare([
         {itemText:' Edit Player Name(s) ...', action:'editPlayers', css:'fa fa-edit fa-fw'}]);
@@ -129,7 +122,7 @@ var PairingsView = {
                    .replace('%TOTAL-ROUNDS%', r.progress.total_rounds)
                    .replace('%PAIRS-HTML%', pairingsHTML);
         console.log(r.tournamentName);
-        var html = html.replace('%TOURNAMENT-NAME%', utilities.sanitize(tournament.name()));
+        html = html.replace('%TOURNAMENT-NAME%', utilities.sanitize(tournament.name()));
 
         // Add HTML to the DOM and init the view model
         var $bindings = utilities.addToDOM('pairings', html);
@@ -140,7 +133,7 @@ var PairingsView = {
 
     View: function(model, progress, reported_count, tournament) {
         // KO object
-        self = this;
+        var self = this;
         self.shouldShowView = ko.observable(true);
         self.players = model;
         self.progress = progress;
@@ -152,7 +145,7 @@ var PairingsView = {
         self.showStandings = function() {
             console.log('show standings clicked');
             NOTIFIER.notifySubscribers("results", "showStandingsView");
-        }
+        };
 
         // Injects css to disable/enable 'Next Round' button
         self.buttonState = ko.pureComputed(function() {
@@ -170,7 +163,7 @@ var PairingsView = {
             if(self.players().length > 0) {
                 NOTIFIER.notifySubscribers(self.tournament,'showEditPlayersModal');
             } else {
-                alert('There are no players to edit!\nPlease add players.')
+                alert('There are no players to edit!\nPlease add players.');
             }
         };
 
@@ -189,7 +182,7 @@ var PairingsView = {
                `reportResult` gets called once per player.
                We account for this by ignoring so many
                initial clicks. */
-            self.clicks += 1
+            self.clicks += 1;
             if (self.clicks > self.players().length) {
                 var shouldClear = winner.isSelected() ? 1 : 0;
                 var shouldReplace = loser.isSelected() ? 1 : 0;
@@ -239,6 +232,6 @@ var PairingsView = {
                     NOTIFIER.notifySubscribers(self.tournament, "showNextRoundView");
                 }
             }
-        }
+        };
     }
 };

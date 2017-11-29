@@ -44,7 +44,7 @@ var MainViewModel = function() {
         } else {
             var postData = {};
             postData[data.serverKey] = JSON.stringify(deleteIDs);
-            $.post('/', postData, function(returnedData) {;});
+            $.post('/tournament-manager/', postData, function(returnedData) {;});
         }
     }, self, "deleteItems");
 
@@ -141,7 +141,7 @@ var MainViewModel = function() {
                 showNextViews();
             } else {
                 // Tell the server to mark the round complete.
-                $.post('/', {roundComplete: 'mark_complete'}, function(returnedData) {
+                $.post('/tournament-manager/', {roundComplete: 'mark_complete'}, function(returnedData) {
                     var r = JSON.parse(returnedData);
                     showNextViews();
                 });
@@ -171,7 +171,7 @@ var MainViewModel = function() {
             playerObj.id = p.id;
         } else {
             var postData = { 'newPlayer': data.name };
-            $.post('/', postData, function(returnedData) {
+            $.post('/tournament-manager/', postData, function(returnedData) {
                 var playerID = JSON.parse(returnedData);
                 playerObj.id = playerID.id;
             });
@@ -190,7 +190,7 @@ var MainViewModel = function() {
         if(GUEST_MODE) {
             GuestModel.reportMatch(postData);
         } else {
-            $.post('/', {reportResult:JSON.stringify(postData)}, function(returnedData) {
+            $.post('/tournament-manager/', {reportResult:JSON.stringify(postData)}, function(returnedData) {
                 var r = JSON.parse(returnedData);
 
                 console.log(r.progress);
@@ -215,7 +215,7 @@ var MainViewModel = function() {
         } else {
             var postData = {};
             postData[data.serverKey] =  JSON.stringify(data.newNames);
-            $.post('/', postData, function(r) {;});
+            $.post('/tournament-manager/', postData, function(r) {;});
         }
     }, self, "postItemNamesUpdate");
 
@@ -232,7 +232,7 @@ var MainViewModel = function() {
             self.showTournament(tournamentObj);
         } else {
             var data = { 'newTournament': tournamentName };
-            $.post('/', data, function(returnedData) {
+            $.post('/tournament-manager/', data, function(returnedData) {
                 var r = JSON.parse(returnedData);
                 tournamentObj.id = r.id;
                 self.showTournament(tournamentObj);
@@ -256,7 +256,7 @@ var MainViewModel = function() {
             var standings = GuestModel.standings(tournament.id);
             standings['tournament_name'] = tournament.name();
             var data = {swiss_pairing_requested: JSON.stringify(standings)};
-            $.post('/guest/', data, function(result) {
+            $.post('/tournament-manager/guest/', data, function(result) {
 
                 var pairingData = JSON.parse(result);
                 console.log(pairingData);
@@ -265,7 +265,7 @@ var MainViewModel = function() {
             });
         } else {
             $.ajax({
-                url: '/swiss-pairing/JSON/'
+                url: '/tournament-manager/swiss-pairing/JSON/'
             }).done(function(result) {
                 var pairingData = JSON.parse(result);
                 PairingsView.populate(self.players, self.progress, pairingData, completed_matches, tournament);
@@ -374,7 +374,7 @@ var MainViewModel = function() {
             // };
             // AddPlayersView.populate(self.players, tournament);
             var data = GuestModel.fullStandings(tournament.id);
-            $.post('/guest/', {progress:JSON.stringify(data.end_of_last_round_standings)}, function(result) {
+            $.post('/tournament-manager/guest/', {progress:JSON.stringify(data.end_of_last_round_standings)}, function(result) {
                 var r = JSON.parse(result);
                 console.log(r.progress);
                 data['progess'] = r.progress;
@@ -383,7 +383,7 @@ var MainViewModel = function() {
         } else {
             // Fetch data from server if available
             $.ajax({
-                url: '/tournament/'+tournament.id+'/JSON/'
+                url: '/tournament-manager/tournament/'+tournament.id+'/JSON/'
             }).done(function(result) {
                 var r = JSON.parse(result);
                 console.log(r);
@@ -426,7 +426,7 @@ var MainViewModel = function() {
         } else {
             // Fetch tournaments from the server
             $.ajax({
-                url: '/tournaments/JSON/'
+                url: '/tournament-manager/tournaments/JSON/'
             }).done(function(result) {
                 addTournaments(JSON.parse(result).tournaments);
             });

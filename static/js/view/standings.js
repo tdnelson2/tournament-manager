@@ -51,11 +51,11 @@ var StandingsView = {
       });
       players.sort(function (left, right) {
           return left.wins == right.wins ? 0 :
-                (left.wins > right.wins ? -1 : 1)
+                (left.wins > right.wins ? -1 : 1);
       });
       players.sort(function (left, right) {
           return left.matches == right.matches ? 0 :
-                (left.matches > right.matches ? -1 : 1)
+                (left.matches > right.matches ? -1 : 1);
       });
 
 
@@ -64,7 +64,7 @@ var StandingsView = {
 
       $('#standingsModal').on('shown.bs.modal', function () {
           $('#closeStandingsModal').focus();
-      })
+      });
 
       $('#standingsModal').modal('show');
 
@@ -91,4 +91,4 @@ var StandingsView = {
       }
     });
   }
-}
+};

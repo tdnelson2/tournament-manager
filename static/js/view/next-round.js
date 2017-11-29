@@ -9,7 +9,7 @@ var NextRoundView = {
 
     $('#next').on('shown.bs.modal', function () {
         $('#nextPrimary').focus();
-    })
+    });
 
     // Init binding
     ko.applyBindings( new NextRoundView.View(players, progress, tournament), $bindings );
@@ -46,7 +46,7 @@ var NextRoundView = {
     };
 
     self.secondaryText = ko.pureComputed(function(){
-      return 'I\'m Not Ready Yet'
+      return 'I\'m Not Ready Yet';
     });
 
     self.secondaryAction = function(){ return; };

@@ -17,7 +17,7 @@ def login_required(func):
             return func(*args, **kwargs)
         else:
             flash("[warning]You need to login first")
-            return redirect('/login/')
+            return redirect(url_for('login.showLogin'))
     return wrap
 
 

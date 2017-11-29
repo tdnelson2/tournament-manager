@@ -33,7 +33,7 @@ var DeletePrompt = {
 	    };
 
 	    self.secondaryText = ko.pureComputed(function(){
-	      return 'Don\'t Delete!'
+	      return 'Don\'t Delete!';
 	    });
 
 	    self.secondaryAction = function(){ return; };
@@ -41,4 +41,4 @@ var DeletePrompt = {
 		$('#deleteItem').modal('show');
 
 	}
-}
+};

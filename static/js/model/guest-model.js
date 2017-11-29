@@ -4,8 +4,8 @@ var GuestModel = {
         var tournaments = { nextID:1 };
         try {
             tournaments = JSON.parse(localStorage.tournaments);
-        } catch(e) {;};
-        return tournaments
+        } catch(e) {}
+        return tournaments;
     },
 
     addTournament : function(name) {
@@ -18,7 +18,7 @@ var GuestModel = {
 
         // Make another tournament obj and add id.
         var tournament = GuestModel.newTournament(name);
-        tournament['id'] = tournaments.nextID;
+        tournament.id = tournaments.nextID;
 
         // Incriment the nextID property.
         tournaments.nextID += 1;
@@ -51,17 +51,17 @@ var GuestModel = {
     },
 
     getTournaments: function() {
-        var model = GuestModel.getModel()
+        var model = GuestModel.getModel();
         return GuestModel.getItems(model);
     },
 
     addPlayer : function(name, tournament_id) {
         tournament_id = String(tournament_id);
-        var model = GuestModel.getModel()
+        var model = GuestModel.getModel();
         var players = model[tournament_id].players;
         players[players.nextID] = GuestModel.newPlayer(name);
         var player = GuestModel.newPlayer(name);
-        player['id'] = players.nextID;
+        player.id = players.nextID;
         players.nextID += 1;
         localStorage.tournaments = JSON.stringify(model);
         return player;
@@ -71,7 +71,7 @@ var GuestModel = {
         return GuestModel.getItems(GuestModel.getModel()[String(tournament_id)].players);
     },
 
-    removePlayers(tournament_id, ids) {
+    removePlayers : function(tournament_id, ids) {
         var model = GuestModel.getModel();
         GuestModel.removeItems(model[tournament_id].players, ids);
         localStorage.tournaments = JSON.stringify(model);
@@ -98,10 +98,10 @@ var GuestModel = {
         for (var i = 0; i < keys.length; i++) {
             if(keys[i] !== 'nextID') {
                 var o = model[keys[i]];
-                o['id'] = parseInt(keys[i]);
+                o.id = parseInt(keys[i]);
                 items.push(o);
             }
-        };
+        }
         return items;
     },
 
@@ -109,7 +109,7 @@ var GuestModel = {
         console.log(items);
         for (var i = 0; i < items.length; i++) {
             model[String(items[i][0])].name = items[i][1];
-        };
+        }
     },
 
     removeItems : function(model, ids) {
@@ -117,14 +117,14 @@ var GuestModel = {
         for (var i = 0; i < ids.length; i++) {
             console.log(ids[i]);
             delete model[ids[i]];
-        };
+        }
     },
 
     standings: function(tournament_id) {
         tournament_id = String(tournament_id);
         var tournament = GuestModel.getModel()[tournament_id];
         var players = tournament.players;
-        delete players.nextID
+        delete players.nextID;
         var playerKeys = Object.keys(tournament.players);
         var standings = [];
         for (var i = 0; i < playerKeys.length; i++) {
@@ -132,7 +132,7 @@ var GuestModel = {
             var p = players[k];
             standings.push([parseInt(k), p.name, p.wins, p.matches, parseInt(tournament_id), false]);
             // console.log([parseInt(k), p.name, p.wins, p.matches, parseInt(tournament_id), false]);
-        };
+        }
 
         standings.sort(function (left, right) {
           return left[2] == right[2] ? 0 :
@@ -159,7 +159,7 @@ var GuestModel = {
                     }
                     x.matches += 1;
                 }
-            };
+            }
         };
 
         var s = GuestModel.standings(tournament_id);
@@ -189,22 +189,15 @@ var GuestModel = {
                     loser:m.loser
                 });
             }
-        };
+        }
         return {
             standings: fullStandings,
             completed_matches:completed_matches,
             end_of_last_round_standings: s
         };
     },
-/*
-        var postData = {
-            winner_id: data.winner.id,
-            loser_id: data.loser.id,
-            tournament_id: data.tournament.id,
-            shouldReplace: data.shouldReplace,
-            shouldClear: data.shouldClear
-        };
-*/
+  
+  
     reportMatch: function(data) {
         data.tournament_id = String(data.tournament_id);
         var model = GuestModel.getModel();
@@ -232,7 +225,7 @@ var GuestModel = {
                         break;
                     }
                 }
-            };
+            }
         } else {
             matches.push({
                 winner: data.winner_id,
@@ -259,22 +252,18 @@ var GuestModel = {
             players[m.winner].wins += 1;
             players[m.winner].matches += 1;
             players[m.loser].matches += 1;
-        };
+        }
         localStorage.tournaments = JSON.stringify(model);
-    },
-
-    calculateProgress: function(player_count, match_count) {
-        df
     },
 
     keyify: function(k) {
         if(typeof k === 'object') {
             for (var i = 0; i < k.length; i++) {
                 k[i] = String(k[i]);
-            };
+            }
         } else if(typeof k === 'number'){
             k = String(k);
         }
         return k;
     }
-}
+};

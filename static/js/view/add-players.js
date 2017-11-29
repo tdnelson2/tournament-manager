@@ -49,7 +49,7 @@ var AddPlayersView = {
     },
 
     View: function(model, tournament) {
-        self = this;
+        var self = this;
         self.shouldShowView = ko.observable(true);
         self.players = model;
         self.tournament = tournament;
@@ -58,13 +58,13 @@ var AddPlayersView = {
 		self.shouldShowPlayersAdded = function() {
 			if( self.players().length > 0 ) {
 				return true;
-			};
+			}
 			return false;
 		};
 
 		self.addPlayer = function() {
 			var player = self.playerInput();
-			if(player != "") {
+			if(player !== "") {
 				data = {
 					name: player,
 					wins: 0,
@@ -97,7 +97,7 @@ var AddPlayersView = {
 			if(self.players().length > 0) {
                 NOTIFIER.notifySubscribers(self.tournament,'showDeletePlayersModal');
 			} else {
-				alert('There are no players to delete!\nPlease add players.')
+				alert('There are no players to delete!\nPlease add players.');
 			}
 		};
 
@@ -105,7 +105,7 @@ var AddPlayersView = {
 			if(self.players().length > 0) {
                 NOTIFIER.notifySubscribers(self.tournament,'showEditPlayersModal');
 			} else {
-				alert('There are no players to edit!\nPlease add players.')
+				alert('There are no players to edit!\nPlease add players.');
 			}
 		};
 

@@ -75,7 +75,7 @@ var DashboardView = {
             };
 
             self.createTournament = function() {
-                console.log('create new tournament')
+                console.log('create new tournament');
                 NOTIFIER.notifySubscribers('', "createTournament");
             };
 
@@ -101,4 +101,4 @@ var DashboardView = {
                 self.shouldShowDashboard(true);
             }, self, "hideAllExceptDashboard");
         }
-}
+};

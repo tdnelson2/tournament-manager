@@ -12,7 +12,7 @@ var ViewModel = {
 		self.toolbarVisible = ko.observable(shouldShowToolbar);
 	    self.toggleToolbar = function() {
 	        self.toolbarVisible(!self.toolbarVisible());
-	    }
+	    };
 
 		$( window ).resize(function() {
 			if($( window ).width() < 768) {
@@ -25,19 +25,19 @@ var ViewModel = {
 		self.shouldShowPlayersAdded = function() {
 			if(self.players().length > 0 && !self.shouldShowPairedPlayers()) {
 				return true;
-			};
+			}
 			return false;
 		};
 
 		self.addPlayer = function() {
 			var player = self.playerInput();
-			if(player != "") {
+			if(player !== "") {
 				var data = { name:player, wins:0, totalPlayed:0 };
 				self.players.push( new Model.Player(data) );
 				var playerObj = self.players()[self.players().length - 1];
 
-				var data = { 'newPlayer': player };
-				$.post('/', data, function(returnedData) {
+				var newTournament = { 'newPlayer': player };
+				$.post('/', newTournament, function(returnedData) {
 					var playerID = JSON.parse(returnedData);
 					playerObj.id = playerID.id;
 				});
@@ -57,10 +57,9 @@ var ViewModel = {
 						for (var i = 0; i < self.players().length; i++) {
 							var player = self.players()[i];
 							if(player().id === x.id) {self.pairedPlayers.push(player);}
-						};
+						}
 					});
 					self.shouldShowPairedPlayers(true);
-					console.log(jresult);
 				});
 			} else {
 				// Flash: 'Warning you must have an even number of players'
@@ -69,7 +68,7 @@ var ViewModel = {
 
 		self.reportWinner = function(winner) {
 			// do stuff
-		}
+		};
 
 		self.init = function() {
 			$.ajax({
@@ -84,4 +83,4 @@ var ViewModel = {
 
 		self.init();
 	}
-}
+};

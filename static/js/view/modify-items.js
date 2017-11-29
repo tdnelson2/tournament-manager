@@ -23,7 +23,7 @@ var ModifyItemsView = {
 	    // Add HTML to the DOM and init the view model
 	    var $bindings = utilities.addToDOM(p.domTargetID, html);
 
-	    return $bindings
+	    return $bindings;
 	},
 
 	EditView: function(src, modalID, serverKey, tournament) {
@@ -32,7 +32,7 @@ var ModifyItemsView = {
 		self.modalID = modalID;
 		self.serverKey = serverKey;
 		self.tournament = tournament;
-		self.items = ko.observableArray([])
+		self.items = ko.observableArray([]);
 
 
 		self.finish = function() {
@@ -48,10 +48,9 @@ var ModifyItemsView = {
 			  t.name(n);
 			  newNames.push([t.id, t.name()]);
 			}
-	      };
+	      }
 
 	      if(newNames.length > 0) {
-	      	var newNameList = [];
 	      	var data = {
 	      		serverKey: serverKey,
 	      		tournament: self.tournament,
@@ -63,7 +62,7 @@ var ModifyItemsView = {
 
 	    for (var i = 0; i < self.src().length; i++) {
 	      self.items.push({ name: ko.observable( self.src()[i].name() ) });
-	    };
+	    }
 
 		$('#'+self.modalID).modal('show');
 	},
@@ -85,4 +84,4 @@ var ModifyItemsView = {
 
 		$('#'+modalID).modal('show');
 	}
-}
+};

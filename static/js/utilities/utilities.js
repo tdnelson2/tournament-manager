@@ -5,7 +5,7 @@ var utilities = {
     players().map(function(x){
       if(x.wins()-x.matches() === 0){
         zeroLossCount += 1;
-        champion = x.name()
+        champion = x.name();
       }
     });
     if(zeroLossCount === 1) {
@@ -28,8 +28,8 @@ var utilities = {
   },
 
   indexOfID: function(items, targetID) {
-    for (var i = 0; i < item().length; i++) {
-        if(items()[i] === thisTournament) {
+    for (var i = 0; i < items().length; i++) {
+        if(items()[i] === targetID) {
             return i;
         }
     }
@@ -41,12 +41,12 @@ var utilities = {
     // Get the last path component of pages url.
     var lastPathComponent = function(loc) {
       return loc.pop() || loc.pop();
-    }
+    };
     var loc = window.location.href.split('/');
     var seg = lastPathComponent(loc);
     if(seg === '#'){
       seg = lastPathComponent(loc);
     }
-    return seg.toLowerCase() === 'guest'
+    return seg.toLowerCase() === 'guest';
   }
 };

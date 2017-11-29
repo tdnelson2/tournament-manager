@@ -35,7 +35,7 @@ var AddTournamentView = {
 
 	    $('#newTournamentModal').on('shown.bs.modal', function () {
 		    $('#tournamentNameInput').focus();
-		})
+		});
 
 	    $('#newTournamentModal').modal('show');
 
@@ -57,7 +57,7 @@ var AddTournamentView = {
 
 		self.createTournament = function() {
 			var tournament = self.tournamentInput();
-			if(tournament != "") {
+			if(tournament !== "") {
 				NOTIFIER.notifySubscribers('', "hideDashboard");
 				NOTIFIER.notifySubscribers(tournament, "postNewTournament");
                 self.tournamentInput('');
@@ -65,4 +65,4 @@ var AddTournamentView = {
 			}
 		};
 	}
-}
+};
