@@ -231,12 +231,23 @@ bs-container-modified {
     top: 15%;
     left: 62%;
   }
+
+  .user-btn {
+    visibility: hidden;
+  }
 }
 
 @media(max-width:450px) {
   .delete-tournament {
     top: 15%;
     left: 67%;
+  }
+}
+
+@media(max-width:360px) {
+  #wrapper #header #header-text {
+    margin-top: 35px;
+    font-size: 17pt;
   }
 }
 

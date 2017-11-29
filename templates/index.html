@@ -23,15 +23,28 @@
                 <li>
                     <a href="#"><i class="fa fa-plus-square-o fa-2x" data-bind="click: toolbarAdd"></i></a>
                 </li>
+<!-- 
                 <li>
                     <a href="#"><i class="fa fa-wrench fa-2x" data-bind="click: toolbarSettings"></i></a>
                 </li>
+ -->
                 <li>
                     <a href="#"><i class="fa fa-dashboard fa-2x" data-bind="click: toolbarDashboard"></i></a>
                 </li>
+<!-- 
                 <li>
                     <a href="#"><i class="fa fa-infoo fa-2x" data-bind="click: toolbarStandings"></i></a>
                 </li>
+ -->
+                {% if logout_url() %}
+                <li>
+                    <a href="{{ logout_url() }}"><i class="fa fa-sign-out fa-2x"></i></a>
+                </li>
+                {% else %}
+                <li>
+                    <a href="{{ url_for('login.showLogin') }}"><i class="fa fa-sign-in fa-2x"></i></a>
+                </li>
+                {% endif %}
             </ul>
         </div> <!-- /sidebar-wrapper -->
 
