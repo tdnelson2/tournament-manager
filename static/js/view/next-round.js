@@ -42,7 +42,7 @@ var NextRoundView = {
         tournament : self.tournament,
         status : status
       };
-      NOTIFIER.notifySubscribers(data, "showPairingsView");
+      NOTIFIER.notifySubscribers(data, "showStandingsView");
     };
 
     self.secondaryText = ko.pureComputed(function(){
@@ -50,10 +50,6 @@ var NextRoundView = {
     });
 
     self.secondaryAction = function(){ return; };
-
-    NOTIFIER.subscribe(function(tournament_id) {
-        $('#nextModal').modal('hide');
-    }, self, "hideAllExceptDashboard");
 
     $('#next').modal('show');
   }

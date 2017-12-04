@@ -36,7 +36,7 @@ var StandingsView = {
       '</div>'+
     '</div>',
 
-  populate: function(model, progress) {
+  populate: function(model, progress, data) {
 
       // Make a copy of the model.
       var players = ko.observableArray([]);
@@ -62,21 +62,16 @@ var StandingsView = {
       // Insert into DOM
       $bindings = utilities.addToDOM('standings', StandingsView.tableHTML);
 
-      $('#standingsModal').on('shown.bs.modal', function () {
-          $('#closeStandingsModal').focus();
-      });
-
-      $('#standingsModal').modal('show');
-
       // Init binding
-      ko.applyBindings( new StandingsView.View(players, progress, model), $bindings );
+      ko.applyBindings( new StandingsView.View(players, progress, model, data), $bindings );
   },
 
-  View: function(players, progress, model) {
+  View: function(players, progress, model, data) {
     var self = this;
     self.model = model;
     self.players = players;
     self.progress = progress;
+    self.data = data;
 
     self.tournamentIsComplete = ko.pureComputed(function(){
       var r = utilities.overallWinner(self.model);
@@ -88,7 +83,11 @@ var StandingsView = {
       if(self.tournamentIsComplete()) {
         console.log('show dashboard');
         NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
+      } else {
+        NOTIFIER.notifySubscribers(self.data, "showPairingsView");
       }
     });
+    $('#standingsModal').modal('show');
+    $('#standingsModal').focus();
   }
 };

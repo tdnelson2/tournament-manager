@@ -34,5 +34,25 @@ var OptionsModal = {
             '<input type="checkbox" class="form-check-input" data-bind="checked: isSlatedToDelete">'+
             '<!--ko text: name--><!--/ko-->'+
           '</label>'+
-      '</div>'
+      '</div>',
+      
+  standingsTable: ''+
+      '<table class="table">'+
+        '<thead>'+
+          '<tr>'+
+            '<th>Player</th>'+
+            '<th>Wins</th>'+
+            '<th>Loses</th>'+
+            '<th>Matches</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody data-bind="foreach: standingsData">'+
+           '<tr>'+
+             '<td data-bind="text: name"></td>'+
+             '<td data-bind="text: wins"></td>'+
+             '<td data-bind="text: loses"></td>'+
+             '<td data-bind="text: matches"></td>'+
+           '</tr>'+
+        '</tbody>'+
+      '</table>'
 };

@@ -1,4 +1,4 @@
-var ModifyItemsView = {
+var LargeModalView = {
 
 	populate: function(parameters) {
 		/*
@@ -24,6 +24,27 @@ var ModifyItemsView = {
 	    var $bindings = utilities.addToDOM(p.domTargetID, html);
 
 	    return $bindings;
+	},
+
+	StandingsView: function(standingsData, modalID, data, tournamentIsComplete) {
+		var self = this;
+		self.modalID = modalID;
+		self.standingsData = standingsData;
+	    self.data = data;
+	    self.tournamentIsComplete = tournamentIsComplete;
+
+		$('#standingsModal').on('hide.bs.modal', function(e) {
+		  if(self.tournamentIsComplete) {
+		    console.log('show dashboard');
+		    NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
+		  } else {
+		    NOTIFIER.notifySubscribers(self.data, "showPairingsView");
+		  }
+		});
+
+		self.finish = function() {};
+
+		$('#'+self.modalID).modal('show');
 	},
 
 	EditView: function(src, modalID, serverKey, tournament) {

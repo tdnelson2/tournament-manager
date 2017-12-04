@@ -59,8 +59,8 @@ var MainViewModel = function() {
            domTargetID:  'delete-tournaments'
         };
 
-        var $bindings = ModifyItemsView.populate(params);
-        ko.applyBindings( new ModifyItemsView.DeleteView(self.tournaments,
+        var $bindings = LargeModalView.populate(params);
+        ko.applyBindings( new LargeModalView.DeleteView(self.tournaments,
                                                          params.modalID,
                                                          'deleteTournaments'), $bindings );
     }, self, "showDeleteTournamentsModal");
@@ -75,9 +75,9 @@ var MainViewModel = function() {
            domTargetID:  'edit-tournaments'
         };
 
-        ModifyItemsView.populate(params);
-        var $bindings = ModifyItemsView.populate(params);
-        ko.applyBindings( new ModifyItemsView.EditView(self.tournaments,
+        LargeModalView.populate(params);
+        var $bindings = LargeModalView.populate(params);
+        ko.applyBindings( new LargeModalView.EditView(self.tournaments,
                                                        params.modalID,
                                                        'updateTournamentNames'), $bindings );
     }, self, "showEditTournamentsModal");
@@ -92,8 +92,8 @@ var MainViewModel = function() {
            domTargetID:  'edit-players'
         };
 
-        var $bindings = ModifyItemsView.populate(params);
-        ko.applyBindings( new ModifyItemsView.EditView(self.players,
+        var $bindings = LargeModalView.populate(params);
+        ko.applyBindings( new LargeModalView.EditView(self.players,
                                                        params.modalID,
                                                        'updatePlayerNames',
                                                        tournament), $bindings );
@@ -110,26 +110,58 @@ var MainViewModel = function() {
            domTargetID:  'delete-players'
         };
 
-        var $bindings = ModifyItemsView.populate(params);
-        ko.applyBindings( new ModifyItemsView.DeleteView(self.players,
+        var $bindings = LargeModalView.populate(params);
+        ko.applyBindings( new LargeModalView.DeleteView(self.players,
                                                          params.modalID,
                                                          'deletePlayers',
                                                          tournament), $bindings );
     }, self, "showDeletePlayersModal");
 
 
-	NOTIFIER.subscribe(function(data) {
+    self.showStandingsModal = function(data) {
 
-        var showNextViews = function() {
-            console.log(utilities.overallWinner(self.players));
-            if(utilities.overallWinner(self.players) !== undefined) {
-                StandingsView.populate(self.players, self.progress);
-            } else {
-                StandingsView.populate(self.players, self.progress);
-                self.showPairingsView(data.tournament);
-            }
+        // Make a copy of the model.
+        var standingsData = ko.observableArray([]);
+        self.players().map(function(x) {
+          var p = {
+              name: x.name(),
+              wins: x.wins(),
+              loses: x.matches() - x.wins(),
+              matches: x.matches()
+          };
+          standingsData.push(p);
+        });
+        standingsData.sort(function (left, right) {
+          return left.wins == right.wins ? 0 :
+                (left.wins > right.wins ? -1 : 1);
+        });
+        standingsData.sort(function (left, right) {
+          return left.matches == right.matches ? 0 :
+                (left.matches > right.matches ? -1 : 1);
+        });
+
+        var tournamentIsComplete = utilities.overallWinner(self.players);
+        var title = tournamentIsComplete === true ? 'Results' : 'Standings'
+
+        var params = {
+           titleTxt:      title,
+           modalID:      'standingsModal',
+           bodyHTML:      OptionsModal.standingsTable,
+           closeBtnTxt:  'Close',
+           finishBtnTxt: 'Continue',
+           domTargetID:  'standings'
         };
 
+        var $bindings = LargeModalView.populate(params);
+        ko.applyBindings( new LargeModalView.StandingsView(standingsData,
+                                                           params.modalID,
+                                                           data,
+                                                           tournamentIsComplete), $bindings );
+    };
+
+
+    NOTIFIER.subscribe(function(data) {
+        console.log('should show standings view');
         if(data.status === RoundStatus.FIRST_ROUND) {
             self.showPairingsView(data.tournament);
         } else {
@@ -138,28 +170,27 @@ var MainViewModel = function() {
             if(GUEST_MODE) {
                 console.log('WORKING HERE');
                 GuestModel.markRoundComplete(data.tournament.id);
-                showNextViews();
+                self.showStandingsModal(data);
             } else {
                 // Tell the server to mark the round complete.
                 $.post('/tournament-manager/', {roundComplete: 'mark_complete'}, function(returnedData) {
                     var r = JSON.parse(returnedData);
-                    showNextViews();
+                    self.showStandingsModal(data);
                 });
             }
         }
+    }, self, "showStandingsView");
+
+
+	NOTIFIER.subscribe(function(data) {
+        console.log('show next pairing');
+        self.showPairingsView(data.tournament);
 	}, self, "showPairingsView");
 
     NOTIFIER.subscribe(function(tournament) {
-        console.log('showNextRoundView has tournament id as: '+tournament.id);
-        console.log('next round view messge recieved');
+        console.log('showNextRoundView tournament id is: '+tournament.id);
         NextRoundView.populate(self.players, self.progress, tournament);
     }, self, "showNextRoundView");
-
-
-	NOTIFIER.subscribe(function() {
-        console.log('show standings view');
-		StandingsView.populate(self.players, self.progress);
-	}, self, "showStandingsView");
 
     NOTIFIER.subscribe(function(data) {
         self.players.push( new Model.Player(data) );
@@ -239,15 +270,6 @@ var MainViewModel = function() {
             });
         }
     }, self, "postNewTournament");
-
-    // NOTIFIER.subscribe(function() {
-    // }, self, "");
-
-    // NOTIFIER.subscribe(function() {
-    // }, self, "");
-
-    // NOTIFIER.subscribe(function() {
-    // }, self, "");
 
     self.showPairingsView = function(tournament, completed_matches) {
 

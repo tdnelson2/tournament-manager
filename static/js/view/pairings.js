@@ -2,7 +2,7 @@ var PairingsView = {
     pairingHTML: ''+
                 '<div class="bg-muted clearfix pair-card">'+
                 '<div class="list-group float-left player-paired">'+
-                  '<a href="#" class="list-group-item list-group-item-action flex-column align-items-start" '+
+                  '<a href="javascript:void(0)" class="list-group-item list-group-item-action flex-column align-items-start" '+
                       'data-bind="css: { active : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
                       'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
@@ -13,7 +13,7 @@ var PairingsView = {
                   '</a>'+
                 '</div>'+
                 '<div class="list-group float-right player-paired">'+
-                  '<a href="#" class="list-group-item list-group-item-action flex-column align-items-start" '+
+                  '<a href="javascript:void(0)" class="list-group-item list-group-item-action flex-column align-items-start" '+
                       'data-bind="css: { active : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, '+
                       'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
@@ -187,30 +187,30 @@ var PairingsView = {
                 var shouldClear = winner.isSelected() ? 1 : 0;
                 var shouldReplace = loser.isSelected() ? 1 : 0;
 
-                /* Update number of matches reported and Increment/decrement 
+                /* Update number of matches reported and Increment/decrement
                    players in the pair's wins/matches accordingly */
-                if(shouldClear) { 
+                if(shouldClear) {
                     console.log('CLEAR: view model should clear match results');
-                    /* User has deselected a winner: subtract 1 win 1 match 
+                    /* User has deselected a winner: subtract 1 win 1 match
                        played from both the winner and loser. */
-                    winner.wins(winner.wins()-1); 
-                    winner.matches(winner.matches()-1); 
+                    winner.wins(winner.wins()-1);
+                    winner.matches(winner.matches()-1);
                     loser.matches(loser.matches()-1);
-                    self.num(self.num() - 1); 
+                    self.num(self.num() - 1);
                 } else if(shouldReplace) {
                     console.log('REPLACE: view model should replace results');
                     /* A winner and loser had already been set but the user
                        has decided to reverse the results. The loser becomes
                        the winner and the winner becomes the loser. */
-                    winner.wins(winner.wins()+1); 
+                    winner.wins(winner.wins()+1);
                     loser.wins(loser.wins()-1);
-                } else if(!shouldReplace) { 
+                } else if(!shouldReplace) {
                     console.log('NEW: view model should add a new results');
                     /* User selects a winner in a match where the winner
                        winner had not yet been selected. */
                     self.num(self.num() + 1);
-                    winner.wins(winner.wins()+1); 
-                    winner.matches(winner.matches()+1); 
+                    winner.wins(winner.wins()+1);
+                    winner.matches(winner.matches()+1);
                     loser.matches(loser.matches()+1);
                 }
 
@@ -228,10 +228,11 @@ var PairingsView = {
                 NOTIFIER.notifySubscribers(data, "postMatchResult");
 
                 if(self.num() === (self.players().length / 2)) {
-                    console.log('next round button should appear');
+                    console.log('next round prompt should appear');
                     NOTIFIER.notifySubscribers(self.tournament, "showNextRoundView");
                 }
             }
+            return false;
         };
     }
 };
