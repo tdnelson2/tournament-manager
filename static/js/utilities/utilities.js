@@ -2,15 +2,20 @@ var utilities = {
   overallWinner: function(players) {
     var champion = '';
     var zeroLossCount = 0;
+    // Determine how many players still have a perfect record
     players().map(function(x){
       if(x.wins()-x.matches() === 0){
         zeroLossCount += 1;
         champion = x.name();
       }
     });
+    // If there's only one, we have a champion
+    console.log('number of players with perfect record: '+zeroLossCount);
     if(zeroLossCount === 1) {
+      console.log('champion is '+champion);
       return champion;
     }
+    console.log('no champion yet');
     return undefined;
   },
 
