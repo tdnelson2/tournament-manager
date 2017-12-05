@@ -148,7 +148,7 @@ var MainViewModel = function() {
            titleTxt:      title,
            modalID:      'standingsModal',
            bodyHTML:      OptionsModal.standingsTable,
-           closeBtnTxt:  'Close',
+           closeBtnTxt:  'Go Back',
            finishBtnTxt: 'Continue',
            domTargetID:  'standings'
         };

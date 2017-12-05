@@ -33,16 +33,14 @@ var LargeModalView = {
 	    self.tournament = tournament;
 	    self.tournamentIsComplete = tournamentIsComplete;
 
-		$('#standingsModal').on('hide.bs.modal', function(e) {
+		self.finish = function() {
 		  if(self.tournamentIsComplete) {
 		    console.log('show dashboard');
 		    NOTIFIER.notifySubscribers(self.tournament, "markTournamentComplete");
 		  } else {
 		    NOTIFIER.notifySubscribers(self.tournament, "showPairingsView");
 		  }
-		});
-
-		self.finish = function() {};
+		};
 
 		$('#'+self.modalID).modal('show');
 	},
