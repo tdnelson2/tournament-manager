@@ -4,6 +4,7 @@ var MainViewModel = function() {
     self.players = ko.observableArray([]);
     self.progress = ko.observable();
     self.tournaments = ko.observableArray([]);
+    self.tournament;
     self.toolbarItems = ko.observableArray([]);
 
     NOTIFIER.subscribe(function() {
@@ -82,7 +83,7 @@ var MainViewModel = function() {
                                                        'updateTournamentNames'), $bindings );
     }, self, "showEditTournamentsModal");
 
-    NOTIFIER.subscribe(function(tournament) {
+    NOTIFIER.subscribe(function() {
         var params = {
            titleTxt:     'Edit Player Name(s)',
            modalID:      'editPlayers',
@@ -96,11 +97,11 @@ var MainViewModel = function() {
         ko.applyBindings( new LargeModalView.EditView(self.players,
                                                        params.modalID,
                                                        'updatePlayerNames',
-                                                       tournament), $bindings );
+                                                       self.tournament), $bindings );
     }, self, "showEditPlayersModal");
 
 
-    NOTIFIER.subscribe(function(tournament) {
+    NOTIFIER.subscribe(function() {
         var params = {
            titleTxt:     'Delete Players',
            modalID:      'deletePlayers',
@@ -114,11 +115,11 @@ var MainViewModel = function() {
         ko.applyBindings( new LargeModalView.DeleteView(self.players,
                                                          params.modalID,
                                                          'deletePlayers',
-                                                         tournament), $bindings );
+                                                         self.tournament), $bindings );
     }, self, "showDeletePlayersModal");
 
 
-    self.showStandingsModal = function(tournament) {
+    self.showStandingsModal = function() {
 
         // Make a copy of the model.
         var standingsData = ko.observableArray([]);
@@ -155,14 +156,14 @@ var MainViewModel = function() {
         var $bindings = LargeModalView.populate(params);
         ko.applyBindings( new LargeModalView.StandingsView(standingsData,
                                                            params.modalID,
-                                                           tournament,
+                                                           self.tournament,
                                                            tournamentIsComplete), $bindings );
     };
 
-    self.markRoundComplete = function(tournament, shouldShowPairings) {
-        var proceed = function(shouldShowPairings, tournament) {
+    self.markRoundComplete = function(shouldShowPairings) {
+        var proceed = function(shouldShowPairings) {
             if(shouldShowPairings) {
-                self.showPairingsView(tournament);
+                self.showPairingsView(self.tournament);
             }
         };
         // Reset all players who were marked 'selected'.
@@ -173,41 +174,41 @@ var MainViewModel = function() {
         });
         if(playedMatchCount > 0) {
             if(GUEST_MODE) {
-                GuestModel.markRoundComplete(tournament.id);
-                proceed(tournament, shouldShowPairings);
+                GuestModel.markRoundComplete();
+                proceed(shouldShowPairings);
             } else {
                 // Tell the server to mark the round complete.
                 $.post('/tournament-manager/', {roundComplete: 'mark_complete'}, function(returnedData) {
                     var r = JSON.parse(returnedData);
-                    proceed(tournament, shouldShowPairings);
+                    proceed(shouldShowPairings);
                 });
             }
         } else {
-            proceed(tournament, shouldShowPairings);
+            proceed(shouldShowPairings);
         }
     };
 
 
-    NOTIFIER.subscribe(function(tournament) {
-        self.markRoundComplete(tournament, false);
+    NOTIFIER.subscribe(function() {
+        self.markRoundComplete(false);
         NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
     }, self, "markTournamentComplete");
 
 
-    NOTIFIER.subscribe(function(tournament) {
+    NOTIFIER.subscribe(function() {
         // self.markRoundComplete(tournament, true);
-        self.showStandingsModal(tournament);
+        self.showStandingsModal();
     }, self, "showStandingsView");
 
 
-	NOTIFIER.subscribe(function(tournament) {
+	NOTIFIER.subscribe(function() {
         console.log('show next pairing');
-        self.markRoundComplete(tournament, true);
+        self.markRoundComplete(true);
 	}, self, "showPairingsView");
 
-    NOTIFIER.subscribe(function(tournament) {
-        console.log('showNextRoundView tournament id is: '+tournament.id);
-        NextRoundView.populate(self.players, self.progress, tournament);
+    NOTIFIER.subscribe(function() {
+        console.log('showNextRoundView tournament id is: '+self.tournament.id);
+        NextRoundView.populate(self.players, self.progress, self.tournament);
     }, self, "showNextRoundView");
 
     NOTIFIER.subscribe(function(data) {
@@ -215,7 +216,7 @@ var MainViewModel = function() {
         var playerObj = self.players()[self.players().length - 1];
 
         if(GUEST_MODE) {
-            var p = GuestModel.addPlayer(data.name, data.tournament_id);
+            var p = GuestModel.addPlayer(data.name, self.tournament.id);
             playerObj.id = p.id;
         } else {
             var postData = { 'newPlayer': data.name };
@@ -230,7 +231,7 @@ var MainViewModel = function() {
         var postData = {
             winner_id: data.winner.id,
             loser_id: data.loser.id,
-            tournament_id: data.tournament.id,
+            tournament_id: self.tournament.id,
             shouldReplace: data.shouldReplace,
             shouldClear: data.shouldClear
         };
@@ -288,26 +289,26 @@ var MainViewModel = function() {
         }
     }, self, "postNewTournament");
 
-    self.showPairingsView = function(tournament, completed_matches) {
+    self.showPairingsView = function(completed_matches) {
 
         // Fetch pairings from the server
         if(GUEST_MODE) {
-            var standings = GuestModel.standings(tournament.id);
-            standings['tournament_name'] = tournament.name();
+            var standings = GuestModel.standings(self.tournament.id);
+            standings['tournament_name'] = self.tournament.name();
             var data = {swiss_pairing_requested: JSON.stringify(standings)};
             $.post('/tournament-manager/guest/', data, function(result) {
 
                 var pairingData = JSON.parse(result);
                 console.log(pairingData);
                 // self.progress().update(r.progress);
-                PairingsView.populate(self.players, self.progress, pairingData, completed_matches, tournament);
+                PairingsView.populate(self.players, self.progress, pairingData, completed_matches, self.tournament);
             });
         } else {
             $.ajax({
                 url: '/tournament-manager/swiss-pairing/JSON/'
             }).done(function(result) {
                 var pairingData = JSON.parse(result);
-                PairingsView.populate(self.players, self.progress, pairingData, completed_matches, tournament);
+                PairingsView.populate(self.players, self.progress, pairingData, completed_matches, self.tournament);
             });
         }
     };
@@ -318,7 +319,9 @@ var MainViewModel = function() {
 
     self.showTournament = function(tournament) {
 
-        var restoreTournamentView = function(r, tournament) {
+        self.tournament = tournament;
+
+        var restoreTournamentView = function(r) {
             // `r.standings` shows each player's win/loss record
             // including matches from if a round is not yet concluded.
             // `r.completed_matches` contains completed matches from
@@ -350,20 +353,20 @@ var MainViewModel = function() {
             // If tournament is complete, show results
             if(utilities.overallWinner(self.players) !== undefined && !roundIsInProgress) {
                 console.log('show results');
-                self.showStandingsModal(tournament);
+                self.showStandingsModal();
             }
             // If standings is empty, start new session
             // i.e. show `AddPlayersView`.
             else if(r.standings.length === 0) {
              console.log('should start new session');
-             AddPlayersView.populate(self.players, tournament);
+             AddPlayersView.populate(self.players, self.tournament);
             }
 
             // If a round is not in progress, but matches have been played,
             // start new round by showing the `PairingsView`.
             else if(!roundIsInProgress && matchesPlayed) {
              console.log('matches previously played but this is a new round');
-             self.showPairingsView(tournament);
+             self.showPairingsView();
             }
 
 
@@ -371,7 +374,7 @@ var MainViewModel = function() {
             // added, show the `AddPlayerView`.
             else if(!roundIsInProgress && !matchesPlayed) {
              console.log('no matches have been played yet, user can safely add more players');
-             AddPlayersView.populate(self.players, tournament);
+             AddPlayersView.populate(self.players, self.tournament);
             }
 
             // If matches have been played, but user has not advanced
@@ -381,7 +384,7 @@ var MainViewModel = function() {
             else if(roundIsInProgress) {
              console.log('restore uncompleted round');
                 console.log('COMPLETED MATCHES: '+r.completed_matches);
-                self.showPairingsView(tournament, r.completed_matches);
+                self.showPairingsView(r.completed_matches);
             }
         };
 
@@ -403,21 +406,21 @@ var MainViewModel = function() {
             //     self.players.push( new Model.Player(players[i]) );
             // };
             // AddPlayersView.populate(self.players, tournament);
-            var data = GuestModel.fullStandings(tournament.id);
+            var data = GuestModel.fullStandings(self.tournament.id);
             $.post('/tournament-manager/guest/', {progress:JSON.stringify(data.end_of_last_round_standings)}, function(result) {
                 var r = JSON.parse(result);
                 console.log(r.progress);
                 data['progess'] = r.progress;
-                restoreTournamentView(data, tournament);
+                restoreTournamentView(data);
             });
         } else {
             // Fetch data from server if available
             $.ajax({
-                url: '/tournament-manager/tournament/'+tournament.id+'/JSON/'
+                url: '/tournament-manager/tournament/'+self.tournament.id+'/JSON/'
             }).done(function(result) {
                 var r = JSON.parse(result);
                 console.log(r);
-                restoreTournamentView(r, tournament);
+                restoreTournamentView(r);
             });
         }
     };
