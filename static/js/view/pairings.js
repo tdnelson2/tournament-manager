@@ -229,7 +229,7 @@ var PairingsView = {
 
                 if(self.num() === (self.players().length / 2)) {
                     console.log('next round prompt should appear');
-                    NOTIFIER.notifySubscribers(self.tournament, "showNextRoundView");
+                    NOTIFIER.notifySubscribers(self.tournament, "showStandingsView");
                 }
             }
             return false;

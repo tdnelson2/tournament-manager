@@ -34,15 +34,11 @@ var NextRoundView = {
     });
 
     self.primaryAction = function() {
-      console.log(self.progress);
-      var status = self.progress.this_round >= self.progress.total_rounds
-                   ? RoundStatus.FINAL_ROUND
-                   : RoundStatus.NOT_FIRST_ROUND;
       var data = {
         tournament : self.tournament,
         status : status
       };
-      NOTIFIER.notifySubscribers(data, "showStandingsView");
+      NOTIFIER.notifySubscribers(self.tournament, "showStandingsView");
     };
 
     self.secondaryText = ko.pureComputed(function(){

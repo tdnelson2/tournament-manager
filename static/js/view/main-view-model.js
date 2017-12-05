@@ -118,7 +118,7 @@ var MainViewModel = function() {
     }, self, "showDeletePlayersModal");
 
 
-    self.showStandingsModal = function(data) {
+    self.showStandingsModal = function(tournament) {
 
         // Make a copy of the model.
         var standingsData = ko.observableArray([]);
@@ -155,36 +155,54 @@ var MainViewModel = function() {
         var $bindings = LargeModalView.populate(params);
         ko.applyBindings( new LargeModalView.StandingsView(standingsData,
                                                            params.modalID,
-                                                           data,
+                                                           tournament,
                                                            tournamentIsComplete), $bindings );
     };
 
-
-    NOTIFIER.subscribe(function(data) {
-        console.log('should show standings view');
-        if(data.status === RoundStatus.FIRST_ROUND) {
-            self.showPairingsView(data.tournament);
-        } else {
-            // Reset all players who were marked 'selected'.
-            self.players().map(function(x) {x.isSelected(false);});
+    self.markRoundComplete = function(tournament, shouldShowPairings) {
+        var proceed = function(shouldShowPairings, tournament) {
+            if(shouldShowPairings) {
+                self.showPairingsView(tournament);
+            }
+        };
+        // Reset all players who were marked 'selected'.
+        var playedMatchCount = 0;
+        self.players().map(function(x) {
+            x.isSelected(false);
+            playedMatchCount += 1;
+        });
+        if(playedMatchCount > 0) {
             if(GUEST_MODE) {
-                console.log('WORKING HERE');
-                GuestModel.markRoundComplete(data.tournament.id);
-                self.showStandingsModal(data);
+                GuestModel.markRoundComplete(tournament.id);
+                proceed(tournament, shouldShowPairings);
             } else {
                 // Tell the server to mark the round complete.
                 $.post('/tournament-manager/', {roundComplete: 'mark_complete'}, function(returnedData) {
                     var r = JSON.parse(returnedData);
-                    self.showStandingsModal(data);
+                    proceed(tournament, shouldShowPairings);
                 });
             }
+        } else {
+            proceed(tournament, shouldShowPairings);
         }
+    };
+
+
+    NOTIFIER.subscribe(function(tournament) {
+        self.markRoundComplete(tournament, false);
+        NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
+    }, self, "markTournamentComplete");
+
+
+    NOTIFIER.subscribe(function(tournament) {
+        // self.markRoundComplete(tournament, true);
+        self.showStandingsModal(tournament);
     }, self, "showStandingsView");
 
 
-	NOTIFIER.subscribe(function(data) {
+	NOTIFIER.subscribe(function(tournament) {
         console.log('show next pairing');
-        self.showPairingsView(data.tournament);
+        self.markRoundComplete(tournament, true);
 	}, self, "showPairingsView");
 
     NOTIFIER.subscribe(function(tournament) {
@@ -197,7 +215,6 @@ var MainViewModel = function() {
         var playerObj = self.players()[self.players().length - 1];
 
         if(GUEST_MODE) {
-            console.log('Player added.\nTODO: resolve player ids.');
             var p = GuestModel.addPlayer(data.name, data.tournament_id);
             playerObj.id = p.id;
         } else {
@@ -318,15 +335,6 @@ var MainViewModel = function() {
             // We know a round is in progress if completed_matches is not empty
             var roundIsInProgress = r.completed_matches.length > 0;
 
-    /*
-                var players = GuestModel.getPlayers(tournament.id);
-                self.players = ko.observableArray([]);
-                for (var i = 0; i < players.length; i++) {
-                    self.players.push( new Model.Player(players[i]) );
-                };
-                AddPlayersView.populate(self.players, tournament);
-    */
-
 
             // Load data from server into local model.
             var matchesPlayed = false;
@@ -342,7 +350,7 @@ var MainViewModel = function() {
             // If tournament is complete, show results
             if(utilities.overallWinner(self.players) !== undefined && !roundIsInProgress) {
                 console.log('show results');
-                StandingsView.populate(self.players, self.progress);
+                self.showStandingsModal(tournament);
             }
             // If standings is empty, start new session
             // i.e. show `AddPlayersView`.

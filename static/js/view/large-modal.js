@@ -26,19 +26,19 @@ var LargeModalView = {
 	    return $bindings;
 	},
 
-	StandingsView: function(standingsData, modalID, data, tournamentIsComplete) {
+	StandingsView: function(standingsData, modalID, tournament, tournamentIsComplete) {
 		var self = this;
 		self.modalID = modalID;
 		self.standingsData = standingsData;
-	    self.data = data;
+	    self.tournament = tournament;
 	    self.tournamentIsComplete = tournamentIsComplete;
 
 		$('#standingsModal').on('hide.bs.modal', function(e) {
 		  if(self.tournamentIsComplete) {
 		    console.log('show dashboard');
-		    NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
+		    NOTIFIER.notifySubscribers(self.tournament, "markTournamentComplete");
 		  } else {
-		    NOTIFIER.notifySubscribers(self.data, "showPairingsView");
+		    NOTIFIER.notifySubscribers(self.tournament, "showPairingsView");
 		  }
 		});
 
