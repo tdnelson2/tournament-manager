@@ -3,7 +3,7 @@ var PairingsView = {
                 '<div class="bg-muted clearfix pair-card">'+
                 '<div class="list-group float-left player-paired">'+
                   '<a href="javascript:void(0)" class="list-group-item list-group-item-action flex-column align-items-start" '+
-                      'data-bind="css: { active : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
+                      'data-bind="css: { \'player-active\' : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
                       'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
                         '<h6 class="mb-1" data-bind="text: players()[%PLAYER-1-INDEX%].name"></h6>'+
@@ -14,7 +14,7 @@ var PairingsView = {
                 '</div>'+
                 '<div class="list-group float-right player-paired">'+
                   '<a href="javascript:void(0)" class="list-group-item list-group-item-action flex-column align-items-start" '+
-                      'data-bind="css: { active : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, '+
+                      'data-bind="css: { \'player-active\' : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, '+
                       'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
                         '<h6 class="mb-1" data-bind="text: players()[%PLAYER-2-INDEX%].name"></h6>'+

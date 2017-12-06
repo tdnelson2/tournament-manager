@@ -132,7 +132,7 @@ var MainViewModel = function() {
         });
 
         var champion = utilities.overallWinner(self.players);
-        var title = champion === undefined ? 'Standings' : "Results - Winner Is '"+champion+"'!"
+        var title = champion === undefined ? 'Standings' : "Results — Winner Is '"+champion+"'!"
         var continueBtn = 'Next Round';
         if(!roundIsInProgress && champion !== undefined) {
             continueBtn = 'Close';

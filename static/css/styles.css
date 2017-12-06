@@ -325,6 +325,11 @@
     width: 48%;
 }
 
+.player-active {
+    color: #fff !important;
+    background-color: #33bd3d !important;
+}
+
 .disabled {
     cursor: pointer !important;
 }
