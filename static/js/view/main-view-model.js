@@ -141,8 +141,8 @@ var MainViewModel = function() {
                 (left.matches > right.matches ? -1 : 1);
         });
 
-        var tournamentIsComplete = utilities.overallWinner(self.players);
-        var title = tournamentIsComplete === true ? 'Results' : 'Standings'
+        var r = utilities.overallWinner(self.players);
+        var title = r === undefined ? 'Standings' : "'"+r+"' takes the gold!"
 
         var params = {
            titleTxt:      title,
@@ -157,7 +157,7 @@ var MainViewModel = function() {
         ko.applyBindings( new LargeModalView.StandingsView(standingsData,
                                                            params.modalID,
                                                            self.tournament,
-                                                           tournamentIsComplete), $bindings );
+                                                           r), $bindings );
     };
 
     self.markRoundComplete = function(shouldShowPairings) {

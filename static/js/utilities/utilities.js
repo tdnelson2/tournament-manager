@@ -10,12 +10,9 @@ var utilities = {
       }
     });
     // If there's only one, we have a champion
-    console.log('number of players with perfect record: '+zeroLossCount);
     if(zeroLossCount === 1) {
-      console.log('champion is '+champion);
       return champion;
     }
-    console.log('no champion yet');
     return undefined;
   },
 
