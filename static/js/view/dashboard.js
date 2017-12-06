@@ -36,7 +36,7 @@ var DashboardView = {
                 '</div>'+
             '</div> <!-- /categories -->',
 
-        populate: function(tournaments) {
+        populate: function(tournaments, mainView) {
 
             // Add HTML to the DOM and init the view model
             var dropdown = DropDownMenu.prepare([
@@ -47,12 +47,13 @@ var DashboardView = {
             var html = DashboardView.html.slice().replace('%SETTINGS-MENU%', dropdown);
             var $bindings = utilities.addToDOM('dashboard', html);
 
-            ko.applyBindings( new DashboardView.View(tournaments), $bindings );
+            ko.applyBindings( new DashboardView.View(tournaments, mainView), $bindings );
         },
 
-        View: function(tournaments) {
+        View: function(tournaments, mainView) {
             var self = this;
             self.tournaments = tournaments;
+            self.mainView = mainView;
             self.shouldShowDashboard = ko.observable(true);
 
             self.enableDetails = function(thisTournament) {
@@ -64,27 +65,27 @@ var DashboardView = {
             };
 
             self.promptForDelete = function(thisTournament) {
-                NOTIFIER.notifySubscribers(thisTournament, "promptForTournamentDelete");
+                self.mainView.promptForTournamentDelete(thisTournament);
             };
 
             self.openTournament = function(tournament) {
                 console.log(tournament.id);
                 console.log('openTournament');
-                NOTIFIER.notifySubscribers(tournament, "showTournament");
+                self.mainView.showTournament(tournament);
                 self.shouldShowDashboard(false);
             };
 
             self.createTournament = function() {
                 console.log('create new tournament');
-                NOTIFIER.notifySubscribers('', "createTournament");
+                self.mainView.createTournament();
             };
 
             self.editTournaments = function() {
-                NOTIFIER.notifySubscribers('','showEditTournamentsModal');
+                self.mainView.showEditTournamentsModal()
             };
 
             self.deleteTournaments = function() {
-                NOTIFIER.notifySubscribers('','showDeleteTournamentsModal');
+                self.mainView.showDeleteTournamentsModal();
             };
 
             NOTIFIER.subscribe(function() {

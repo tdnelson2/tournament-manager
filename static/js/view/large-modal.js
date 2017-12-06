@@ -26,18 +26,19 @@ var LargeModalView = {
 	    return $bindings;
 	},
 
-	StandingsView: function(standingsData, roundIsInProgress, modalID, tournamentIsComplete) {
+	StandingsView: function(standingsData, roundIsInProgress, modalID, overallChampion, mainView) {
 		var self = this;
 		self.modalID = modalID;
 		self.standingsData = standingsData;
 		self.roundIsInProgress = roundIsInProgress;
-	    self.tournamentIsComplete = tournamentIsComplete;
+	    self.overallChampion = overallChampion;
+	    self.mainView = mainView;
 
 		self.finish = function() {
-		  if(self.tournamentIsComplete) {
-		    NOTIFIER.notifySubscribers('', "markTournamentComplete");
+		  if(self.overallChampion === undefined) {
+		    self.mainView.showNextViewAfterStandings();
 		  } else {
-		    NOTIFIER.notifySubscribers('', "showPairingsView");
+		    self.mainView.markTournamentComplete();
 		  }
 		};
 
@@ -50,12 +51,13 @@ var LargeModalView = {
 		$('#'+self.modalID).modal('show');
 	},
 
-	EditView: function(src, modalID, serverKey) {
+	EditView: function(src, modalID, serverKey, mainView) {
 		var self = this;
 		self.src = src;
 		self.modalID = modalID;
 		self.serverKey = serverKey;
 		self.items = ko.observableArray([]);
+		self.mainView = mainView;
 
 
 		self.finish = function() {
@@ -78,7 +80,7 @@ var LargeModalView = {
 	      		serverKey: serverKey,
 	      		newNames: newNames
 	      	};
-			NOTIFIER.notifySubscribers(data, 'postItemNamesUpdate');
+			self.mainView.postItemNamesUpdate(data);
 	      }
 		};
 
@@ -89,13 +91,14 @@ var LargeModalView = {
 		$('#'+self.modalID).modal('show');
 	},
 
-	DeleteView: function(src, modalID, serverKey) {
+	DeleteView: function(src, modalID, serverKey, mainView) {
 		var self = this;
 		self.items = src;
 		self.serverKey = serverKey;
+		self.mainView = mainView;
 
 		self.finish = function() {
-			NOTIFIER.notifySubscribers(self.serverKey, 'deleteItems');
+			self.mainView.deleteItems(self.serverKey);
 		};
 
 		$('#'+modalID).modal('show');

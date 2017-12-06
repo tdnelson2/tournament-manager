@@ -50,7 +50,7 @@ var PairingsView = {
                         '</div>'+
                     '</div> <!-- /categories -->',
 
-    populate: function(model, progress, pairingData, completed_matches, tournament) {
+    populate: function(model, progress, pairingData, completed_matches, tournament, mainView) {
 
         // NUMBER OF ROUNDS NEEDED TO CROWN A CHAMPION
         // `var rounds = Math.round(Math.log2(self.model().length));`
@@ -128,24 +128,19 @@ var PairingsView = {
         var $bindings = utilities.addToDOM('pairings', html);
 
 
-        ko.applyBindings( new PairingsView.View(model, progress, reported_count, tournament), $bindings );
+        ko.applyBindings( new PairingsView.View(model, progress, reported_count, mainView), $bindings );
     },
 
-    View: function(model, progress, reported_count, tournament) {
+    View: function(model, progress, reported_count, mainView) {
         // KO object
         var self = this;
         self.shouldShowView = ko.observable(true);
         self.players = model;
         self.progress = progress;
-        self.tournament = tournament;
+        self.mainView = mainView;
 
         // Number of matches that have been reported.
         self.num = ko.observable(reported_count);
-
-        self.showStandings = function() {
-            console.log('show standings clicked');
-            NOTIFIER.notifySubscribers("results", "showStandingsView");
-        };
 
         // Injects css to disable/enable 'Next Round' button
         self.buttonState = ko.pureComputed(function() {
@@ -161,16 +156,13 @@ var PairingsView = {
 
         self.editPlayers = function() {
             if(self.players().length > 0) {
-                NOTIFIER.notifySubscribers(self.tournament,'showEditPlayersModal');
+                self.mainView.showEditPlayersModal();
             } else {
                 alert('There are no players to edit!\nPlease add players.');
             }
         };
 
-        // NOTIFIER.subscribe(function() {
-        // }, self, "showDashboard");
-
-        NOTIFIER.subscribe(function(tournament_id) {
+        NOTIFIER.subscribe(function() {
             self.shouldShowView(false);
         }, self, "hideAllExceptDashboard");
 
@@ -221,15 +213,14 @@ var PairingsView = {
                     winner: winner,
                     loser: loser,
                     shouldReplace: shouldReplace,
-                    shouldClear: shouldClear,
-                    tournament: self.tournament
+                    shouldClear: shouldClear
                 };
 
-                NOTIFIER.notifySubscribers(data, "postMatchResult");
+                self.mainView.postMatchResult(data);
 
                 if(self.num() === (self.players().length / 2)) {
                     console.log('next round prompt should appear');
-                    NOTIFIER.notifySubscribers(self.tournament, "showStandingsView");
+                    self.mainView.showStandingsView();
                 }
             }
             return false;

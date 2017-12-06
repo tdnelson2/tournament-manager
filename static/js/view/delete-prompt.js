@@ -2,7 +2,7 @@
 
 var DeletePrompt = {
 
-	populate : function(item, itemType) {
+	populate : function(item, serverKey, mainView) {
 
 	    var html = ModalPrompt.html.slice().replace(/%MODAL-ID%/g, 'deleteItem');
 
@@ -13,14 +13,15 @@ var DeletePrompt = {
 		    $('#deleteItemSecondary').focus();
 		});
 
-	    ko.applyBindings( new DeletePrompt.View(item, itemType), $bindings );
+	    ko.applyBindings( new DeletePrompt.View(item, serverKey, mainView), $bindings );
 	},
 
-	View: function(item, itemType) {
+	View: function(item, serverKey, mainView) {
 
 		var self = this;
 		self.item = item;
-		self.itemType = itemType;
+		self.serverKey = serverKey;
+		self.mainView = mainView;
 
 	    self.primaryText = ko.pureComputed(function(){
 	        return 'Delete \''+self.item.name()+'\'';
@@ -28,8 +29,8 @@ var DeletePrompt = {
 
 	    self.primaryAction = function() {
     		item.isSlatedToDelete(true);
-    		console.log(itemType);
-			NOTIFIER.notifySubscribers(self.itemType, "deleteItems");
+    		console.log(serverKey);
+			self.mainView.deleteItems(self.serverKey);
 	    };
 
 	    self.secondaryText = ko.pureComputed(function(){

@@ -28,7 +28,7 @@ var AddTournamentView = {
           '</div>',
 
 
-	populate : function(tournaments) {
+	populate : function(mainView) {
 
 	    // Add HTML to the DOM and init the view model
 	    var $bindings = utilities.addToDOM('new-tournament', AddTournamentView.html);
@@ -39,27 +39,21 @@ var AddTournamentView = {
 
 	    $('#newTournamentModal').modal('show');
 
-	    ko.applyBindings( new AddTournamentView.View(tournaments), $bindings );
+	    ko.applyBindings( new AddTournamentView.View(mainView), $bindings );
 	},
 
-	View : function(tournaments) {
+	View : function(mainView) {
 		// view model
 		var self = this;
-		self.tournaments = tournaments;
+		self.mainView = mainView;
 		self.tournamentInput = ko.observable('');
-
-
-
-        NOTIFIER.subscribe(function(tournament_id) {
-            $('#newTournamentModal').modal('hide');
-        }, self, "hideAllExceptDashboard");
 
 
 		self.createTournament = function() {
 			var tournament = self.tournamentInput();
 			if(tournament !== "") {
 				NOTIFIER.notifySubscribers('', "hideDashboard");
-				NOTIFIER.notifySubscribers(tournament, "postNewTournament");
+				self.mainView.postNewTournament(tournament);
                 self.tournamentInput('');
                 $('#newTournamentModal').modal('hide');
 			}
