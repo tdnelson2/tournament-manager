@@ -133,7 +133,12 @@ var MainViewModel = function() {
 
         var champion = utilities.overallWinner(self.players);
         var title = champion === undefined ? 'Standings' : "Results - Winner Is '"+champion+"'!"
-        var continueBtn = champion === undefined ? 'Next Round' : 'Exit Tournament'
+        var continueBtn = 'Next Round';
+        if(!roundIsInProgress && champion !== undefined) {
+            continueBtn = 'Close';
+        } else if(roundIsInProgress && champion !== undefined) {
+            continueBtn = 'Exit Tournament';
+        }
 
 
         var params = {
