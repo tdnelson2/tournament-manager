@@ -446,6 +446,8 @@ var MainViewModel = function() {
 
     self.init = function() {
 
+        ko.applyBindings(new HeaderView.View(), document.getElementById('header'));
+
         var addTournaments = function(data) {
             for (var i = 0; i < data.length; i++) {
                 self.tournaments.unshift( new Model.Tournament(data[i]) );
