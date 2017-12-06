@@ -26,31 +26,35 @@ var LargeModalView = {
 	    return $bindings;
 	},
 
-	StandingsView: function(standingsData, modalID, tournament, tournamentIsComplete) {
+	StandingsView: function(standingsData, roundIsInProgress, modalID, tournamentIsComplete) {
 		var self = this;
 		self.modalID = modalID;
 		self.standingsData = standingsData;
-	    self.tournament = tournament;
+		self.roundIsInProgress = roundIsInProgress;
 	    self.tournamentIsComplete = tournamentIsComplete;
 
 		self.finish = function() {
 		  if(self.tournamentIsComplete) {
-		    console.log('show dashboard');
-		    NOTIFIER.notifySubscribers(self.tournament, "markTournamentComplete");
+		    NOTIFIER.notifySubscribers('', "markTournamentComplete");
 		  } else {
-		    NOTIFIER.notifySubscribers(self.tournament, "showPairingsView");
+		    NOTIFIER.notifySubscribers('', "showPairingsView");
 		  }
 		};
+
+		$('#standingsModal').on('hide.bs.modal', function(e) {
+		  if(!self.roundIsInProgress) {
+		  	NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
+		  }
+		});
 
 		$('#'+self.modalID).modal('show');
 	},
 
-	EditView: function(src, modalID, serverKey, tournament) {
+	EditView: function(src, modalID, serverKey) {
 		var self = this;
 		self.src = src;
 		self.modalID = modalID;
 		self.serverKey = serverKey;
-		self.tournament = tournament;
 		self.items = ko.observableArray([]);
 
 
@@ -72,7 +76,6 @@ var LargeModalView = {
 	      if(newNames.length > 0) {
 	      	var data = {
 	      		serverKey: serverKey,
-	      		tournament: self.tournament,
 	      		newNames: newNames
 	      	};
 			NOTIFIER.notifySubscribers(data, 'postItemNamesUpdate');
@@ -86,19 +89,13 @@ var LargeModalView = {
 		$('#'+self.modalID).modal('show');
 	},
 
-	DeleteView: function(src, modalID, itemType, tournament) {
+	DeleteView: function(src, modalID, serverKey) {
 		var self = this;
 		self.items = src;
-		self.itemType = itemType;
-		self.tournament = tournament;
+		self.serverKey = serverKey;
 
 		self.finish = function() {
-			console.log(tournament);
-			var data = {
-				serverKey: self.itemType,
-				tournament: self.tournament
-			};
-			NOTIFIER.notifySubscribers(data, 'deleteItems');
+			NOTIFIER.notifySubscribers(self.serverKey, 'deleteItems');
 		};
 
 		$('#'+modalID).modal('show');

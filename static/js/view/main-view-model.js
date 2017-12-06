@@ -21,9 +21,9 @@ var MainViewModel = function() {
         DeletePrompt.populate(thisTournament, 'deleteTournaments');
     }, self, "promptForTournamentDelete");
 
-    NOTIFIER.subscribe(function(data) {
+    NOTIFIER.subscribe(function(serverKey) {
 
-        var items = data.serverKey === "deleteTournaments" ?
+        var items = serverKey === "deleteTournaments" ?
                     self.tournaments : self.players;
 
         var deleteIDs = [];
@@ -37,14 +37,14 @@ var MainViewModel = function() {
             }
         };
         if(GUEST_MODE) {
-            if(data.serverKey === "deleteTournaments") {
+            if(serverKey === "deleteTournaments") {
                 GuestModel.removeTournaments(deleteIDs);
             } else {
-                GuestModel.removePlayers(data.tournament.id, deleteIDs);
+                GuestModel.removePlayers(self.tournament.id, deleteIDs);
             }
         } else {
             var postData = {};
-            postData[data.serverKey] = JSON.stringify(deleteIDs);
+            postData[serverKey] = JSON.stringify(deleteIDs);
             $.post('/tournament-manager/', postData, function(returnedData) {;});
         }
     }, self, "deleteItems");
@@ -96,8 +96,7 @@ var MainViewModel = function() {
         var $bindings = LargeModalView.populate(params);
         ko.applyBindings( new LargeModalView.EditView(self.players,
                                                        params.modalID,
-                                                       'updatePlayerNames',
-                                                       self.tournament), $bindings );
+                                                       'updatePlayerNames'), $bindings );
     }, self, "showEditPlayersModal");
 
 
@@ -114,14 +113,14 @@ var MainViewModel = function() {
         var $bindings = LargeModalView.populate(params);
         ko.applyBindings( new LargeModalView.DeleteView(self.players,
                                                          params.modalID,
-                                                         'deletePlayers',
-                                                         self.tournament), $bindings );
+                                                         'deletePlayers'), $bindings );
     }, self, "showDeletePlayersModal");
 
 
     self.showStandingsModal = function() {
 
         // Make a copy of the model.
+        var roundIsInProgress = false;
         var standingsData = ko.observableArray([]);
         self.players().map(function(x) {
           var p = {
@@ -130,6 +129,7 @@ var MainViewModel = function() {
               loses: x.matches() - x.wins(),
               matches: x.matches()
           };
+          if(x.isSelected()){roundIsInProgress = true;}
           standingsData.push(p);
         });
         standingsData.sort(function (left, right) {
@@ -142,7 +142,8 @@ var MainViewModel = function() {
         });
 
         var r = utilities.overallWinner(self.players);
-        var title = r === undefined ? 'Standings' : "'"+r+"' takes the gold!"
+        var title = r === undefined ? 'Standings' : "Results - Winner Is '"+r+"'!"
+
 
         var params = {
            titleTxt:      title,
@@ -155,8 +156,8 @@ var MainViewModel = function() {
 
         var $bindings = LargeModalView.populate(params);
         ko.applyBindings( new LargeModalView.StandingsView(standingsData,
+                                                           roundIsInProgress,
                                                            params.modalID,
-                                                           self.tournament,
                                                            r), $bindings );
     };
 
@@ -174,7 +175,7 @@ var MainViewModel = function() {
         });
         if(playedMatchCount > 0) {
             if(GUEST_MODE) {
-                GuestModel.markRoundComplete();
+                GuestModel.markRoundComplete(self.tournament.id);
                 proceed(shouldShowPairings);
             } else {
                 // Tell the server to mark the round complete.
@@ -259,7 +260,7 @@ var MainViewModel = function() {
             if(data.serverKey === 'updateTournamentNames') {
                 GuestModel.editTournamentNames(data.newNames);
             } else {
-                GuestModel.editPlayerNames(data.tournament.id, data.newNames);
+                GuestModel.editPlayerNames(self.tournament.id, data.newNames);
             }
         } else {
             var postData = {};
