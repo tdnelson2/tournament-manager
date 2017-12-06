@@ -35,7 +35,7 @@ var OptionsModal = {
             '<!--ko text: name--><!--/ko-->'+
           '</label>'+
       '</div>',
-      
+
   standingsTable: ''+
       '<table class="table">'+
         '<thead>'+
@@ -43,7 +43,7 @@ var OptionsModal = {
             '<th>Player</th>'+
             '<th>Wins</th>'+
             '<th>Loses</th>'+
-            '<th>Matches</th>'+
+            '<th class="matches-column">Matches</th>'+
           '</tr>'+
         '</thead>'+
         '<tbody data-bind="foreach: standingsData">'+
@@ -51,7 +51,7 @@ var OptionsModal = {
              '<td data-bind="text: name"></td>'+
              '<td data-bind="text: wins"></td>'+
              '<td data-bind="text: loses"></td>'+
-             '<td data-bind="text: matches"></td>'+
+             '<td class="matches-column" data-bind="text: matches"></td>'+
            '</tr>'+
         '</tbody>'+
       '</table>'

@@ -235,12 +235,18 @@ bs-container-modified {
   .user-btn {
     visibility: hidden;
   }
+  .record-badge {
+    visibility: hidden;
+  }
 }
 
 @media(max-width:450px) {
   .delete-tournament {
     top: 15%;
     left: 67%;
+  }
+  .matches-column {
+    visibility: hidden;
   }
 }
 
@@ -359,8 +365,6 @@ bs-container-modified {
 }
 
 .standings-btn {
-/*    margin-bottom: 5px;*/
-    /*padding-bottom: 5px;*/
     position: absolute;
     top: 20px;
     left: 93%;

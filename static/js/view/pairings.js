@@ -7,7 +7,7 @@ var PairingsView = {
                       'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
                         '<h6 class="mb-1" data-bind="text: players()[%PLAYER-1-INDEX%].name"></h6>'+
-                        '<span class="badge badge-default badge-pill" '+
+                        '<span class="badge badge-default badge-pill record-badge" '+
                         'data-bind="text: players()[%PLAYER-1-INDEX%].wins()+\' - \'+players()[%PLAYER-1-INDEX%].matches()"></span>'+
                       '</div>'+
                   '</a>'+
@@ -18,7 +18,7 @@ var PairingsView = {
                       'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
                         '<h6 class="mb-1" data-bind="text: players()[%PLAYER-2-INDEX%].name"></h6>'+
-                        '<span class="badge badge-default badge-pill" '+
+                        '<span class="badge badge-default badge-pill record-badge" '+
                         'data-bind="text: players()[%PLAYER-2-INDEX%].wins()+\' - \'+players()[%PLAYER-2-INDEX%].matches()"></span>'+
                       '</div>'+
                   '</a>'+
