@@ -6,7 +6,7 @@ var PairingsView = {
                       'data-bind="css: { active : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
                       'click: reportResult(players()[%PLAYER-1-INDEX%], players()[%PLAYER-2-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
-                        '<h6 class="mb-1">%PLAYER-1%</h6>'+
+                        '<h6 class="mb-1" data-bind="text: players()[%PLAYER-1-INDEX%].name"></h6>'+
                         '<span class="badge badge-default badge-pill" '+
                         'data-bind="text: players()[%PLAYER-1-INDEX%].wins()+\' - \'+players()[%PLAYER-1-INDEX%].matches()"></span>'+
                       '</div>'+
@@ -17,7 +17,7 @@ var PairingsView = {
                       'data-bind="css: { active : players()[%PLAYER-2-INDEX%].isSelected, disabled : players()[%PLAYER-1-INDEX%].isSelected }, '+
                       'click: reportResult(players()[%PLAYER-2-INDEX%], players()[%PLAYER-1-INDEX%])">'+
                       '<div class="d-flex w-100 justify-content-between">'+
-                        '<h6 class="mb-1">%PLAYER-2%</h6>'+
+                        '<h6 class="mb-1" data-bind="text: players()[%PLAYER-2-INDEX%].name"></h6>'+
                         '<span class="badge badge-default badge-pill" '+
                         'data-bind="text: players()[%PLAYER-2-INDEX%].wins()+\' - \'+players()[%PLAYER-2-INDEX%].matches()"></span>'+
                       '</div>'+
@@ -32,7 +32,10 @@ var PairingsView = {
                             '<div class="content">'+
                               '<div class="row justify-content-md-center">'+
                                   '<div class="col col-lg-6">'+
-                                        '<h3 class="text-center">%TOURNAMENT-NAME%</h3>'+
+                                        '<div class="text-center">'+
+                                            '<h3 style="display:inline;">%TOURNAMENT-NAME%</h3>'+
+                                            '%SETTINGS-MENU%'+
+                                        '</div>'+
                                         '<div class="sub-header-separator"></div>'+
                                         '<div class="pairings-header">'+
                                             '<h4 style="margin-bottom: 2px;">Round %THIS-ROUND%</h4>'+
@@ -77,9 +80,7 @@ var PairingsView = {
             var player2name = utilities.sanitize(model()[player2INDEX].name());
 
             var r = [[/%PLAYER-1-INDEX%/g, player1INDEX],
-                     [/%PLAYER-2-INDEX%/g, player2INDEX],
-                     [/%PLAYER-1%/g, utilities.sanitize(model()[player1INDEX].name())],
-                     [/%PLAYER-2%/g, utilities.sanitize(model()[player2INDEX].name())]];
+                     [/%PLAYER-2-INDEX%/g, player2INDEX]];
 
             for (var i = 0; i < r.length; i++) {
                 x = r[i];
@@ -110,8 +111,12 @@ var PairingsView = {
                 pairingsHTML += buildPairing(player1INDEX, player2INDEX);
             };
 
+        var dropdown = DropDownMenu.prepare([
+            {itemText:' Edit Player Name(s) ...', action:'editPlayers', css:'fa fa-edit fa-fw'}]);
+
             // Put list of pairings in `rowHTML`
             var html = PairingsView.rowHTML.slice()
+                       .replace('%SETTINGS-MENU%', dropdown)
                        .replace('%THIS-ROUND%', r.progress.this_round)
                        .replace('%TOTAL-ROUNDS%', r.progress.total_rounds)
                        .replace('%PAIRS-HTML%', pairingsHTML);
@@ -153,9 +158,16 @@ var PairingsView = {
                    'Crown The Champion!' : 'Next Round';
         });
 
+        self.editPlayers = function() {
+            if(self.players().length > 0) {
+                NOTIFIER.notifySubscribers('','showEditPlayersModal');
+            } else {
+                alert('There are no players to edit!\nPlease add players.')
+            }
+        };
 
         // NOTIFIER.subscribe(function() {
-        // }, self, "showDashboard");        
+        // }, self, "showDashboard");
 
         NOTIFIER.subscribe(function(tournament_id) {
             self.shouldShowView(false);

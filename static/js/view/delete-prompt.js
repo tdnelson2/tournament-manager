@@ -27,13 +27,8 @@ var DeletePrompt = {
 	    });
 
 	    self.primaryAction = function() {
-	    	if (self.itemType === ItemType.TOURNAMENT) {
-	    		item.isSlatedToDelete(true);
-				NOTIFIER.notifySubscribers('', "deleteTournaments");
-			}
-			else if (self.itemType === ItemType.PLAYER) {
-				NOTIFIER.notifySubscribers('', "deletePlayers");
-			}
+    		item.isSlatedToDelete(true);
+			NOTIFIER.notifySubscribers(self.itemType, "deleteItems");
 	    };
 
 	    self.secondaryText = ko.pureComputed(function(){

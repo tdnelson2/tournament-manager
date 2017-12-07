@@ -4,7 +4,8 @@ var AddPlayersView = {
                 '<div class="bs-container-fluid-modified bs-container-modified">'+
 	                '<div class="content"'+
 					    '<div class="row">'+
-                        '<h3 class="text-center" style="margin-bottom:15px;">%TOURNAMENT-NAME%</h3>'+
+                        '<h3 style="display:inline;">%TOURNAMENT-NAME%</h3>'+
+                        '%SETTINGS-MENU%'+
                         '<div class="pair-separator" style="margin-bottom:15px;"></div>'+
 					        '<form class="new-player-input">'+
 					            '<div class="form-group">'+
@@ -33,7 +34,14 @@ var AddPlayersView = {
 
     populate: function(model, tournament) {
         // Add HTML to the DOM and init the view model
-        var html = AddPlayersView.html.slice().replace('%TOURNAMENT-NAME%', tournament.name());
+
+        var dropdown = DropDownMenu.prepare([
+            {itemText:' Delete Players(s) ...', action:'deletePlayers', css:'fa fa-trash-o fa-fw'},
+            {itemText:' Edit Player Name(s) ...', action:'editPlayers', css:'fa fa-edit fa-fw'}]);
+
+        var html = AddPlayersView.html.slice()
+			        .replace('%SETTINGS-MENU%', dropdown)
+			        .replace('%TOURNAMENT-NAME%', tournament.name());
         var $bindings = utilities.addToDOM('add-players', html);
 
         ko.applyBindings( new AddPlayersView.View(model), $bindings );
@@ -79,6 +87,22 @@ var AddPlayersView = {
 				NOTIFIER.notifySubscribers(RoundStatus.FIRST_ROUND, "showPairingsView");
 			} else {
 				alert('You must have an even number of players to proceed');
+			}
+		};
+
+		self.deletePlayers = function() {
+			if(self.players().length > 0) {
+                NOTIFIER.notifySubscribers('','showDeletePlayersModal');
+			} else {
+				alert('There are no players to delete!\nPlease add players.')
+			}
+		};
+
+		self.editPlayers = function() {
+			if(self.players().length > 0) {
+                NOTIFIER.notifySubscribers('','showEditPlayersModal');
+			} else {
+				alert('There are no players to edit!\nPlease add players.')
 			}
 		};
 

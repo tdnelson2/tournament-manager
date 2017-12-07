@@ -44,7 +44,18 @@ def index():
             tournaments = json.loads(request.form['deleteTournaments'])
             r = tournament.deleteTournaments(tournaments)
             return json.dumps(dict(result=r))
-            
+        elif 'updateTournamentNames' in request.form:
+            tournaments = json.loads(request.form['updateTournamentNames'])
+            r = tournament.updateTournamentNames(tournaments)
+            return json.dumps(dict(result=r))
+        elif 'deletePlayers' in request.form:
+            players = json.loads(request.form['deletePlayers'])
+            r = tournament.deletePlayers(players)
+            return json.dumps(dict(result=r))
+        elif 'updatePlayerNames' in request.form:
+            players = json.loads(request.form['updatePlayerNames'])
+            r = tournament.updatePlayerNames(players)
+            return json.dumps(dict(result=r))
         return 'ERR'
     else:
         """Serve the client-side application."""

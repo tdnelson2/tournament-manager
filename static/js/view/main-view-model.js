@@ -18,24 +18,96 @@ var MainViewModel = function() {
     }, self, "showTournament");
 
     NOTIFIER.subscribe(function(thisTournament) {
-        DeletePrompt.populate(thisTournament, ItemType.TOURNAMENT);
+        DeletePrompt.populate(thisTournament, 'deleteTournaments');
     }, self, "promptForTournamentDelete");
 
-    NOTIFIER.subscribe(function() {
+    NOTIFIER.subscribe(function(serverKey) {
+
+        var items = serverKey === "deleteTournaments" ?
+                    self.tournaments : self.players;
+
         var deleteIDs = [];
 
         // Loop through tournaments backwards removing as we go.
-        for (var i = self.tournaments().length - 1; i >= 0; --i) {
-            var t = self.tournaments()[i]
+        for (var i = items().length - 1; i >= 0; --i) {
+            var t = items()[i]
             if(t.isSlatedToDelete()) {
                 deleteIDs.push(t.id);
-                self.tournaments.splice(i,1);
+                items.splice(i,1);
             }
         }
+        var data = {};
+        data[serverKey] = JSON.stringify(deleteIDs);
+        $.post('/', data, function(returnedData) {;});
+    }, self, "deleteItems");
 
-        var data = {'deleteTournaments' : JSON.stringify(deleteIDs)};
-        $.post('/', data, function(returnedData) {});
-    }, self, "deleteTournaments");
+
+    NOTIFIER.subscribe(function() {
+        var params = {
+           titleTxt:     'Delete Tournament(s)',
+           modalID:      'deleteTournaments',
+           bodyHTML:      OptionsModal.checkbox,
+           closeBtnTxt:  'Cancel',
+           finishBtnTxt: 'Delete',
+           domTargetID:  'delete-tournaments'
+        };
+
+        var $bindings = ModifyItemsView.populate(params);
+        ko.applyBindings( new ModifyItemsView.DeleteView(self.tournaments,
+                                                         params.modalID,
+                                                         'deleteTournaments'), $bindings );
+    }, self, "showDeleteTournamentsModal");
+
+    NOTIFIER.subscribe(function() {
+        var params = {
+           titleTxt:     'Edit Tournament Name(s)',
+           modalID:      'editTournaments',
+           bodyHTML:      OptionsModal.field,
+           closeBtnTxt:  'Cancel',
+           finishBtnTxt: 'Update',
+           domTargetID:  'edit-tournaments'
+        };
+
+        ModifyItemsView.populate(params);
+        var $bindings = ModifyItemsView.populate(params);
+        ko.applyBindings( new ModifyItemsView.EditView(self.tournaments,
+                                                       params.modalID,
+                                                       'updateTournamentNames'), $bindings );
+    }, self, "showEditTournamentsModal");
+
+    NOTIFIER.subscribe(function() {
+        var params = {
+           titleTxt:     'Edit Player Name(s)',
+           modalID:      'editPlayers',
+           bodyHTML:      OptionsModal.field,
+           closeBtnTxt:  'Cancel',
+           finishBtnTxt: 'Update',
+           domTargetID:  'edit-players'
+        };
+
+        var $bindings = ModifyItemsView.populate(params);
+        ko.applyBindings( new ModifyItemsView.EditView(self.players,
+                                                       params.modalID,
+                                                       'updatePlayerNames'), $bindings );
+    }, self, "showEditPlayersModal");
+
+
+    NOTIFIER.subscribe(function() {
+        var params = {
+           titleTxt:     'Delete Players',
+           modalID:      'deletePlayers',
+           bodyHTML:      OptionsModal.checkbox,
+           closeBtnTxt:  'Cancel',
+           finishBtnTxt: 'Delete',
+           domTargetID:  'delete-players'
+        };
+
+        var $bindings = ModifyItemsView.populate(params);
+        ko.applyBindings( new ModifyItemsView.DeleteView(self.players,
+                                                         params.modalID,
+                                                         'deletePlayers'), $bindings );
+    }, self, "showDeletePlayersModal");
+
 
 	NOTIFIER.subscribe(function(status) {
         if(status === RoundStatus.FIRST_ROUND) {

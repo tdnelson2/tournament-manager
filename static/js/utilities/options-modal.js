@@ -15,11 +15,24 @@ var OptionsModal = {
               '%MODAL-BODY%'+
               '</div>'+
               '<div class="modal-footer">'+
-                '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>'+
+                '<button type="button" class="btn btn-secondary" data-dismiss="modal">%MODAL-CLOSE-BTN%</button>'+
                 '<button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: finish">%MODAL-FINISH-BTN%</button>'+
               '</div>'+
             '</form>'+
           '</div>'+
         '</div>'+
+      '</div>',
+
+  field: ''+
+      '<div class="form-group" data-bind="foreach: items">'+
+          '<input type="text" class="form-control" style="margin-bottom:15px;" data-bind="value: name">'+
+      '</div>',
+
+  checkbox: ''+
+      '<div class="form-check" data-bind="foreach: items">'+
+          '<label class="form-check-label" style="display:block;">'+
+            '<input type="checkbox" class="form-check-input" data-bind="checked: isSlatedToDelete">'+
+            '<!--ko text: name--><!--/ko-->'+
+          '</label>'+
       '</div>'
 };

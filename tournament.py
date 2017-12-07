@@ -4,6 +4,7 @@
 #
 
 import psycopg2
+from psycopg2 import sql as sql2
 import math
 import re
 import manage_duplicate_pairs as dup_manager
@@ -81,23 +82,123 @@ def createTournament(name):
 
 
 def deleteTournaments(ids):
-    """Delete a tournament and all players/matches
+    """Delete tournaments and all players/matches
     contained within
 
     RETURNS
     Database True if succesful False if not
     """
+
+    return deleteItems(ids, 'tournaments', 'user_id', str(currentUserID))
+
+def deletePlayers(ids):
+    """Delete tournaments and all players/matches
+    contained within
+
+    RETURNS
+    Database True if succesful False if not
+    """
+
+    return deleteItems(ids, 'players', 'tournament_id',
+                       str(currentTournamentID))
+
+def deleteItems(ids, table_name, column_name, column_value):
+    """Delete items from a list of ids
+
+    RETURNS
+      True if succesful False if not
+    """
+    if len(ids) == 0:
+        r = False
+
+    db = connect()
+    c = db.cursor()
+    # try:
+    tupIDs = tuple(ids)
+
+    # Populate the template with our table and column.
+    delete_query = sql2.SQL("DELETE FROM {0} WHERE id IN \
+                            %s AND {1} = %s;").format(
+                            sql2.Identifier(table_name),
+                            sql2.Identifier(column_name))
+
+    c.execute(delete_query, (tupIDs,  column_value))
+    db.commit()
+    r = True
+    # except:
+    #     r = False
+    db.close()
+    return r
+
+def updateTournamentNames(tournaments):
+    """Update tournament names
+    ARGS
+     list of lists, each of with contain
+     `id`: unique tournament identifier
+     `name`: new name to be updated
+
+    RETURNS
+    True if succesful False if not
+    """
+    return updateNames(tournaments, 'tournaments',
+                       'user_id', str(currentUserID))
+
+def updatePlayerNames(players):
+    """Update tournament names
+    ARGS
+     list of lists, each of with contain
+     `id`: unique player identifier
+     `name`: new name to be updated
+
+    RETURNS
+    True if succesful False if not
+    """
+    return updateNames(players, 'players',
+                       'tournament_id', str(currentTournamentID))
+
+
+
+def updateNames(new_values, table_name, column_name, column_value):
+    """Update values from columns named `name`
+    ARGS
+     list of lists, each of with contain
+     `id`: unique item identifier
+     `name`: new name to be updated
+
+    RETURNS
+    True if succesful False if not
+    """
+    print column_value
+    if len(new_values) == 0:
+        return False
+
     db = connect()
     c = db.cursor()
     try:
-        tupIDs = tuple(ids)
-        c.execute("DELETE FROM tournaments WHERE id IN \
-                   %s AND user_id = %s;", (tupIDs, str(currentUserID)))
+        new_values = [tuple(x) for x in new_values]
+
+        # Add the where value to the list of new values
+        new_values.append(column_value)
+
+        # Populate the template with our table, column, and new values
+        update_query = sql2.SQL("UPDATE {0} AS t\
+                        SET name = e.name\
+                        FROM (VALUES "+','.join(['%s'] * (len(new_values)-1))+")\
+                        AS e(id, name)\
+                        WHERE e.id = t.id\
+                        AND t.{1} = %s;").format(
+                        sql2.Identifier(table_name),
+                        sql2.Identifier(column_name))
+
+        print  ' '.join(update_query.as_string(c).replace('\n', '').split())
+        print c.mogrify(' '.join(update_query.as_string(c).replace('\n', '').split()), new_values)
+
+        c.execute(update_query, new_values)
         db.commit()
-        db.close()
         r = True
     except:
         r = False
+    db.close()
     return r
 
 def getUsers():
@@ -131,24 +232,6 @@ def getUser(email):
     if result != []:
         return result[0][0]
     return 0
-
-def deleteMatches():
-    """Remove all the match records from the database."""
-    db = connect()
-    c = db.cursor()
-    c.execute("DELETE FROM matches;")
-    db.commit()
-    db.close()
-
-
-def deletePlayers():
-    """Remove all the player records from the database."""
-    deleteMatches()
-    db = connect()
-    c = db.cursor()
-    c.execute("DELETE FROM players;")
-    db.commit()
-    db.close()
 
 
 def countPlayers():

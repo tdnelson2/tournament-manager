@@ -5,17 +5,9 @@ var DashboardView = {
             '<div class="categories" data-bind="visible: shouldShowDashboard">'+
                 '<div class="category-text">'+
                     '<h3 style="display:inline;">My Tournaments </h3>'+
-                    '<div class="dropdown show" style="display:inline;">'+
-                      '<a style="position:absolute;bottom:2px;left:5px;" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
-                          '<i class="fa fa-chevron-down fa-fw" style="font-size:12pt;color:gray;" aria-hidden="true"></i>'+
-                      '</a>'+
-                      '<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">'+
-                        '<a class="dropdown-item" href="#" data-bind="click: createTournament"><i class="fa fa-plus fa-fw" aria-hidden="true"></i> Create New Tournament ...</a>'+
-                        '<a class="dropdown-item" href="#" data-bind="click: deleteTournaments"><i class="fa fa-trash-o fa-fw" aria-hidden="true"></i> Delete Tournament(s) ...</a>'+
-                        '<a class="dropdown-item" href="#"><i class="fa fa-edit fa-fw" aria-hidden="true"></i> Edit Tournament ...</a>'+
-                      '</div>'+
-                    '</div>'+
+                    '%SETTINGS-MENU%'+
                 '</div>'+
+
                 '<div class="bs-container-fluid-modified bs-container-modified">'+
                     '<div class="content">'+
                         '<div class="row">'+
@@ -37,7 +29,7 @@ var DashboardView = {
                                 '</div>'+
                             '</div>'+
 
-                            '<!-- /ko -->'+ 
+                            '<!-- /ko -->'+
 
                         '</div>'+
                     '</div>'+
@@ -47,7 +39,13 @@ var DashboardView = {
         populate: function(tournaments) {
 
             // Add HTML to the DOM and init the view model
-            var $bindings = utilities.addToDOM('dashboard', DashboardView.html);
+            var dropdown = DropDownMenu.prepare([
+                {itemText:' Create New Tournament ...', action:'createTournament', css:'fa fa-plus fa-fw'},
+                {itemText:' Delete Tournament(s) ...', action:'deleteTournaments', css:'fa fa-trash-o fa-fw'},
+                {itemText:' Edit Tournament Name(s) ...', action:'editTournaments', css:'fa fa-edit fa-fw'}]);
+
+            var html = DashboardView.html.slice().replace('%SETTINGS-MENU%', dropdown);
+            var $bindings = utilities.addToDOM('dashboard', html);
 
             ko.applyBindings( new DashboardView.View(tournaments), $bindings );
         },
@@ -81,8 +79,12 @@ var DashboardView = {
                 NOTIFIER.notifySubscribers('', "createTournament");
             };
 
+            self.editTournaments = function() {
+                NOTIFIER.notifySubscribers('','showEditTournamentsModal');
+            };
+
             self.deleteTournaments = function() {
-                DeleteTournamentsView.populate(tournaments);
+                NOTIFIER.notifySubscribers('','showDeleteTournamentsModal');
             };
 
             NOTIFIER.subscribe(function() {

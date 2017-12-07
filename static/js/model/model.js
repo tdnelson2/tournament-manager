@@ -6,6 +6,7 @@ var Model = {
 		this.wins = ko.observable(data.wins);
 		this.matches = ko.observable(data.matches);
 		this.isSelected = ko.observable(false);
+		this.isSlatedToDelete = ko.observable(false);
 	},
 
 	Tournament: function(data) {
