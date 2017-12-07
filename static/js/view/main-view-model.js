@@ -203,8 +203,8 @@ var MainViewModel = function() {
 	};
 
     self.postNewPlayer = function(data) {
-        self.players.push( new Model.Player(data) );
-        var playerObj = self.players()[self.players().length - 1];
+        self.players.unshift( new Model.Player(data) );
+        var playerObj = self.players()[0];
 
         if(GUEST_MODE) {
             var p = GuestModel.addPlayer(data.name, self.tournament.id);

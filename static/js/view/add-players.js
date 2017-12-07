@@ -6,13 +6,14 @@ var AddPlayersView = {
 					    '<div class="row">'+
                         '<h3 style="display:inline;">%TOURNAMENT-NAME%</h3>'+
                         '%SETTINGS-MENU%'+
-                        '<div class="pair-separator" style="margin-bottom:15px;"></div>'+
+                        '<div class="sub-header-separator"></div>'+
 					        '<form class="new-player-input">'+
 					            '<div class="form-group">'+
 					                '<label for="addPlayerField">Add Players</label>'+
 					                '<input type="text" class="form-control" id="addPlayerField" placeholder="" data-bind="value: playerInput">'+
 				                '</div>'+
 					            '<button type="submit" class="btn btn-primary" data-bind="click: addPlayer">Add</button>'+
+					            '<button type="submit" style="margin-left:20px" class="btn btn-secondary" data-bind="visible: shouldShowPlayersAdded(), css: { \'not-allowed\' : cannotPair() }, attr: { \'disabled\' : toggleDisabledAttr() }, click: pairUp">Pair Up</button>'+
 					        '</form>'+
 					    '</div>'+
 					    '<div data-bind="visible: shouldShowPlayersAdded()" class="new-players">'+
@@ -23,9 +24,6 @@ var AddPlayersView = {
 					            '<div data-bind="foreach: players" class="list-group list-group-flush w-100 align-items-stretch">'+
 					                '<li class="list-group-item text-center d-inline-block" data-bind="text: name"></li>'+
 					            '</div>'+
-					        '</div>'+
-					        '<div class="text-center">'+
-					            '<button type="submit" class="btn btn-primary" data-bind="click: pairUp">Pair Up</button>'+
 					        '</div>'+
 					    '</div>'+
 				    '</div>'+
@@ -73,7 +71,16 @@ var AddPlayersView = {
 				self.mainView.postNewPlayer(data);
 				self.playerInput("");
 			}
+			$('#addPlayerField').focus();
 		};
+
+        self.cannotPair = ko.pureComputed(function() {
+            return self.players().length % 2 === 1;
+        });
+
+        self.toggleDisabledAttr = ko.pureComputed(function() {
+            return self.players().length % 2 === 1 ? 'disabled' : undefined;
+        });
 
 		self.pairUp = function() {
 			if(self.players().length % 2 === 0) {
