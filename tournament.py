@@ -13,6 +13,11 @@ import pairing_tools
 # currentTournamentID = 1;
 
 
+standingsQuery = "SELECT * FROM standings \
+                  WHERE tournament_id = %s \
+                  ORDER BY wins DESC, totalPlayed, id;"
+
+
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
@@ -229,11 +234,10 @@ def updateNames(new_values, table_name, column_name, column_value, db, c):
                         sql2.Identifier(column_name))
 
         print  ' '.join(update_query.as_string(c).replace('\n', '').split())
-        print c.mogrify(' '.join(update_query.as_string(c).replace('\n', '').split()), new_values)
+        q = c.mogrify(' '.join(update_query.as_string(c).replace('\n', '').split()), new_values)
+        print q
 
-        c.execute(update_query, new_values)
-        v = c.fetchall()
-        print v
+        c.execute(q, new_values)
         db.commit()
         r = True
     except:
@@ -324,7 +328,7 @@ def playerStandings(currentTournamentID, db, c):
         matches: the number of matches the player has played
         user_id: unique id of the user who owns this tournament
     """
-    c.execute("SELECT * FROM standings WHERE tournament_id = %s", (str(currentTournamentID),))
+    c.execute(standingsQuery, (str(currentTournamentID),))
     rows = c.fetchall()
     db.close()
     return processStandings(rows)
@@ -443,8 +447,8 @@ def swissPairings(currentTournamentID, db, c):
     # c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", (str(currentTournamentID),))
     # r = list(reversed( c.fetchall() ))
 
-    c.execute("SELECT * FROM standings WHERE tournament_id = %s;", (str(currentTournamentID),))
-    standings = list(reversed( c.fetchall() ))
+    c.execute(standingsQuery, (str(currentTournamentID),))
+    standings =  c.fetchall()
 
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \

@@ -1,17 +1,27 @@
 var utilities = {
   overallWinner: function(players) {
-    var champion = '';
-    var zeroLossCount = 0;
-    // Determine how many players still have a perfect record
-    players().map(function(x){
-      if(x.wins()-x.matches() === 0){
-        zeroLossCount += 1;
-        champion = x.name();
+    if(players().length > 0) {
+      var matchesCount = players()[0].matches();
+      var champion = '';
+      var zeroLossCount = 0;
+      // Determine how many players still have a perfect record
+      for (var i = 0; i < players().length; i++) {
+        var x = players()[i];
+        if(x.matches() !== matchesCount) {
+          zeroLossCount = 0;
+          champion = undefined;
+          break;
+        }
+        if(x.wins()-x.matches() === 0){
+          zeroLossCount += 1;
+          champion = x.name();
+        }
       }
-    });
-    // If there's only one, we have a champion
-    if(zeroLossCount === 1) {
-      return champion;
+
+      // If there's only one, we have a champion
+      if(zeroLossCount === 1) {
+        return champion;
+      }
     }
     return undefined;
   },
