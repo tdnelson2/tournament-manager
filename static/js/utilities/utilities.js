@@ -1,6 +1,6 @@
 var utilities = {
   overallWinner: function(players) {
-    if(players().length > 0) {
+    if(players().length > 1) {
       var matchesCount = players()[0].matches();
       var champion = '';
       var zeroLossCount = 0;
