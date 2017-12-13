@@ -131,7 +131,6 @@ var GuestModel = {
             var k = playerKeys[i];
             var p = players[k];
             standings.push([parseInt(k), p.name, p.wins, p.matches, parseInt(tournament_id), false]);
-            // console.log([parseInt(k), p.name, p.wins, p.matches, parseInt(tournament_id), false]);
         }
 
         standings.sort(function (left, right) {

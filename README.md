@@ -35,7 +35,7 @@ sudo pip2 install sqlalchemy flask-sqlalchemy psycopg2 bleach requests
 
 ## OAuth
 * Create a directory for OAuth secrets:
-`sudo mkdir /var/www/tournament-manager-secrets`
+`sudo mkdir /var/www/html/tournament-manager-secrets`
 
 ### Google
 * Go to the [Google API page](https://console.developers.google.com/apis/) and create a new project named `tournament-manager`.

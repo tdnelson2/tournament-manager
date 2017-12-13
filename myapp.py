@@ -163,8 +163,8 @@ def utility_processor():
     """
     def links_root():
     	return html_index_root
-    def links_and_scripts():
-        return render_template('links-and-scripts.html')
+    def my_root():
+        return root_url
     def login_provider():
         """
         used to set the logout link depending on
@@ -181,7 +181,7 @@ def utility_processor():
             return None
 
     return dict(links_root=links_root,
-                render_links_and_scripts=links_and_scripts,
+                my_root=my_root,
                 login_provider=login_provider,
                 logout_url=logout_url)
 

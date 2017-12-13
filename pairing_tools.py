@@ -68,7 +68,7 @@ def fixDuplicates(pairs, match_history):
 			# Build a list of possible pairs for which we could swap
 			swaps = alternatingList(maxLst, minLst)
 
-			# Loop through the closest neighbors until a unique match if found.
+			# Loop through the closest neighbors until a unique match is found.
 			for p in swaps:
 				origin = (pairs[i][0], p[2])
 				target = (p[0], pairs[i][2])

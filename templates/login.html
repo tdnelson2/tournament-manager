@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tournament Manager | Sign in</title>
+  <title>Tournament Manager | Sign In</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
   <meta name="mobile-web-app-capable" content="yes">
-  <link href="/gregslist/static/styles/bootstrap.min.css" rel="stylesheet">
-  <link href="/gregslist/static/styles/styles.css" rel="stylesheet">
-  <script src="/gregslist/static/js/jquery-3.2.1.min.js"></script>
-  <script src="/gregslist/static/js/bootstrap.min.js"></script>
+    <link href="{{ links_root() }}static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ links_root() }}static/css/styles.css" rel="stylesheet">
 <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script src="//apis.google.com/js/platform.js?onload=start"></script>
@@ -20,24 +18,21 @@
 the Udacity example with a few minor modifications -->
 
     <div class="container" id="signInWell">
-      <div class="row">
-        <div class="col-xs-10 col-sm-6 col-md-4 col-lg-4 col-xs-offset-1 col-sm-offset-3 col-md-offset-4 col-lg-offset-4 text-center">
-          <h1>Sign in</h1>
-          <div class="well well-lg">
+      <div class="row justify-content-sm-center">
+        <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 text-center">
+          <h1 class="login-option">Sign In</h1>
+          <div class="round-card">
+          <div class="bg-muted pair-card">
               <!-- guest mode -->
               <em>Continue as guest:</em>
-              <br>
-              <br>
-              <div class="text-center">
-                <a href="/tournament-manager/guest" class="btn btn-primary" role="button" aria-disabled="true">Guest Mode</a>
+              <div class="text-center login-option">
+                <a href="{{ url_for('guest') }}" class="btn btn-primary" role="button" aria-disabled="true">Guest Mode</a>
               </div>
               <hr>
 
               <!-- google login -->
               <em>Use your google account:</em>
-              <br>
-              <br>
-              <div class="text-center" id="googleSignInButton">
+              <div class="text-center login-option" id="googleSignInButton">
                 <span class="g-signin"
                     data-scope="openid email"
                     data-clientid="{{ GOOGLE_CLIENT_ID }}"
@@ -82,8 +77,6 @@ the Udacity example with a few minor modifications -->
               </script>
               <hr>
               <em>Use your facebook account:</em>
-              <br>
-              <br>
 
 
               <!-- facebook-login -->
@@ -141,13 +134,14 @@ the Udacity example with a few minor modifications -->
                     });
                 }
               </script>
-                <div class="text-center">
+                <div class="text-center login-option">
                   <fb:login-button
                     scope="public_profile,email"
                     onlogin="sendTokenToServer();">
                     <a href="javascript:sendTokenToServer()">Login with Facebook</a>
                   </fb:login-button>
                 </div>
+          </div>
           </div> <!-- /panel -->
         </div> <!-- /column  -->
       </div> <!-- /row -->

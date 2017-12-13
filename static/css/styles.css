@@ -3,6 +3,10 @@ body {
   color: #f5f5f5;
 }
 
+hr {
+  background-color: #f5f5f5;
+}
+
 /********************/
 /* BS Modifications */
 /********************/
@@ -74,6 +78,14 @@ body {
   color: #f5f5f5;
 }
 
+/***********/
+/* Sign In */
+/***********/
+
+.login-option {
+  margin-top: 20px;
+}
+
 /******************/
 /* Toolbar/Header */
 /******************/
@@ -107,7 +119,9 @@ body {
   text-decoration: none;
 }
 
-/*Header bar*/
+/**************/
+/* Header bar */
+/**************/
 
 .header-bar {
   z-index: 997;
