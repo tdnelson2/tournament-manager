@@ -14,6 +14,7 @@ var DashboardView = {
 
                             '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 head-room">'+
                                 '<div class="add-circle center" data-bind="click: createTournament">'+
+                                    '<h3 class="add-glyph"><i class="fa fa-plus" aria-hidden="true"></i></h3>'+
                                     '<h3 class="circle-text">Create New Tournament</h3>'+
                                 '</div>'+
                             '</div>'+
@@ -21,10 +22,7 @@ var DashboardView = {
                             '<!-- ko foreach: tournaments -->'+
 
                             '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 head-room">'+
-                                '<div data-bind="css: { \'details-shown\' : isSelected }, event: { mouseover: $root.enableDetails, mouseout: $root.disableDetails }" class="btn-group btn-group-sm delete-tournament" role="group" aria-label="Delete">'+
-                                    '<button type="button" class="btn btn-outline-secondary" data-bind="click: $root.promptForDelete"><i class="fa fa-trash-o fa-lg" style="color:#212529;" aria-hidden="true"></i></button>'+
-                                '</div>'+
-                                '<div class="circle center" data-bind="click: $root.openTournament, event: { mouseover: $root.enableDetails, mouseout: $root.disableDetails }">'+
+                                '<div class="circle center" data-bind="click: $root.openTournament">'+
                                     '<h3 class="circle-text" data-bind="text: name"></h3>'+
                                 '</div>'+
                             '</div>'+
@@ -55,18 +53,6 @@ var DashboardView = {
             self.tournaments = tournaments;
             self.mainView = mainView;
             self.shouldShowDashboard = ko.observable(true);
-
-            self.enableDetails = function(thisTournament) {
-                thisTournament.isSelected(true);
-            };
-
-            self.disableDetails = function(thisTournament) {
-                thisTournament.isSelected(false);
-            };
-
-            self.promptForDelete = function(thisTournament) {
-                self.mainView.promptForTournamentDelete(thisTournament);
-            };
 
             self.openTournament = function(tournament) {
                 console.log(tournament.id);

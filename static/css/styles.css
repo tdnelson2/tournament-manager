@@ -1,3 +1,79 @@
+body {
+  background-color: #b3cf02;
+  color: #f5f5f5;
+}
+
+/********************/
+/* BS Modifications */
+/********************/
+
+.modal-header {
+  background-color: #666666;
+}
+
+.modal-content {
+  background-color: #b3cf02;
+}
+
+.btn-primary {
+  background-color: #6aaefc;
+}
+
+.btn {
+  border-color: #f5f5f5;
+}
+
+.form-control {
+  background-color: #b3cf02;
+  border-color: #f5f5f5;
+  color: #f5f5f5;
+}
+
+.form-control:focus {
+  background-color: #b3cf02;
+  border-color: #f5f5f5;
+  color: #f5f5f5;
+}
+
+.list-group-item {
+  background-color: #b3cf02;
+  border-color: #f5f5f5;
+}
+
+.player-paired .list-group-item:hover {
+  border-color: #6aaefc;
+}
+
+.list-group-item:hover {
+  background-color: #c3d75b;
+}
+
+.card, .list-group-item {
+  border-color: #f5f5f5;
+}
+
+.list-group-item:focus {
+  background-color: #b3cf02;
+  border-color: #f5f5f5;
+}
+
+.mb-1, .badge {
+  color: #f5f5f5;
+}
+
+.dropdown-menu {
+  background-color: #666666;
+}
+
+.dropdown-item {
+  color: #f5f5f5;
+}
+
+.dropdown-item:hover {
+  background-color: #6aaefc;
+  color: #f5f5f5;
+}
+
 /******************/
 /* Toolbar/Header */
 /******************/
@@ -22,15 +98,8 @@
 
 #btn-wrapper #toggle-btn {
   padding-left: 0;
-/*  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;*/
   transition: all 0.5s ease;
 }
-
-/*#btn-wrapper.toggled #toggle-btn {
-  padding-left: 60px;
-}*/
 
 .toggle-btn:hover {
   background-color: #333;
@@ -47,7 +116,7 @@
   right: 1px;
   height: 90px;
   width: 100%;
-  background-color: #fff;
+  background-color: #666666;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
@@ -63,7 +132,7 @@
 }
 
 #header-text a {
-  color: #212529;
+  color: #f5f5f5;
   text-decoration: none;
 }
 
@@ -114,7 +183,6 @@
 
 .content {
   margin: 90px auto auto auto;
-  /*max-width: 800px;*/
 }
 
 .circle, .add-circle {
@@ -125,23 +193,46 @@
     width:250px;
     cursor: pointer;
 }
-
-.circle:hover, .add-circle:hover {
-  background-color: #f8f9fa;
-}
-
 .circle {
-    border: 1px solid;
+    border: 2px solid;
 }
 
 .add-circle {
-  border: 1px dashed gray;
-  /*border:3px dashed gray;*/
-  color: gray;
+  border: 2px dashed #f5f5f5;
+  color: #f5f5f5;
 }
-
 .center {
     margin: auto;
+}
+
+.circle:hover, .add-circle:hover {
+  background-color: #c3d75b;
+}
+
+.circle:hover {
+  border: 6px solid #6aaefc;
+}
+
+.add-circle:hover {
+  border: 6px dashed #6aaefc;
+}
+
+.add-glyph {
+  opacity: .2;
+  position: absolute;
+  transform: translateY(-50%);
+  bottom: -19%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 200pt;
+}
+
+.add-circle:hover .add-glyph {
+  opacity: .8;
+}
+
+.add-circle:hover .circle-text {
+  color: #ff7d03;
 }
 
 .delete-tournament {
@@ -149,7 +240,7 @@
   position: absolute;
   top: 15%;
   left: 74%;
-  background-color: white;
+  background-color: #666666;
 }
 
 .details-shown {
@@ -172,97 +263,16 @@
 }
 
 .circle-text {
+    font-size: 18pt;
     position: relative;
     top: 50%;
     transform: translateY(-50%);
     text-align: center;
 }
 
-@media(max-width:768px) {
-
-  .bs-container-fluid-modified {
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-
-  .circle, .add-circle {
-    height:200px !important;
-    width: 200px !important;
-  }
-
+.circle:hover .circle-text {
+  color: #ff7d03;
 }
-
-@media(max-width:600px) {
-
-  #wrapper #header #header-text {
-    z-index: 999;
-    margin-top: 30px;
-    font-size: 22pt;
-  }
-
-  #wrapper.toggled #header #header-text {
-    z-index: 999;
-    margin-top: 35px;
-    font-size: 15pt;
-  }
-}
-
-@media(max-width:991px) {
-  .delete-tournament {
-    top: 15%;
-    left: 67%;
-  }
-}
-
-@media(max-width:889px) {
-  .delete-tournament {
-    top: 15%;
-    left: 70%;
-  }
-}
-
-@media(max-width:768px) {
-  .delete-tournament {
-    top: 15%;
-    left: 68%;
-  }
-}
-
-@media(max-width:575px) {
-  .delete-tournament {
-    top: 15%;
-    left: 62%;
-  }
-
-  .user-btn {
-    visibility: hidden;
-  }
-  .record-badge {
-    visibility: hidden;
-  }
-}
-
-@media(max-width:450px) {
-  .delete-tournament {
-    top: 15%;
-    left: 67%;
-  }
-  .matches-column {
-    visibility: hidden;
-  }
-}
-
-@media(max-width:360px) {
-  #wrapper #header #header-text {
-    margin-top: 35px;
-    font-size: 17pt;
-  }
-}
-
-
 
 
 /*************************/
@@ -270,12 +280,13 @@
 /*************************/
 
 .round-card {
-  border: 1px solid rgba(0,0,0,.125);
+  border: 1px solid #f5f5f5;
   border-radius: .25rem;
 }
 
 .pair-card {
   margin: 20px 20px 20px 20px;
+  border-color: #f5f5f5;
 }
 
 .pairings-header {
@@ -329,15 +340,30 @@
 }
 
 .player-paired {
-    width: 48%;
+  width: 48%;
 }
 
 .player-active {
-    background-color: #a0cf8f !important;
+    background-color: #6aaefc !important;
+}
+
+.player-active:hover {
+    border-color: #f5f5f5 !important;
+    background-color: #4499fb !important;
+}
+
+.player-active:hover .mb-1 {
+    color: #f5f5f5;
+}
+
+.player-active:hover .badge {
+    color: #f5f5f5;
 }
 
 .disabled {
-    cursor: pointer !important;
+  cursor: pointer !important;
+  background-color: #c3d75b !important;
+  opacity: .7;
 }
 
 .pair-separator, .divider, .sub-header-separator {
@@ -346,7 +372,11 @@
 }
 
 .pair-separator, .sub-header-separator {
-  background-color:rgba(0,0,0,.125);
+  background-color: #f5f5f5;
+}
+
+.round-card .pair-separator:last-child {
+  opacity: 0;
 }
 
 .sub-header-separator {
@@ -389,4 +419,73 @@
 
 .pairs {
     margin-top: 5px;
+}
+
+
+/*****************/
+/* Media Queries */
+/*****************/
+
+@media(max-width:768px) {
+
+  .bs-container-fluid-modified {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .circle, .add-circle {
+    height:200px !important;
+    width: 200px !important;
+  }
+
+  .add-glyph {
+    bottom: -18%;
+    font-size: 155pt;
+  }
+
+  .circle-text {
+    font-size: 15pt;
+  }
+
+}
+
+@media(max-width:600px) {
+
+  #wrapper #header #header-text {
+    z-index: 999;
+    margin-top: 30px;
+    font-size: 22pt;
+  }
+
+  #wrapper.toggled #header #header-text {
+    z-index: 999;
+    margin-top: 35px;
+    font-size: 15pt;
+  }
+}
+
+@media(max-width:575px) {
+
+  .user-btn {
+    visibility: hidden;
+  }
+  .record-badge {
+    visibility: hidden;
+  }
+}
+
+@media(max-width:450px) {
+  .matches-column {
+    visibility: hidden;
+  }
+}
+
+@media(max-width:360px) {
+  #wrapper #header #header-text {
+    margin-top: 35px;
+    font-size: 17pt;
+  }
 }
