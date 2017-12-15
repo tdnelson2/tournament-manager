@@ -1,6 +1,11 @@
 var PairingsView = {
     pairingHTML: ''+
                 '<div class="bg-muted clearfix pair-card">'+
+                '<div class="pair-number-box">'+
+                    '<div class="pair-number-text"'+
+                        '<p>Pair %PAIR-NUMBER%</p>'+
+                    '</div>'+
+                '</div>'+
                 '<div class="list-group float-left player-paired">'+
                   '<a href="javascript:void(0)" class="list-group-item list-group-item-action flex-column align-items-start" '+
                       'data-bind="css: { \'player-active\' : players()[%PLAYER-1-INDEX%].isSelected, disabled : players()[%PLAYER-2-INDEX%].isSelected }, '+
@@ -31,7 +36,7 @@ var PairingsView = {
                         '<div class="bs-container-fluid-modified bs-container-modified">'+
                             '<div class="content">'+
                               '<div class="row justify-content-md-center">'+
-                                  '<div class="col col-lg-6">'+
+                                  '<div class="col col-lg-8">'+
                                         '<div class="text-center">'+
                                             '<h3 style="display:inline;">%TOURNAMENT-NAME%</h3>'+
                                             '%SETTINGS-MENU%'+
@@ -39,7 +44,10 @@ var PairingsView = {
                                         '<div class="sub-header-separator"></div>'+
                                         '<div class="pairings-header">'+
                                             '<h4 style="margin-bottom: 2px;">Round %THIS-ROUND%</h4>'+
-                                            '<small>%TOTAL-ROUNDS% or more rounds may be needed to crown a winner</small>'+
+                                            '<small>%TOTAL-ROUNDS% or more rounds may be needed to crown a winner. Players are paired based on their win/loss record.</small>'+
+                                        '</div>'+
+                                        '<div class="instructions">'+
+                                            '<em>Select the match winner in each pair.</em>'+
                                         '</div>'+
                                       '<div class="round-card">'+
                                       '%PAIRS-HTML%'+
@@ -75,20 +83,14 @@ var PairingsView = {
             }
         }
 
-        var buildPairing = function(player1INDEX, player2INDEX) {
-            // console.log('player1INDEX: '+player1INDEX);
-            // console.log('player2INDEX: '+player2INDEX);
+        var buildPairing = function(player1INDEX, player2INDEX, pairNumber) {
 
             // Returns a pairing html string using `pairingHTML` as a template
-            var h = PairingsView.pairingHTML.slice();
 
-            var r = [[/%PLAYER-1-INDEX%/g, player1INDEX],
-                     [/%PLAYER-2-INDEX%/g, player2INDEX]];
-
-            for (var i = 0; i < r.length; i++) {
-                x = r[i];
-                h = h.replace(x[0], x[1]);
-            }
+            var h = PairingsView.pairingHTML.slice()
+                    .replace(/%PAIR-NUMBER%/g, pairNumber)
+                    .replace(/%PLAYER-1-INDEX%/g, player1INDEX)
+                    .replace(/%PLAYER-2-INDEX%/g, player2INDEX);
             return h;
         };
 
@@ -109,7 +111,7 @@ var PairingsView = {
                 if( player.id === x.id2 ) { player2INDEX = i; }
                 if( player1INDEX !== null && player2INDEX !== null ) { break; }
             }
-            pairingsHTML += buildPairing(player1INDEX, player2INDEX);
+            pairingsHTML += buildPairing(player1INDEX, player2INDEX, (v+1));
         }
 
         var dropdown = DropDownMenu.prepare([

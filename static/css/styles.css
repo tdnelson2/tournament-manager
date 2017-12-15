@@ -307,14 +307,34 @@ hr {
   margin-bottom: 10px;
 }
 
+.pair-number-box {
+  position: relative;
+  top: -20px;
+  left: -20px;
+  width: 100px; 
+  height: 30px;
+  border-right: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f5f5f5;
+  border-radius: 0 0 .25rem 0;
+}
+
+.pair-number-text {
+  position: relative;
+  left: 20px;
+  top: 3px;
+}
 
 .new-player-input, .new-players, .player-list {
   margin-bottom: 20px;
 }
 
 .add-players-view {
-  max-width: 400px;
+  max-width: 800px;
   margin: auto;
+}
+
+.instructions {
+  margin-bottom: 20px;
 }
 
 .lg-nav-txt {

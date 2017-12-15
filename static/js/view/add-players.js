@@ -12,8 +12,14 @@ var AddPlayersView = {
 					                '<label for="addPlayerField">Add Players</label>'+
 					                '<input type="text" class="form-control" id="addPlayerField" placeholder="" data-bind="value: playerInput">'+
 				                '</div>'+
+				                '<div class="instructions">'+
+					                '<em>Click \'Pair Up\' when all players have been added.</em>'+
+					                '<br>'+
+					                '<em>Note: an EVEN number of players is required to continue.</em>'+
+					                '<br>'+
+				                '</div>'+
 					            '<button type="submit" class="btn btn-primary" data-bind="click: addPlayer">Add</button>'+
-					            '<button type="submit" style="margin-left:20px" class="btn btn-secondary" data-bind="visible: shouldShowPlayersAdded(), css: { \'not-allowed\' : cannotPair() }, attr: { \'disabled\' : toggleDisabledAttr() }, click: pairUp">Pair Up</button>'+
+					            '<button type="submit" style="margin-left:20px" class="btn btn-secondary" data-bind="visible: shouldShowPlayersAdded(), css: { \'not-allowed\' : cannotPair() }, click: pairUp">Pair Up</button>'+
 					        '</form>'+
 					    '</div>'+
 					    '<div data-bind="visible: shouldShowPlayersAdded()" class="new-players">'+
@@ -78,10 +84,6 @@ var AddPlayersView = {
             return self.players().length % 2 === 1;
         });
 
-        self.toggleDisabledAttr = ko.pureComputed(function() {
-            return self.players().length % 2 === 1 ? 'disabled' : undefined;
-        });
-
 		self.pairUp = function() {
 			if(self.players().length % 2 === 0) {
 
@@ -89,7 +91,7 @@ var AddPlayersView = {
 				self.shouldShowView(false);
 				self.mainView.showPairingsView(RoundStatus.FIRST_ROUND);
 			} else {
-				alert('You must have an even number of players to proceed');
+				alert('You must have an EVEN number of players to proceed.');
 			}
 		};
 
