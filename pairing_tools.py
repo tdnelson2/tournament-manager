@@ -141,9 +141,9 @@ def calculateProgress(player_count, match_count):
     # Determine number of rounds expected to find a winner.
     print 'match_count: '+str(match_count)
     print 'player_count: '+str(player_count)
-    if player_count == 0:
-        return dict(player_count=0,
-                    match_count=0,
+    if player_count < 2:
+        return dict(player_count=player_count,
+                    match_count=match_count,
                     total_matches=0,
                     total_rounds=0,
                     this_round=0)
