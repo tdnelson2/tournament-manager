@@ -20,7 +20,7 @@ standingsQuery = "SELECT * FROM standings \
 
 
 def connect():
-    """Connect to the PostgreSQL database.  Returns a database connection."""
+    """Connect to the PostgreSQL database. Returns a database connection."""
     return psycopg2.connect("dbname='tournament' "
                             "user='postgres' "
                             "host='localhost' "
@@ -62,9 +62,7 @@ def establishConnection(func):
 
 @establishConnection
 def createUser(name, email, photo, db, c):
-    """Add user
-    Should first check if email is already present
-    a second function getUser will be needed
+    """Create a user
 
     RETURNS
     Database id of new user
@@ -86,7 +84,7 @@ def getTournaments(currentUserID, db, c,):
     unlimited number of tournaments.
 
     RETURNS
-    An array of dictionaris containing...
+    An array of dictionaries containing...
       id: the id of the tournament
       name: the tournament's name
       user_id: id of the user who own's the tournament
@@ -125,18 +123,17 @@ def deleteTournaments(ids, currentUserID):
     contained within
 
     RETURNS
-    Database True if succesful False if not
+    Database returns True if succesful False if not.
     """
 
     return deleteItems(ids, 'tournaments', 'user_id', str(currentUserID))
 
 @addTournamentID
 def deletePlayers(ids, currentTournamentID):
-    """Delete tournaments and all players/matches
-    contained within
+    """Delete players
 
     RETURNS
-    Database True if succesful False if not
+    Database returns True if succesful False if not.
     """
 
     return deleteItems(ids, 'players', 'tournament_id',
@@ -206,9 +203,9 @@ def updateNames(new_values, table_name, column_name, column_value, db, c):
      `new_values`: list of lists, each of with contain
        `id`: unique item identifier
        `name`: new name to be updated
-      `table_name`: the table to update
-      `column_name`: an additional column to filter using `column_value`
-      `column_value`: a value in `column_name` to restrict `new_values`
+       `table_name`: the table to update
+       `column_name`: an additional column to filter using `column_value`
+       `column_value`: a value in `column_name` to restrict `new_values`
 
     RETURNS
     True if succesful False if not
@@ -267,7 +264,7 @@ def getUser(email, db, c):
 
     RETURNS
     user's `id` if user exists
-    `0` if user does not exist
+    `None` if user does not exist
     """
     print 'second get user is called'
     c.execute("SELECT * FROM a_user WHERE email = %s", (email,));
@@ -347,7 +344,6 @@ def fullStandings(currentTournamentID, db, c):
     """
     print currentTournamentID
     print str(currentTournamentID)
-    # c.execute("SELECT winner, loser FROM matches_with_user_id WHERE user_id = %s AND round_is_complete = false;", str(currentUserID))
     c.execute("SELECT winner, loser FROM matches \
                INNER JOIN players ON (matches.winner = players.id) \
                WHERE tournament_id = %s \
@@ -355,7 +351,7 @@ def fullStandings(currentTournamentID, db, c):
     uncounted = list(c.fetchall())
     db.close()
 
-    # Make 1 list of wins and 2 list of loses from
+    # Make 1 list of wins and 1 list of loses from
     # the current (not yet completed) round.
     uncounted_wins = [id1 for id1, id2 in uncounted]
     uncounted_loses = [id2 for id1, id2 in uncounted]
@@ -379,14 +375,31 @@ def processStandings(standings):
             for a,b,c,d,e in standings]
 
 
-def reportMatch(winner, loser, should_replace=False, should_clear=False):
+def reportMatch(winner, loser, vm_round, should_replace=False, should_clear=False):
     """Records the outcome of a single match between two players.
+       First checks if match has already been played. If it hasn't,
+       the match is recorded and returns . If it has, returns `None`
 
     Args:
-      winner:  the id number of the player who won
-      loser:  the id number of the player who lost
-      should_replace: replace the last match report
-      should_clear: remove the pairing
+      `winner`:  the id number of the player who won
+      `loser`:  the id number of the player who lost
+      `should_replace`: replace the last match report
+      `should_clear`: remove the last match report
+    RETURNS:
+      If successful: Dictionary containing keys:
+        `winner`: winner's current standings.
+        `loser`: loser's current standings.
+        `progress`: a `progress` dictionary (see `progress()`)
+      If match has already been played:
+        `None`: The match result will be discarded because
+                it has already been reported.
+                (If 2 sessions are accessing the same tournament,
+                it is possible one session will have already reported
+                a result. If the other session attempts to
+                report a result from the same match, returning
+                `None` will signal the front-end to reload the
+                tournament. By doing so we ensure the user is
+                seeing the most up-to-date information)
     """
     db = connect()
     c = db.cursor()
@@ -398,21 +411,80 @@ def reportMatch(winner, loser, should_replace=False, should_clear=False):
             "\"winner\" and/or \"loser\" input are not integers.\n"
             "Please use the id number of each player to report match results."
         )
+        db.close()
+        return None
     w = str(winner)
     l = str(loser)
+
+    if vm_round != progress(c)['this_round']:
+        """ If database is reporting we are on a different round
+            from what the front-end is saying, another session
+            has already modified this match. """
+        db.close()
+        return None
+
+    p = swissPairings(db, c)
+    if not pairing_tools.pairIsInPairs([winner, loser], p['pairs']):
+        """ Validate if the pair being reported 
+            is a pair listed in the original pairings """
+        db.close()
+        return None
+
+
+    # Check if the SAME result has already been reported.
+    c.execute("SELECT * FROM matches \
+               WHERE winner = %s AND loser = %s ", (w,l))
+    sameWasReported = c.fetchone() != None
+    oppositeWasReported = False
+
+    if not sameWasReported:
+        # Check if the OPPOSITE result has already been reported.
+        c.execute("SELECT * FROM matches \
+                   WHERE winner = %s AND loser = %s ", (l,w))
+        oppositeWasReported = c.fetchone() != None
+
+    # Check if the NO result has been reported.
+    nothingWasReported = not sameWasReported and not oppositeWasReported
+
     if should_replace:
+        if sameWasReported or nothingWasReported:
+            """ If match has already been reported and we were
+                expecting to replace or match is cleared,
+                another session has already
+                modified this match. """
+            db.close()
+            return None
+
         c.execute("DELETE FROM matches \
                    WHERE winner = %s AND loser = %s;", (l,w))
+        db.commit()
+
     if should_clear:
+        if oppositeWasReported or nothingWasReported:
+            """ If opposit of what we were expecting is present
+                or match is cleared, another session
+                has already modified this match. """
+            db.close()
+            return None
+
         c.execute("DELETE FROM matches \
                    WHERE winner = %s AND loser = %s;", (w,l))
+        db.commit()
+
     else:
+        if not should_replace and not nothingWasReported:
+            """ If something has already been reported,
+                another sessions has already
+                modified this match. """
+            db.close()
+            return None
+
         c.execute("INSERT INTO matches \
-                   values (%s, %s, false);", (w,l))
-    db.commit()
-    c.execute("SELECT * FROM standings WHERE id = %s;", (str(winner),))
+                   VALUES (%s, %s, false);", (w,l))
+        db.commit()
+    c.execute("SELECT * FROM standings WHERE id = %s;", (w,))
     w_standings = processStandings([c.fetchone()])[0]
-    c.execute("SELECT * FROM standings WHERE id = %s;", (str(loser),))
+    c.execute("SELECT * FROM standings WHERE id = %s;", (l,))
     l_standings = processStandings([c.fetchone()])[0]
 
     # Since standings only reflect matches AFTER the round
@@ -422,15 +494,13 @@ def reportMatch(winner, loser, should_replace=False, should_clear=False):
         w_standings['matches'] += 1
         l_standings['matches'] += 1
 
-    # Keep front-end up-to date where we are in the tournament.
+    # Keep front-end up-to date with where we are in the tournament.
     prog = progress(c)
 
     db.close()
     return dict(winner=w_standings, loser=l_standings, progress=prog)
 
-@addTournamentID
-@establishConnection
-def swissPairings(currentTournamentID, db, c):
+def swissPairings(db=None, c=None):
     """Returns a list of pairs of players for the next round of a match.
 
     Assuming that there are an even number of players registered, each player
@@ -443,9 +513,15 @@ def swissPairings(currentTournamentID, db, c):
         id1: the first player's unique id
         id2: the second player's unique id
     """
+
+    currentTournamentID = session['tournament_id']
+    shouldCloseDB = False
+    if db == None and c == None:
+        shouldCloseDB = True
+        db = connect()
+        c = db.cursor()
+
     print 'current tournament = '+str(currentTournamentID)
-    # c.execute("SELECT * FROM pairup WHERE tournament_id = %s;", (str(currentTournamentID),))
-    # r = list(reversed( c.fetchall() ))
 
     c.execute(standingsQuery, (str(currentTournamentID),))
     standings =  c.fetchall()
@@ -459,12 +535,11 @@ def swissPairings(currentTournamentID, db, c):
     c.execute("SELECT name FROM tournaments WHERE id = %s", (str(currentTournamentID),))
     tournament_name = c.fetchone()[0]
 
-    db.close()
+    if shouldCloseDB:
+        db.close()
 
     return pairing_tools.pairup(standings, match_history, tournament_name)
 
-
-    # return processStandings([w_standings, l_standings])
 
 @addTournamentID
 @establishConnection

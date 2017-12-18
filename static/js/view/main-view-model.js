@@ -224,25 +224,47 @@ var MainViewModel = function() {
             loser_id: data.loser.id,
             tournament_id: self.tournament.id,
             shouldReplace: data.shouldReplace,
-            shouldClear: data.shouldClear
+            shouldClear: data.shouldClear,
+            current_round: self.progress().this_round()
         };
+
+        var hasValidationError = false;
+        var shouldShowStandings = data.numberOfMatchesPlayed === (self.players().length / 2);
 
         if(GUEST_MODE) {
             GuestModel.reportMatch(postData);
+            if(shouldShowStandings) {
+                self.showStandingsView();
+            }
         } else {
             $.post('/tournament-manager/', {reportResult:JSON.stringify(postData)}, function(returnedData) {
                 var r = JSON.parse(returnedData);
 
-                console.log(r.progress);
-                self.progress().update(r.progress);
+                if(r.hasOwnProperty("validation_error")) {
+                    hasValidationError = true;
+                    alert("Match result failed validation.\n\n"+
+                          "It's possible another session\n"+
+                          "is also modifying this match.\n\n"+
+                          "In order to display the most up-to-date information,\n"+
+                          "the tournament will be reloaded.");
+                    self.showTournament(self.tournament);
+                } else {
+                    console.log(r.progress);
+                    self.progress().update(r.progress);
 
-                // Synchronize local model with server data (if there is a discrepancy, the server data will trump).
-                data.winner.wins(r.winner.wins);
-                data.winner.matches(r.winner.matches);
-                data.loser.wins(r.loser.wins);
-                data.loser.matches(r.loser.matches);
+                    // Synchronize local model with server data (if there is a discrepancy, the server data will trump).
+                    data.winner.wins(r.winner.wins);
+                    data.winner.matches(r.winner.matches);
+                    data.loser.wins(r.loser.wins);
+                    data.loser.matches(r.loser.matches);
+                }
+
+                if(shouldShowStandings && !hasValidationError) {
+                    self.showStandingsView();
+                }
             });
         }
+
     };
 
     self.postItemNamesUpdate = function(data) {
@@ -289,6 +311,7 @@ var MainViewModel = function() {
 
                 var pairingData = JSON.parse(result);
                 console.log(pairingData);
+                self.progress().update(pairingData.progress);
                 PairingsView.populate(self.players, self.progress, pairingData, completed_matches, self.tournament, self);
             });
         } else {
@@ -296,6 +319,7 @@ var MainViewModel = function() {
                 url: '/tournament-manager/swiss-pairing/JSON/'
             }).done(function(result) {
                 var pairingData = JSON.parse(result);
+                self.progress().update(pairingData.progress);
                 PairingsView.populate(self.players, self.progress, pairingData, completed_matches, self.tournament, self);
             });
         }

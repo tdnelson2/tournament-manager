@@ -133,6 +133,8 @@ var PairingsView = {
         ko.applyBindings( new PairingsView.View(model, progress, reported_count, mainView), $bindings );
     },
 
+/* IMPLIMENT A `CURRENT_ROUND` PARAM WHEN REPORTING MATCH RESULT */
+
     View: function(model, progress, reported_count, mainView) {
         // KO object
         var self = this;
@@ -212,6 +214,7 @@ var PairingsView = {
                 loser.isSelected(false);
 
                 var data = {
+                    numberOfMatchesPlayed: self.num(),
                     winner: winner,
                     loser: loser,
                     shouldReplace: shouldReplace,
@@ -219,11 +222,6 @@ var PairingsView = {
                 };
 
                 self.mainView.postMatchResult(data);
-
-                if(self.num() === (self.players().length / 2)) {
-                    console.log('next round prompt should appear');
-                    self.mainView.showStandingsView();
-                }
             }
             return false;
         };

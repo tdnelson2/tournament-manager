@@ -31,12 +31,15 @@ def index():
         elif 'reportResult' in request.form:
             r = json.loads(request.form['reportResult'])
             print r
-            # try:
-            s = tournament.reportMatch(r['winner_id'], r['loser_id'],
-                                       r['shouldReplace'], r['shouldClear'])
-            return json.dumps(s)
-            # except:
-            #     print 'Server error. Result could not be recorded'
+            s = tournament.reportMatch(r['winner_id'], 
+                                       r['loser_id'], 
+                                       r['current_round'], 
+                                       r['shouldReplace'],
+                                       r['shouldClear'])
+            if s:
+                return json.dumps(s)
+            else:
+                return json.dumps(dict(validation_error="failed validation"))
         elif 'roundComplete' in request.form:
             tournament.markRoundComplete()
             p = tournament.progress()

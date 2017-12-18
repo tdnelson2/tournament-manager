@@ -157,3 +157,15 @@ def calculateProgress(player_count, match_count):
                 total_matches=total_matches,
                 total_rounds=total_rounds,
                 this_round=this_round)
+
+def pairIsInPairs(query_pair, pairs):
+    """Determines if a pair is contained within a list of pairs.
+
+    Returns: 
+      `True` if pair is found in pair list (regardless of winner/loser).
+      `False` if pair is not found in pair list
+    """
+    possible_pairs1 = [[r['id1'], r['id2']] for r in pairs]
+    possible_pairs2 = [[r['id2'], r['id1']] for r in pairs]
+    return query_pair in possible_pairs1 or query_pair in possible_pairs2
+
