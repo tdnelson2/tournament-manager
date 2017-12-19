@@ -451,6 +451,15 @@ hr {
     color: #337ab7;
 }
 
+.winner-highlight {
+  background-color: #6aaefc;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius:3px; 
+  -moz-border-radius:3px; 
+  -webkit-border-radius:3px;
+}
+
 .pairs {
     margin-top: 5px;
 }

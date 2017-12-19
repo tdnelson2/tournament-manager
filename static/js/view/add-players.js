@@ -10,7 +10,7 @@ var AddPlayersView = {
 					        '<form class="new-player-input">'+
 					            '<div class="form-group">'+
 					                '<label for="addPlayerField">Add Players</label>'+
-					                '<input type="text" class="form-control" id="addPlayerField" placeholder="" data-bind="value: playerInput">'+
+					                '<input type="text" class="form-control" id="addPlayerField" placeholder="" data-bind="textInput: playerInput">'+
 				                '</div>'+
 				                '<div class="instructions">'+
 					                '<em>Click \'Pair Up\' when all players have been added.</em>'+
@@ -19,7 +19,7 @@ var AddPlayersView = {
 					                '<br>'+
 				                '</div>'+
 					            '<button type="submit" class="btn btn-primary" data-bind="click: addPlayer">Add</button>'+
-					            '<button type="submit" style="margin-left:20px" class="btn btn-secondary" data-bind="visible: shouldShowPlayersAdded(), css: { \'not-allowed\' : cannotPair() }, click: pairUp">Pair Up</button>'+
+					            '<button type="submit" style="margin-left:20px" class="btn btn-secondary" data-bind="css: { \'not-allowed\' : cannotPair() }, click: pairUp">Pair Up</button>'+
 					        '</form>'+
 					    '</div>'+
 					    '<div data-bind="visible: shouldShowPlayersAdded()" class="new-players">'+
@@ -81,17 +81,36 @@ var AddPlayersView = {
 		};
 
         self.cannotPair = ko.pureComputed(function() {
-            return self.players().length % 2 === 1;
+        	/* Pairing is only possible if an even number of players is added
+        	   OR an odd number of players is added and text has been input
+        	   into the the text field. */
+        	if(self.players().length === 0) {
+        		// No players added.
+        		return true;
+        	} else if(self.players().length % 2 !== 1 && self.playerInput() === "") {
+	        	// Is even and no text is present in the field.
+	        	return false;
+	        } else if (self.players().length % 2 === 1 && self.playerInput() !== "") {
+	        	// Is odd but text is present in the input field.
+	        	return false;
+	        } else {
+	        	// Neither condition met.
+	        	return true
+	        }
         });
 
 		self.pairUp = function() {
-			if(self.players().length % 2 === 0) {
+			if(!self.cannotPair()) {
+
+				// Add text from the input field if present.
+				self.addPlayer();
 
 				// Hide AddPlayerView
 				self.shouldShowView(false);
 				self.mainView.showPairingsView(RoundStatus.FIRST_ROUND);
 			} else {
 				alert('You must have an EVEN number of players to proceed.');
+		        $('#addPlayerField').focus();
 			}
 		};
 

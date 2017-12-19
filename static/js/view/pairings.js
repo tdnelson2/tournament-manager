@@ -47,7 +47,7 @@ var PairingsView = {
                                             '<small>%TOTAL-ROUNDS% or more rounds may be needed to crown a winner. Players are paired based on their win/loss record.</small>'+
                                         '</div>'+
                                         '<div class="instructions">'+
-                                            '<em>Select the match winner in each pair.</em>'+
+                                            '<em>Select the winner in each pair.</em>'+
                                         '</div>'+
                                       '<div class="round-card">'+
                                       '%PAIRS-HTML%'+
