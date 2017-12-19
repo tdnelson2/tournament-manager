@@ -22,102 +22,40 @@ the Udacity example with a few minor modifications -->
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 text-center">
           <h1 class="login-option">Sign In</h1>
           <div class="round-card">
-          <div class="bg-muted pair-card">
-              <!-- guest mode -->
-              <em>Continue as guest:</em>
-              <div class="text-center login-option">
-                <a href="{{ url_for('guest') }}" class="btn btn-primary" role="button" aria-disabled="true">Guest Mode</a>
-              </div>
-              <hr>
+            <div class="bg-muted pair-card">
+                <!-- guest mode -->
+                <em>Continue as guest:</em>
+                <div class="text-center login-option">
+                  <a href="{{ url_for('guest') }}" class="btn btn-primary" role="button" aria-disabled="true">Guest Mode</a>
+                </div>
+                <hr>
 
-              <!-- google login -->
-              <em>Use your google account:</em>
-              <div class="text-center login-option" id="googleSignInButton">
-                <span class="g-signin"
-                    data-scope="openid email"
-                    data-clientid="{{ GOOGLE_CLIENT_ID }}"
-                    data-redirecturi="postmessage"
-                    data-accesstype="offline"
-                    data-cookiepolicy="single_host_origin"
-                    data-callback="signInCallback"
-                    data-approvalprompt="force">
-                  </span>
-              </div>
-              <script>
-              function signInCallback(authResult) {
-                  if (authResult['code']) {
+                <!-- google login -->
+                <em>Use your google account:</em>
+                <div class="text-center login-option" id="googleSignInButton">
+                  <span class="g-signin"
+                      data-scope="openid email"
+                      data-clientid="{{ GOOGLE_CLIENT_ID }}"
+                      data-redirecturi="postmessage"
+                      data-accesstype="offline"
+                      data-cookiepolicy="single_host_origin"
+                      data-callback="signInCallback"
+                      data-approvalprompt="force">
+                    </span>
+                </div>
+                <script>
+                function signInCallback(authResult) {
+                    if (authResult['code']) {
 
-                    // Hide the sign-in well now that the user is authorized
-                    $('#signInWell').attr('style', 'display: none');
+                      // Hide the sign-in well now that the user is authorized
+                      $('#signInWell').attr('style', 'display: none');
 
-                      // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main page
-                      $.ajax({
-                          type: 'POST',
-                          url: '/tournament-manager/gconnect?state={{ STATE }}',
-                          processData: false,
-                          data: authResult['code'],
-                          contentType: 'application/octet-stream; charset=utf-8',
-                          success: function(result) {
-                              // Handle or verify the server response if necessary.
-                              if (result) {
-                                  // $('#result').html(result)
-                                  // setTimeout(function() {
-                                      window.location.href = "/tournament-manager/";
-                                  // }, 4000);
-                              } else if (authResult['error']) {
-
-                                  console.log('There was an error: ' + authResult['error']);
-                              } else {
-                                  $('#result').html('Failed to make a server-side call. Check your configuration and console.');
-                              }
-                          }
-                      });
-                  }
-              }
-              </script>
-              <hr>
-              <em>Use your facebook account:</em>
-
-
-              <!-- facebook-login -->
-
-              <script>
-                window.fbAsyncInit = function() {
-                    FB.init({
-                        appId: '{{ FACEBOOK_APP_ID }}',
-                        cookie: true,
-                        xfbml: true,
-                        version: 'v2.8'
-                    });
-                    FB.AppEvents.logPageView();
-                };
-
-                (function(d, s, id) {
-                    var js, fjs = d.getElementsByTagName(s)[0];
-                    if (d.getElementById(id)) {
-                        return;
-                    }
-                    js = d.createElement(s);
-                    js.id = id;
-                    js.src = "//connect.facebook.net/en_US/sdk.js";
-                    fjs.parentNode.insertBefore(js, fjs);
-                }(document, 'script', 'facebook-jssdk'));
-
-                // run simple test of the apio after login success
-                function sendTokenToServer() {
-
-                    // Hide the sign-in well now that the user is authorized
-                    $('#signInWell').attr('style', 'display: none');
-                    var access_token = FB.getAuthResponse()['accessToken'];
-                    console.log(access_token)
-                    console.log('Welcome!  Fetching your information.... ');
-                    FB.api('/me', function(response) {
-                        console.log('Successful login for: ' + response.name);
+                        // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main page
                         $.ajax({
                             type: 'POST',
-                            url: '/tournament-manager/fbconnect?state={{STATE}}',
+                            url: '/tournament-manager/gconnect?state={{ STATE }}',
                             processData: false,
-                            data: access_token,
+                            data: authResult['code'],
                             contentType: 'application/octet-stream; charset=utf-8',
                             success: function(result) {
                                 // Handle or verify the server response if necessary.
@@ -126,23 +64,88 @@ the Udacity example with a few minor modifications -->
                                     // setTimeout(function() {
                                         window.location.href = "/tournament-manager/";
                                     // }, 4000);
+                                } else if (authResult['error']) {
+
+                                    console.log('There was an error: ' + authResult['error']);
                                 } else {
                                     $('#result').html('Failed to make a server-side call. Check your configuration and console.');
                                 }
                             }
                         });
-                    });
+                    }
                 }
-              </script>
-                <div class="text-center login-option">
-                  <fb:login-button
-                    scope="public_profile,email"
-                    onlogin="sendTokenToServer();">
-                    <a href="javascript:sendTokenToServer()">Login with Facebook</a>
-                  </fb:login-button>
-                </div>
+                </script>
+                <hr>
+                <em>Use your facebook account:</em>
+
+
+                <!-- facebook-login -->
+
+                <script>
+                  window.fbAsyncInit = function() {
+                      FB.init({
+                          appId: '{{ FACEBOOK_APP_ID }}',
+                          cookie: true,
+                          xfbml: true,
+                          version: 'v2.8'
+                      });
+                      FB.AppEvents.logPageView();
+                  };
+
+                  (function(d, s, id) {
+                      var js, fjs = d.getElementsByTagName(s)[0];
+                      if (d.getElementById(id)) {
+                          return;
+                      }
+                      js = d.createElement(s);
+                      js.id = id;
+                      js.src = "//connect.facebook.net/en_US/sdk.js";
+                      fjs.parentNode.insertBefore(js, fjs);
+                  }(document, 'script', 'facebook-jssdk'));
+
+                  // run simple test of the apio after login success
+                  function sendTokenToServer() {
+
+                      // Hide the sign-in well now that the user is authorized
+                      $('#signInWell').attr('style', 'display: none');
+                      var access_token = FB.getAuthResponse()['accessToken'];
+                      console.log(access_token)
+                      console.log('Welcome!  Fetching your information.... ');
+                      FB.api('/me', function(response) {
+                          console.log('Successful login for: ' + response.name);
+                          $.ajax({
+                              type: 'POST',
+                              url: '/tournament-manager/fbconnect?state={{STATE}}',
+                              processData: false,
+                              data: access_token,
+                              contentType: 'application/octet-stream; charset=utf-8',
+                              success: function(result) {
+                                  // Handle or verify the server response if necessary.
+                                  if (result) {
+                                      // $('#result').html(result)
+                                      // setTimeout(function() {
+                                          window.location.href = "/tournament-manager/";
+                                      // }, 4000);
+                                  } else {
+                                      $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                                  }
+                              }
+                          });
+                      });
+                  }
+                </script>
+                  <div class="text-center login-option">
+                    <fb:login-button
+                      scope="public_profile,email"
+                      onlogin="sendTokenToServer();">
+                      <a href="javascript:sendTokenToServer()">Login with Facebook</a>
+                    </fb:login-button>
+                  </div>
+            </div>
+          </div> <!-- /panel  style="text-align: left;" -->
+          <div class="login-option">
+            <small><a href="/privacy.htm">Privacy Policy</a></small>
           </div>
-          </div> <!-- /panel -->
         </div> <!-- /column  -->
       </div> <!-- /row -->
     </div> <!-- /container -->
