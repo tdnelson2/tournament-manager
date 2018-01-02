@@ -122,6 +122,8 @@ var MainViewModel = function() {
           if(x.isSelected()){roundIsInProgress = true;}
           standingsData.push(p);
         });
+
+        // Sort players by number of wins/matches played
         standingsData.sort(function (left, right) {
           return left.wins == right.wins ? 0 :
                 (left.wins > right.wins ? -1 : 1);
@@ -164,6 +166,9 @@ var MainViewModel = function() {
         var proceed = function(shouldShowPairings) {
             if(shouldShowPairings) {
                 self.showPairingsView();
+            } else {
+                NOTIFIER.notifySubscribers('', "hideLoader");
+                NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
             }
         };
         // Reset all players who were marked 'selected'.
@@ -190,16 +195,15 @@ var MainViewModel = function() {
 
 
     self.markTournamentComplete = function() {
+        NOTIFIER.notifySubscribers('', "hidePairingsView");
+        NOTIFIER.notifySubscribers('', "showLoader");
         self.markRoundComplete(false);
-        NOTIFIER.notifySubscribers('', "hideAllExceptDashboard");
-    };
-
-    self.showStandingsView = function() {
-        self.showStandingsModal();
     };
 
 	self.showNextViewAfterStandings = function() {
         console.log('show next pairing');
+        NOTIFIER.notifySubscribers('', "hidePairingsView");
+        NOTIFIER.notifySubscribers('', "showLoader");
         self.markRoundComplete(true);
 	};
 
@@ -235,7 +239,7 @@ var MainViewModel = function() {
         if(GUEST_MODE) {
             GuestModel.reportMatch(postData);
             if(shouldShowStandings) {
-                self.showStandingsView();
+                self.showStandingsModal();
             }
         } else {
             $.post('/tournament-manager/', {reportResult:JSON.stringify(postData)}, function(returnedData) {
@@ -261,7 +265,7 @@ var MainViewModel = function() {
                 }
 
                 if(shouldShowStandings && !hasValidationError) {
-                    self.showStandingsView();
+                    self.showStandingsModal();
                 }
             });
         }
@@ -313,6 +317,7 @@ var MainViewModel = function() {
                 var pairingData = JSON.parse(result);
                 console.log(pairingData);
                 self.progress().update(pairingData.progress);
+                NOTIFIER.notifySubscribers('', "hideLoader");
                 PairingsView.populate(self.players, self.progress, pairingData, completed_matches, self.tournament, self);
             });
         } else {
@@ -321,6 +326,7 @@ var MainViewModel = function() {
             }).done(function(result) {
                 var pairingData = JSON.parse(result);
                 self.progress().update(pairingData.progress);
+                NOTIFIER.notifySubscribers('', "hideLoader");
                 PairingsView.populate(self.players, self.progress, pairingData, completed_matches, self.tournament, self);
             });
         }
@@ -442,6 +448,7 @@ var MainViewModel = function() {
     self.init = function() {
 
         ko.applyBindings(new HeaderView.View(), document.getElementById('header'));
+        ko.applyBindings( new LoadingView.View(),  document.getElementsByClassName('sk-fading-circle')[0]);
 
         var addTournaments = function(data) {
             for (var i = 0; i < data.length; i++) {

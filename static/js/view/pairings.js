@@ -170,6 +170,10 @@ var PairingsView = {
             self.shouldShowView(false);
         }, self, "hideAllExceptDashboard");
 
+        NOTIFIER.subscribe(function() {
+            self.shouldShowView(false);
+        }, self, "hidePairingsView");
+
         // Update the server each time user chooses a winner
         self.clicks = 0;
         self.reportResult = function(winner, loser) {
@@ -202,7 +206,7 @@ var PairingsView = {
                     loser.wins(loser.wins()-1);
                 } else if(!shouldReplace) {
                     console.log('NEW: view model should add a new results');
-                    /* User selects a winner in a match where the winner
+                    /* User selects a winner in a match where the
                        winner had not yet been selected. */
                     self.num(self.num() + 1);
                     winner.wins(winner.wins()+1);

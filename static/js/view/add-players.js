@@ -107,6 +107,7 @@ var AddPlayersView = {
 
 				// Hide AddPlayerView
 				self.shouldShowView(false);
+		        NOTIFIER.notifySubscribers('', "showLoader");
 				self.mainView.showPairingsView(RoundStatus.FIRST_ROUND);
 			} else {
 				alert('You must have an EVEN number of players to proceed.');

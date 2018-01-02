@@ -23,19 +23,10 @@
                 <li>
                     <a href="#"><i class="fa fa-plus-square-o fa-2x" data-bind="click: toolbarAdd"></i></a>
                 </li>
-<!--
-                <li>
-                    <a href="#"><i class="fa fa-wrench fa-2x" data-bind="click: toolbarSettings"></i></a>
-                </li>
- -->
                 <li>
                     <a href="#"><i class="fa fa-dashboard fa-2x" data-bind="click: toolbarDashboard"></i></a>
                 </li>
-<!--
-                <li>
-                    <a href="#"><i class="fa fa-infoo fa-2x" data-bind="click: toolbarStandings"></i></a>
-                </li>
- -->
+
                 {% if logout_url() %}
                 <li>
                     <a href="{{ logout_url() }}"><i class="fa fa-sign-out fa-2x"></i></a>
@@ -95,6 +86,20 @@
                 <div id="edit-tournaments"></div>
                 <div id="edit-players"></div>
                 <div id="delete-players"></div>
+                <div class="sk-fading-circle" data-bind="visible: shouldShowLoader">
+                  <div class="sk-circle1 sk-circle"></div>
+                  <div class="sk-circle2 sk-circle"></div>
+                  <div class="sk-circle3 sk-circle"></div>
+                  <div class="sk-circle4 sk-circle"></div>
+                  <div class="sk-circle5 sk-circle"></div>
+                  <div class="sk-circle6 sk-circle"></div>
+                  <div class="sk-circle7 sk-circle"></div>
+                  <div class="sk-circle8 sk-circle"></div>
+                  <div class="sk-circle9 sk-circle"></div>
+                  <div class="sk-circle10 sk-circle"></div>
+                  <div class="sk-circle11 sk-circle"></div>
+                  <div class="sk-circle12 sk-circle"></div>
+                </div>
             <div>
 
         </div>
@@ -112,6 +117,7 @@
     <script src="{{ links_root() }}static/vendor/knockoutjs/knockout-3.2.0.js"></script>
     <script src="{{ links_root() }}static/js/model/model.js"></script>
     <script src="{{ links_root() }}static/js/model/guest-model.js"></script>
+    <script src="{{ links_root() }}static/js/view/loading-view.js"></script>
     <script src="{{ links_root() }}static/js/view/add-players.js"></script>
     <script src="{{ links_root() }}static/js/view/pairings.js"></script>
     <script src="{{ links_root() }}static/js/view/dashboard.js"></script>
